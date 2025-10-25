@@ -47,11 +47,13 @@ public class ProductVariant {
     @Column(nullable = false, unique = true, length = 64)
     private String sku;
 
-    @Column(nullable = false, length = 10)
-    private String size; // S/M/L/XL/XXL
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "size_id")
+    private Size size;
 
-    @Column(nullable = false, length = 50)
-    private String color;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "color_id")
+    private Color color;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
