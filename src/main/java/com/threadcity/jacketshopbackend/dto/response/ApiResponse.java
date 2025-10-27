@@ -1,4 +1,4 @@
-package com.threadcity.jacketshopbackend.dto;
+package com.threadcity.jacketshopbackend.dto.response;
 
 import java.io.Serializable;
 import java.time.Instant;
