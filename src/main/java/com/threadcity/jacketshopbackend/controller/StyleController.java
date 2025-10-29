@@ -23,7 +23,7 @@ public class StyleController {
     public ApiResponse<?> getAllStyles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdDate,desc") String sortBy
+            @RequestParam(defaultValue = "createdAt,desc") String sortBy
     ) {
         log.info("StyleController::getAllStyles - Execution started");
         PageResponse<?> pageResponse = styleService.getAllStyle(page, size, sortBy);
