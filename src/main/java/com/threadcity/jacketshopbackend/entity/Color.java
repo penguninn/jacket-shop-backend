@@ -8,6 +8,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,6 +41,7 @@ public class Color {
     @Column(length = 255)
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status;
 
