@@ -14,6 +14,14 @@ public class Enums {
         PENDING, SUCCESS, FAILED
     }
 
+    public enum TokenType {
+        ACCESS, REFRESH
+    }
+
+    public enum RefreshTokenStatus {
+        ACTIVE, REVOKED, EXPIRED
+    }
+
     public enum CouponType {
         PERCENT, AMOUNT
     }
