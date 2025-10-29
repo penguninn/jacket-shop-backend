@@ -1,4 +1,4 @@
-server:
+erver:
   port: 8080
 spring:
   application:
@@ -15,6 +15,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.SQLServerDialect
+
+jwt:
+  secret: d50d1cab322c6f8ba9d82e8765c5e47b0dde58f4b288b24d07c05eca4458e87e40ef773a02434725d020f35eff4a33e0c83c4addd80ec5a7c7a9239b8d137a59
+  expiration: 1800000
+  refresh-token-expiration: 604800000

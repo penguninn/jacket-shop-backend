@@ -47,10 +47,10 @@ public class User {
     private String fullName;
 
     @Column(nullable = false, unique = true, length = 255)
-    private String email;
+    private String username;
 
     @Column(name = "password", nullable = false)
-    private byte[] password;
+    private String password;
 
     @Column(length = 20)
     private String phone;
