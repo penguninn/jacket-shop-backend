@@ -14,6 +14,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.threadcity.jacketshopbackend.common.Enums.TokenType;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,15 +30,26 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration:1800000}") // 30 minutes default
+    @Value("${jwt.access-ttl-seconds:1800000}") // 30 minutes default
     private long accessTokenExpiration;
 
-    @Value("${jwt.refresh-token-expiration:604800000}") // 7 days default
+    @Value("${jwt.refresh-ttl-seconds:604800000}") // 7 days default
     private long refreshTokenExpiration;
+
+    @Value("${jwt.issuer}")
+    private String issuer;
 
     // Extract claims
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractType(String token) {
+        return extractClaim(token, claims -> claims.get("type", String.class));
+    }
+
+    public String extractJti(String token) {
+        return extractClaim(token, claims -> claims.get("jti", String.class));
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
@@ -63,26 +76,38 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
+    // Check type of token
+    public boolean isAccessToken(String token) {
+        return TokenType.ACCESS.name().equals(extractType(token));
+    }
+
+    public boolean isRefreshToken(String token) {
+        return TokenType.REFRESH.name().equals(extractType(token));
+    }
+
     // Gennerate tokens
-    public String generateAccessToken(UserDetails userDetails) {
+    public String generateAccessToken(UserDetails userDetails, String jti) {
         Map<String, Object> claims = new HashMap<>();
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
         claims.put("roles", roles);
-        claims.put("type", "access");
+        claims.put("type", TokenType.ACCESS.name());
+        claims.put("jti", jti);
         return buildToken(claims, userDetails, accessTokenExpiration);
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
+    public String generateRefreshToken(UserDetails userDetails, String jti) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("type", claims);
+        claims.put("type", TokenType.REFRESH.name());
+        claims.put("jti", jti);
         return buildToken(claims, userDetails, refreshTokenExpiration);
     }
 
     private String buildToken(Map<String, Object> claims, UserDetails userDetails, long expiration) {
         return Jwts.builder()
                 .setClaims(claims)
+                .setIssuer(issuer)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
