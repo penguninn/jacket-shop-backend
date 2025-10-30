@@ -1,10 +1,10 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
+import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.StyleResponse;
-import com.threadcity.jacketshopbackend.service.StyleService;
+import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
+import com.threadcity.jacketshopbackend.service.BrandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -12,77 +12,77 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 
 @RestController
-@RequestMapping("/api/styles")
+@RequestMapping("/api/brands")
 @RequiredArgsConstructor
 @Slf4j
-public class StyleController {
+public class BrandController {
 
-    private final StyleService styleService;
+    private final BrandService brandService;
 
     @GetMapping
-    public ApiResponse<?> getAllStyles(
+    public ApiResponse<?> getAllBrands(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sortBy
     ) {
-        log.info("StyleController::getAllStyles - Execution started");
-        PageResponse<?> pageResponse = styleService.getAllStyle(page, size, sortBy);
-        log.info("StyleController::getAllStyles - Execution completed");
+        log.info("BrandController::getAllBrands - Execution started");
+        PageResponse<?> pageResponse = brandService.getAllBrand(page, size, sortBy);
+        log.info("BrandController::getAllBrands - Execution completed");
         return ApiResponse.builder()
                 .code(200)
-                .message("Get all styles successfully.")
+                .message("Get all brands successfully.")
                 .data(pageResponse)
                 .timestamp(Instant.now())
                 .build();
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<?> getStyleById(@PathVariable Integer id) {
-        log.info("StyleController::getStyleById - Execution started. [id: {}]", id);
-        StyleResponse response = styleService.getStyleById(id);
-        log.info("StyleController::getStyleById - Execution completed. [id: {}]", id);
+    public ApiResponse<?> getBrandById(@PathVariable Long id) {
+        log.info("BrandController::getBrandById - Execution started. [id: {}]", id);
+        BrandResponse response = brandService.getBrandById(id);
+        log.info("BrandController::getBrandById - Execution completed. [id: {}]", id);
         return ApiResponse.builder()
                 .code(200)
-                .message("Get style by ID successfully.")
+                .message("Get brand by ID successfully.")
                 .data(response)
                 .timestamp(Instant.now())
                 .build();
     }
 
     @PostMapping
-    public ApiResponse<?> createStyle(@RequestBody StyleRequest styleRequest) {
-        log.info("StyleController::createStyle - Execution started.");
-        StyleResponse response = styleService.createStyle(styleRequest);
-        log.info("StyleController::createStyle - Execution completed.");
+    public ApiResponse<?> createBrand(@RequestBody BrandRequest brandRequest) {
+        log.info("BrandController::createBrand - Execution started.");
+        BrandResponse response = brandService.createBrand(brandRequest);
+        log.info("BrandController::createBrand - Execution completed.");
         return ApiResponse.builder()
                 .code(201)
-                .message("Style created successfully.")
+                .message("Brand created successfully.")
                 .data(response)
                 .timestamp(Instant.now())
                 .build();
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<?> updateStyle(@PathVariable Integer id, @RequestBody StyleRequest styleRequest) {
-        log.info("StyleController::updateStyle - Execution started. [id: {}]", id);
-        StyleResponse response = styleService.updateStyleById(styleRequest, id);
-        log.info("StyleController::updateStyle - Execution completed. [id: {}]", id);
+    public ApiResponse<?> updateBrand(@PathVariable Long id, @RequestBody BrandRequest brandRequest) {
+        log.info("BrandController::updateBrand - Execution started. [id: {}]", id);
+        BrandResponse response = brandService.updateBrandById(brandRequest, id);
+        log.info("BrandController::updateBrand - Execution completed. [id: {}]", id);
         return ApiResponse.builder()
                 .code(200)
-                .message("Style updated successfully.")
+                .message("Brand updated successfully.")
                 .data(response)
                 .timestamp(Instant.now())
                 .build();
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<?> deleteStyle(@PathVariable Integer id) {
-        log.info("StyleController::deleteStyle - Execution started. [id: {}]", id);
-        styleService.deleteStyle(id);
-        log.info("StyleController::deleteStyle - Execution completed. [id: {}]", id);
+    public ApiResponse<?> deleteBrand(@PathVariable Long id) {
+        log.info("BrandController::deleteBrand - Execution started. [id: {}]", id);
+        brandService.deleteBrand(id);
+        log.info("BrandController::deleteBrand - Execution completed. [id: {}]", id);
         return ApiResponse.builder()
                 .code(200)
-                .message("Style deleted successfully.")
+                .message("Brand deleted successfully.")
                 .timestamp(Instant.now())
                 .build();
     }

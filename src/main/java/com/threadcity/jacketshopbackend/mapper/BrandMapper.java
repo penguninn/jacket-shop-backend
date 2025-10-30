@@ -1,13 +1,13 @@
 package com.threadcity.jacketshopbackend.mapper;
 
-import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
-import com.threadcity.jacketshopbackend.dto.response.StyleResponse;
-import com.threadcity.jacketshopbackend.entity.Style;
+import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
+import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
+import com.threadcity.jacketshopbackend.entity.Brand;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface StyleMapper {
-    StyleResponse toDto(Style style);
+public interface BrandMapper {
+    BrandResponse toDto(Brand brand);
 
-    Style toEntity(StyleRequest request);
+    Brand toEntity(BrandRequest request);
 }

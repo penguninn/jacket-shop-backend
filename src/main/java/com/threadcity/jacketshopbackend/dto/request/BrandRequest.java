@@ -5,13 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.Instant;
-
 @Data
 @Builder
-public class StyleRequest {
+public class BrandRequest {
     @NotNull(message = "Name cannot be null")
-    private String name; // bomber, biker, hoodie, blazer, etc.
-    private String description;
+    private String name;
+    private String logoUrl;
     private Enums.Status status;
 }

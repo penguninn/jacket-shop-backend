@@ -5,10 +5,10 @@ import com.threadcity.jacketshopbackend.common.Enums;
 import java.io.Serializable;
 import java.time.Instant;
 
-public class StyleResponse implements Serializable {
-    private Integer id;
-    private String name; // bomber, biker, hoodie, blazer, etc.
-    private String description;
+public class BrandResponse implements Serializable {
+    private Long id;
+    private String name;
+    private String logoUrl;
     private Enums.Status status;
     private Instant createdAt;
     private Instant updatedAt;

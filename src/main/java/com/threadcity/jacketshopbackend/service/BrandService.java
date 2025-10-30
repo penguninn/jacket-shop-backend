@@ -1,12 +1,12 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
+import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.StyleResponse;
-import com.threadcity.jacketshopbackend.entity.Style;
+import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
+import com.threadcity.jacketshopbackend.entity.Brand;
 import com.threadcity.jacketshopbackend.exception.BusinessException;
-import com.threadcity.jacketshopbackend.mapper.StyleMapper;
-import com.threadcity.jacketshopbackend.repository.StyleRepository;
+import com.threadcity.jacketshopbackend.mapper.BrandMapper;
+import com.threadcity.jacketshopbackend.repository.BrandRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,87 +22,87 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StyleService {
-    private final StyleRepository styleRepository;
-    private final StyleMapper styleMapper;
+public class BrandService {
+    private final BrandRepository brandRepository;
+    private final BrandMapper brandMapper;
 
-    public StyleResponse getStyleById(Integer Id) {
-        log.info("StyleService::getStyleById - Execution started. [Id: {}]", Id);
-        Style style = styleRepository.findById(Id)
-                .orElseThrow(() -> new EntityNotFoundException("Style not found with StyleId: " + Id));
-        log.info("StyleService::getStyleById - Execution completed. [StyleId: {}]", Id);
-        return styleMapper.toDto(style);
+    public BrandResponse getBrandById(Long Id) {
+        log.info("BrandService::getBrandById - Execution started. [Id: {}]", Id);
+        Brand brand = brandRepository.findById(Id)
+                .orElseThrow(() -> new EntityNotFoundException("Brand not found with BrandId: " + Id));
+        log.info("BrandService::getBrandById - Execution completed. [BrandId: {}]", Id);
+        return brandMapper.toDto(brand);
     }
 
-    public PageResponse<?> getAllStyle(int page, int size, String sortBy) {
-        log.info("StyleService::getAllStyle - Execution started.");
+    public PageResponse<?> getAllBrand(int page, int size, String sortBy) {
+        log.info("BrandService::getAllBrand - Execution started.");
         try {
             int p = Math.max(0, page);
             String[] sortParams = sortBy.split(",");
             Sort sortOrder = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
             Pageable pageable = PageRequest.of(p, size, sortOrder);
-            Page<Style> stylePage = styleRepository.findAll(pageable);
-            List<StyleResponse> StyleList = stylePage.stream()
-                    .map(styleMapper::toDto)
+            Page<Brand> brandPage = brandRepository.findAll(pageable);
+            List<BrandResponse> BrandList = brandPage.stream()
+                    .map(brandMapper::toDto)
                     .toList();
-            log.info("StyleService::getAllStyle - Execution completed.");
+            log.info("BrandService::getAllBrand - Execution completed.");
             return PageResponse.builder()
-                    .contents(StyleList)
+                    .contents(BrandList)
                     .size(size)
                     .page(p)
-                    .totalPages(stylePage.getTotalPages())
-                    .totalElements(stylePage.getTotalElements()).build();
+                    .totalPages(brandPage.getTotalPages())
+                    .totalElements(brandPage.getTotalElements()).build();
         } catch (Exception e) {
-            log.error("StyleService::getAllStyle - Execution failed.", e);
-            throw new BusinessException("StyleService::getAllStyle - Execution failed.");
+            log.error("BrandService::getAllBrand - Execution failed.", e);
+            throw new BusinessException("BrandService::getAllBrand - Execution failed.");
         }
     }
     @Transactional
-    public StyleResponse createStyle(StyleRequest style) {
-        log.info("StyleService::createStyle - Execution started.");
-        if (styleRepository.existsByName(style.getName())) {
-            throw new BusinessException("Style already exists with name: " + style.getName());
+    public BrandResponse createBrand(BrandRequest brand) {
+        log.info("BrandService::createBrand - Execution started.");
+        if (brandRepository.existsByName(brand.getName())) {
+            throw new BusinessException("Brand already exists with name: " + brand.getName());
         }
         try {
-            Style styleEntity = styleMapper.toEntity(style);
-            Style savedStyle = styleRepository.save(styleEntity);
-            log.info("StyleService::createStyle - Execution completed.");
-            return styleMapper.toDto(savedStyle);
+            Brand brandEntity = brandMapper.toEntity(brand);
+            Brand savedBrand = brandRepository.save(brandEntity);
+            log.info("BrandService::createBrand - Execution completed.");
+            return brandMapper.toDto(savedBrand);
         } catch (Exception e) {
-            log.error("StyleService::createStyle - Execution failed.", e);
-            throw new BusinessException("StyleService::createStyle - Execution failed.");
+            log.error("BrandService::createBrand - Execution failed.", e);
+            throw new BusinessException("BrandService::createBrand - Execution failed.");
         }
     }
     @Transactional
-    public StyleResponse updateStyleById(StyleRequest styleRequest, Integer id) {
-        log.info("StyleService::updateStyleById - Execution started.");
+    public BrandResponse updateBrandById(BrandRequest brandRequest, Long id) {
+        log.info("BrandService::updateBrandById - Execution started.");
         try {
-            Style style = styleRepository.findById(id).orElseThrow(() ->
-                    new EntityNotFoundException("Style not found with StyleId: " + id));
-            style.setName(styleRequest.getName());
-            style.setDescription(styleRequest.getDescription());
-            style.setStatus(styleRequest.getStatus());
-            Style savedStyle = styleRepository.save(style);
-            log.info("StyleService::updateProfile - Execution completed. [StyleId: {}]", id);
-            return styleMapper.toDto(savedStyle);
+            Brand brand = brandRepository.findById(id).orElseThrow(() ->
+                    new EntityNotFoundException("Brand not found with BrandId: " + id));
+            brand.setName(brandRequest.getName());
+            brand.setLogoUrl(brandRequest.getLogoUrl());
+            brand.setStatus(brandRequest.getStatus());
+            Brand savedBrand = brandRepository.save(brand);
+            log.info("BrandService::updateProfile - Execution completed. [BrandId: {}]", id);
+            return brandMapper.toDto(savedBrand);
         } catch (RuntimeException e) {
-            log.error("StyleService::updateProfile - Execution failed.", e);
-            throw new BusinessException("StyleService::updateProfile - Execution failed.");
+            log.error("BrandService::updateProfile - Execution failed.", e);
+            throw new BusinessException("BrandService::updateProfile - Execution failed.");
         }
     }
 
     @Transactional
-    public void deleteStyle(Integer id) {
-        log.info("StyleService::deleteStyle - Execution started.");
+    public void deleteBrand(Long id) {
+        log.info("BrandService::deleteBrand - Execution started.");
         try {
-            if (!styleRepository.existsById(id)) {
-                throw new EntityNotFoundException("Style not found with StyleId: " + id);
+            if (!brandRepository.existsById(id)) {
+                throw new EntityNotFoundException("Brand not found with BrandId: " + id);
             }
-            styleRepository.deleteById(id);
-            log.info("StyleService::deleteStyle - Execution completed.");
+            brandRepository.deleteById(id);
+            log.info("BrandService::deleteBrand - Execution completed.");
         } catch (Exception e) {
-            log.error("StyleService::deleteStyle - Execution failed.", e);
-            throw new BusinessException("StyleService::deleteStyle - Execution failed.");
+            log.error("BrandService::deleteBrand - Execution failed.", e);
+            throw new BusinessException("BrandService::deleteBrand - Execution failed.");
         }
     }
 }
