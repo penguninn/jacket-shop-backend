@@ -19,11 +19,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.threadcity.jacketshopbackend.exception.AccessDeniedHandlerImpl;
+import com.threadcity.jacketshopbackend.exception.AuthenticationEntryPointImpl;
 import com.threadcity.jacketshopbackend.filter.JwtAuthenticationFilter;
 import com.threadcity.jacketshopbackend.service.auth.UserDetailsServiceImpl;
 
@@ -39,7 +42,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String[] PUBLIC_ENDPOINT = {
-            "/auth/**",
+            "/api/auth/**",
             "/actuator/health",
             "/actuator/info",
             "/api/docs/**",
@@ -59,7 +62,11 @@ public class SecurityConfig {
                 .anyRequest().authenticated());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authenticationProvider(provider());
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        // http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(jwtAuthenticationFilter, ExceptionTranslationFilter.class);
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint(new AuthenticationEntryPointImpl())
+                .accessDeniedHandler(new AccessDeniedHandlerImpl()));
         return http.build();
     }
 
