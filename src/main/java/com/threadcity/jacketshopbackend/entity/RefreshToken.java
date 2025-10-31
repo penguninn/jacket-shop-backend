@@ -5,7 +5,6 @@ import java.time.Instant;
 import org.hibernate.resource.beans.internal.FallbackBeanInstanceProducer;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.security.core.userdetails.User;
 
 import com.threadcity.jacketshopbackend.common.Enums.RefreshTokenStatus;
 
@@ -29,7 +28,7 @@ import lombok.NonNull;
 import lombok.Setter;
 
 @Entity
-@Table(name = "auth_refresh_tokens")
+@Table(name = "refresh_tokens")
 @Getter
 @Setter
 @Builder
