@@ -12,7 +12,7 @@ import com.threadcity.jacketshopbackend.common.Enums.RefreshTokenStatus;
 import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
 import com.threadcity.jacketshopbackend.entity.RefreshToken;
 import com.threadcity.jacketshopbackend.entity.User;
-import com.threadcity.jacketshopbackend.exception.TokenException;
+import com.threadcity.jacketshopbackend.exception.TokenServiceException;
 import com.threadcity.jacketshopbackend.mapper.UserMapper;
 import com.threadcity.jacketshopbackend.repository.RefreshTokenRepository;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class RefreshTokenService {
+public class TokenService {
 
     private final JwtService jwtService;
     private final RefreshTokenRepository tokenRepository;
@@ -37,6 +37,7 @@ public class RefreshTokenService {
 
     @Transactional
     public TokenResponse issue(UserDetails principal) {
+        log.info("TokenService::issue - Execution started");
         User user = userRepository.findByUsername(principal.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User not found with username: " + principal.getUsername()));
@@ -50,8 +51,8 @@ public class RefreshTokenService {
                 .status(RefreshTokenStatus.ACTIVE)
                 .expiresAt(Instant.now().plusSeconds(refreshTokenExpiration))
                 .build();
-
         tokenRepository.save(refreshToken);
+        log.info("TokenService::issue - Execution ended");
         return TokenResponse.builder()
                 .accessToken(access)
                 .refreshToken(refresh)
@@ -59,28 +60,44 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public void revoke(String jti) {
-        tokenRepository.findByJti(jti).ifPresent(rt -> {
-            if (rt.getStatus() == RefreshTokenStatus.ACTIVE) {
-                rt.setStatus(RefreshTokenStatus.REVOKED);
+    public void revoke(String refreshToken) {
+        try {
+            log.info("TokenService::revoke - Execution started");
+            if (!jwtService.isRefreshToken(refreshToken)
+                    || jwtService.isTokenExpired(refreshToken)
+                    || !jwtService.isSignatureValid(refreshToken)) {
+                return;
             }
-        });
+            String jti = jwtService.extractJti(refreshToken);
+            if (jti == null) {
+                return;
+            }
+            tokenRepository.findByJti(jti).ifPresent(rt -> {
+                if (rt.getStatus() != RefreshTokenStatus.REVOKED) {
+                    rt.setStatus(RefreshTokenStatus.REVOKED);
+                }
+            });
+            log.info("TokenService::revoke - Execution ended");
+        } catch (Exception e) {
+            return;
+        }
     }
 
     @Transactional
     public TokenResponse rotate(String refreshToken) {
+        log.info("TokenService::rotate - Execution started");
         if (!jwtService.isSignatureValid(refreshToken)
                 || jwtService.isTokenExpired(refreshToken)
-                || jwtService.isRefreshToken(refreshToken)) {
-            throw new TokenException("Invalid refresh token");
+                || !jwtService.isRefreshToken(refreshToken)) {
+            throw new TokenServiceException("Invalid refresh token");
         }
         String jti = jwtService.extractJti(refreshToken);
         String username = jwtService.extractUsername(refreshToken);
 
         RefreshToken rf = tokenRepository.findByJti(jti)
-                .orElseThrow(() -> new TokenException("Refresh token not recognized"));
+                .orElseThrow(() -> new TokenServiceException("Refresh token not recognized"));
         if (rf.getStatus() != RefreshTokenStatus.ACTIVE || rf.getExpiresAt().isBefore(Instant.now())) {
-            throw new TokenException("Refresh token not active or expired");
+            throw new TokenServiceException("Refresh token not active or expired");
         }
 
         rf.setStatus(RefreshTokenStatus.REVOKED);
@@ -89,6 +106,7 @@ public class RefreshTokenService {
                 .map(u -> userMapper.toUserDetailsImpl(u))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
+        log.info("TokenService::rotate - Execution ended");
         return issue(principal);
     }
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
+import jakarta.persistence.EntityNotFoundException;
 
 @ControllerAdvice
 public class GlobalHandleException {
@@ -30,6 +30,61 @@ public class GlobalHandleException {
         problemDetail.setDetail("Request body has invalid fields");
         problemDetail.setProperty("errors", fieldErrors);
         return ResponseEntity.unprocessableEntity()
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<ProblemDetail> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create("https://api.blog.com/problems/username-already-exists-error"));
+        problemDetail.setTitle("Validation Error");
+        problemDetail.setDetail(ex.getMessage());
+        return ResponseEntity.unprocessableEntity()
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleEntityNotFoundException(EntityNotFoundException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create("https://api.blog.com/problems/entity-not-found-error"));
+        problemDetail.setTitle("Entity Not Found Error");
+        problemDetail.setDetail(ex.getMessage());
+        return ResponseEntity.badRequest()
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ProblemDetail> handleBusinessException(BusinessException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create("https://api.blog.com/problems/business-error"));
+        problemDetail.setTitle("Business Error");
+        problemDetail.setDetail(ex.getMessage());
+        return ResponseEntity.badRequest()
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(AuthServiceException.class)
+    public ResponseEntity<ProblemDetail> handleAuthServiceException(AuthServiceException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create("https://api.blog.com/problems/auth-error"));
+        problemDetail.setTitle("Auth Error");
+        problemDetail.setDetail(ex.getMessage());
+        return ResponseEntity.badRequest()
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(TokenServiceException.class)
+    public ResponseEntity<ProblemDetail> handleTokenServiceException(TokenServiceException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create("https://api.blog.com/problems/token-error"));
+        problemDetail.setTitle("Token Error");
+        problemDetail.setDetail(ex.getMessage());
+        return ResponseEntity.badRequest()
                 .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                 .body(problemDetail);
     }

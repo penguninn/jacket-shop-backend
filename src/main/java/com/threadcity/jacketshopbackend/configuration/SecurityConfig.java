@@ -40,6 +40,7 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
 
     private static final String[] PUBLIC_ENDPOINT = {
             "/api/auth/**",
@@ -48,7 +49,8 @@ public class SecurityConfig {
             "/api/docs/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/webjars/**"
     };
 
     @Bean
@@ -62,10 +64,9 @@ public class SecurityConfig {
                 .anyRequest().authenticated());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authenticationProvider(provider());
-        // http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterAfter(jwtAuthenticationFilter, ExceptionTranslationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint(new AuthenticationEntryPointImpl())
+                .authenticationEntryPoint(authenticationEntryPointImpl)
                 .accessDeniedHandler(new AccessDeniedHandlerImpl()));
         return http.build();
     }

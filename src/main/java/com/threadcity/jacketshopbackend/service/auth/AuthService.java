@@ -1,5 +1,7 @@
 package com.threadcity.jacketshopbackend.service.auth;
 
+import java.util.Set;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,14 +12,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.request.LoginRequest;
+import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
 import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
+import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.AuthServiceException;
+import com.threadcity.jacketshopbackend.exception.UsernameAlreadyExistsException;
 import com.threadcity.jacketshopbackend.repository.RefreshTokenRepository;
+import com.threadcity.jacketshopbackend.repository.RoleRepository;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
-import com.threadcity.jacketshopbackend.service.RefreshTokenService;
+import com.threadcity.jacketshopbackend.service.TokenService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +36,11 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final RefreshTokenService tokenService;
+    private final TokenService tokenService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Transactional
     public TokenResponse login(LoginRequest request) {
@@ -46,16 +55,43 @@ public class AuthService {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             UserDetails principal = (UserDetailsImpl) authentication.getPrincipal();
             TokenResponse tokenResponse = tokenService.issue(principal);
-            log.info("AuthService::authenticate execution ended");
+            log.info("AuthService::login execution ended");
             return tokenResponse;
         } catch (BadCredentialsException e) {
             log.error("Bad credentials: {}", e.getMessage());
             throw new AuthServiceException("Invalid username or password");
         } catch (RuntimeException e) {
             log.error("Exception occurred while authenticate, Exception message: {}", e.getMessage());
-            throw new AuthServiceException("authenticate failed");
+            throw new AuthServiceException("Login failed");
         }
     }
 
+    @Transactional
+    public TokenResponse register(RegisterRequest request) {
+        log.info("AuthService::register execution started");
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new UsernameAlreadyExistsException("Username already exists");
+        }
+        try {
+            Role role = roleRepository.findByName("CUSTOMER")
+                    .orElseThrow(() -> new EntityNotFoundException("Role not found"));
+            User user = User.builder()
+                    .username(request.getUsername())
+                    .fullName(request.getFullname())
+                    .phone(request.getPhoneNumber())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .status(Status.ACTIVE)
+                    .build();
+            user.getRoles().add(role);
+            user = userRepository.save(user);
+            UserDetails principal = userDetailsService.loadUserByUsername(user.getUsername());
+            TokenResponse tokenResponse = tokenService.issue(principal);
+            log.info("AuthService::register execution ended");
+            return tokenResponse;
+        } catch (RuntimeException e) {
+            log.error("Exception occurred while register, Exception message: {}", e.getMessage());
+            throw new AuthServiceException("register failed");
+        }
+    }
 
 }
