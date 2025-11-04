@@ -2,14 +2,12 @@ package com.threadcity.jacketshopbackend.entity;
 
 import java.time.Instant;
 
-import org.hibernate.resource.beans.internal.FallbackBeanInstanceProducer;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.threadcity.jacketshopbackend.common.Enums.RefreshTokenStatus;
 
-import jakarta.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
