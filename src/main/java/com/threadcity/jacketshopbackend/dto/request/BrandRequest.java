@@ -7,9 +7,9 @@ import lombok.Data;
 
 @Data
 @Builder
-public class StyleRequest {
+public class BrandRequest {
     @NotNull(message = "Name cannot be null")
-    private String name; // bomber, biker, hoodie, blazer, etc.
-    private String description;
+    private String name;
+    private String logoUrl;
     private Enums.Status status;
 }
