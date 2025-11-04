@@ -7,6 +7,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.time.Instant;
 
+////BrandResponse
 @Data
 @Builder
 public class BrandResponse implements Serializable {
