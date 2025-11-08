@@ -16,7 +16,7 @@ public class RegisterRequest implements Serializable {
     private String username;
 
     @NotBlank(message = "Fullname is required")
-    private String fullname;
+    private String fullName;
 
     @NotBlank(message = "Phone number is required")
     private String phoneNumber;
