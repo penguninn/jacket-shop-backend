@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.request.LoginRequest;
 import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
+import com.threadcity.jacketshopbackend.dto.response.LoginResponse;
 import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
+import com.threadcity.jacketshopbackend.dto.response.UserResponse;
 import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.AuthServiceException;
@@ -43,9 +45,9 @@ public class AuthService {
     private final UserDetailsServiceImpl userDetailsService;
 
     @Transactional
-    public TokenResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         log.info("AuthService::login execution started");
-        userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
         try {
             Authentication authentication = authenticationManager
@@ -55,8 +57,19 @@ public class AuthService {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             UserDetails principal = (UserDetailsImpl) authentication.getPrincipal();
             TokenResponse tokenResponse = tokenService.issue(principal);
+            LoginResponse loginResponse = LoginResponse.builder()
+                    .accessToken(tokenResponse.getAccessToken())
+                    .refreshToken(tokenResponse.getRefreshToken())
+                    .user(UserResponse.builder()
+                            .id(user.getId())
+                            .fullName(user.getFullName())
+                            .roles(user.getRoles().stream()
+                                    .map(Role::getName)
+                                    .toList())
+                            .build())
+                    .build();
             log.info("AuthService::login execution ended");
-            return tokenResponse;
+            return loginResponse;
         } catch (BadCredentialsException e) {
             log.error("Bad credentials: {}", e.getMessage());
             throw new AuthServiceException("Invalid username or password");
@@ -67,7 +80,7 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenResponse register(RegisterRequest request) {
+    public void register(RegisterRequest request) {
         log.info("AuthService::register execution started");
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new UsernameAlreadyExistsException("Username already exists");
@@ -77,7 +90,7 @@ public class AuthService {
                     .orElseThrow(() -> new EntityNotFoundException("Role not found"));
             User user = User.builder()
                     .username(request.getUsername())
-                    .fullName(request.getFullname())
+                    .fullName(request.getFullName())
                     .phone(request.getPhoneNumber())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .status(Status.ACTIVE)
@@ -85,9 +98,7 @@ public class AuthService {
             user.getRoles().add(role);
             user = userRepository.save(user);
             UserDetails principal = userDetailsService.loadUserByUsername(user.getUsername());
-            TokenResponse tokenResponse = tokenService.issue(principal);
             log.info("AuthService::register execution ended");
-            return tokenResponse;
         } catch (RuntimeException e) {
             log.error("Exception occurred while register, Exception message: {}", e.getMessage());
             throw new AuthServiceException("register failed");

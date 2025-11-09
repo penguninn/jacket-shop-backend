@@ -13,6 +13,7 @@ import com.threadcity.jacketshopbackend.dto.request.LoginRequest;
 import com.threadcity.jacketshopbackend.dto.request.RefreshTokenRequest;
 import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.response.LoginResponse;
 import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
 import com.threadcity.jacketshopbackend.service.TokenService;
 import com.threadcity.jacketshopbackend.service.auth.AuthService;
@@ -33,11 +34,11 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<?> login(@Valid @RequestBody LoginRequest request) {
         log.info("AuthController::login execution started");
-        TokenResponse tokenResponse = authService.login(request);
+        LoginResponse loginResponse = authService.login(request);
         log.info("AuthController::login execution ended");
         return ApiResponse.builder()
                 .code(200)
-                .data(tokenResponse)
+                .data(loginResponse)
                 .message("Login successfully")
                 .timestamp(Instant.now())
                 .build();
@@ -46,11 +47,10 @@ public class AuthController {
     @PostMapping("/register")
     public ApiResponse<?> register(@Valid @RequestBody RegisterRequest request) {
         log.info("AuthController::register execution started");
-        TokenResponse tokenResponse = authService.register(request);
+        authService.register(request);
         log.info("AuthController::register execution ended");
         return ApiResponse.builder()
                 .code(201)
-                .data(tokenResponse)
                 .message("Register successfully")
                 .timestamp(Instant.now())
                 .build();

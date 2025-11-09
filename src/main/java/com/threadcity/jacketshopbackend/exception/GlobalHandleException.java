@@ -36,7 +36,7 @@ public class GlobalHandleException {
 
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<ProblemDetail> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
         problemDetail.setType(URI.create("https://api.blog.com/problems/username-already-exists-error"));
         problemDetail.setTitle("Validation Error");
         problemDetail.setDetail(ex.getMessage());
@@ -47,44 +47,44 @@ public class GlobalHandleException {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleEntityNotFoundException(EntityNotFoundException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         problemDetail.setType(URI.create("https://api.blog.com/problems/entity-not-found-error"));
         problemDetail.setTitle("Entity Not Found Error");
         problemDetail.setDetail(ex.getMessage());
-        return ResponseEntity.badRequest()
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                 .body(problemDetail);
     }
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ProblemDetail> handleBusinessException(BusinessException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         problemDetail.setType(URI.create("https://api.blog.com/problems/business-error"));
         problemDetail.setTitle("Business Error");
         problemDetail.setDetail(ex.getMessage());
-        return ResponseEntity.badRequest()
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                 .body(problemDetail);
     }
 
     @ExceptionHandler(AuthServiceException.class)
     public ResponseEntity<ProblemDetail> handleAuthServiceException(AuthServiceException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
         problemDetail.setType(URI.create("https://api.blog.com/problems/auth-error"));
         problemDetail.setTitle("Auth Error");
         problemDetail.setDetail(ex.getMessage());
-        return ResponseEntity.badRequest()
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                 .body(problemDetail);
     }
 
     @ExceptionHandler(TokenServiceException.class)
     public ResponseEntity<ProblemDetail> handleTokenServiceException(TokenServiceException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
         problemDetail.setType(URI.create("https://api.blog.com/problems/token-error"));
         problemDetail.setTitle("Token Error");
         problemDetail.setDetail(ex.getMessage());
-        return ResponseEntity.badRequest()
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                 .body(problemDetail);
     }
