@@ -47,7 +47,7 @@ public class PaymentMethod {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, length = 80)
     private String name; // COD, Banking, MoMo, ZaloPay
