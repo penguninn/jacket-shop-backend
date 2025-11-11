@@ -37,7 +37,7 @@ public class StyleController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<?> getStyleById(@PathVariable Integer id) {
+    public ApiResponse<?> getStyleById(@PathVariable Long id) {
         log.info("StyleController::getStyleById - Execution started. [id: {}]", id);
         StyleResponse response = styleService.getStyleById(id);
         log.info("StyleController::getStyleById - Execution completed. [id: {}]", id);
@@ -63,7 +63,7 @@ public class StyleController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<?> updateStyle(@PathVariable Integer id, @RequestBody StyleRequest styleRequest) {
+    public ApiResponse<?> updateStyle(@PathVariable Long id, @RequestBody StyleRequest styleRequest) {
         log.info("StyleController::updateStyle - Execution started. [id: {}]", id);
         StyleResponse response = styleService.updateStyleById(styleRequest, id);
         log.info("StyleController::updateStyle - Execution completed. [id: {}]", id);
@@ -76,7 +76,7 @@ public class StyleController {
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<?> deleteStyle(@PathVariable Integer id) {
+    public ApiResponse<?> deleteStyle(@PathVariable Long id) {
         log.info("StyleController::deleteStyle - Execution started. [id: {}]", id);
         styleService.deleteStyle(id);
         log.info("StyleController::deleteStyle - Execution completed. [id: {}]", id);
