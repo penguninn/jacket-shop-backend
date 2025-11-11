@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.service.auth;
 
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,12 +17,11 @@ import com.threadcity.jacketshopbackend.dto.request.LoginRequest;
 import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
 import com.threadcity.jacketshopbackend.dto.response.LoginResponse;
 import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
-import com.threadcity.jacketshopbackend.dto.response.UserResponse;
+import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
 import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.AuthServiceException;
 import com.threadcity.jacketshopbackend.exception.UsernameAlreadyExistsException;
-import com.threadcity.jacketshopbackend.repository.RefreshTokenRepository;
 import com.threadcity.jacketshopbackend.repository.RoleRepository;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
 import com.threadcity.jacketshopbackend.service.TokenService;
@@ -60,12 +59,12 @@ public class AuthService {
             LoginResponse loginResponse = LoginResponse.builder()
                     .accessToken(tokenResponse.getAccessToken())
                     .refreshToken(tokenResponse.getRefreshToken())
-                    .user(UserResponse.builder()
+                    .user(ProfileResponse.builder()
                             .id(user.getId())
                             .fullName(user.getFullName())
                             .roles(user.getRoles().stream()
                                     .map(Role::getName)
-                                    .toList())
+                                    .collect(Collectors.toSet()))
                             .build())
                     .build();
             log.info("AuthService::login execution ended");
@@ -85,9 +84,9 @@ public class AuthService {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new UsernameAlreadyExistsException("Username already exists");
         }
+        Role role = roleRepository.findByName("CUSTOMER")
+                .orElseThrow(() -> new EntityNotFoundException("Role not found"));
         try {
-            Role role = roleRepository.findByName("CUSTOMER")
-                    .orElseThrow(() -> new EntityNotFoundException("Role not found"));
             User user = User.builder()
                     .username(request.getUsername())
                     .fullName(request.getFullName())

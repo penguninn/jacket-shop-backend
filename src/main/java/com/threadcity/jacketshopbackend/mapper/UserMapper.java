@@ -1,8 +1,13 @@
 package com.threadcity.jacketshopbackend.mapper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.threadcity.jacketshopbackend.dto.request.UserCreateRequest;
+import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
+import com.threadcity.jacketshopbackend.dto.response.UserReponse;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,9 +23,24 @@ import com.threadcity.jacketshopbackend.service.auth.UserDetailsImpl;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
+    @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToRoleNames")
+    UserReponse toUserReponse(User user);
+
+    @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToRoleNames")
+    ProfileResponse toProfile(User user);
+
     @Mapping(target = "enabled", source = "status", qualifiedByName = "statusToEnabled")
     @Mapping(target = "authorities", source = "roles", qualifiedByName = "rolesToAuthorities")
     UserDetailsImpl toUserDetailsImpl(User user);
+
+    @Named("rolesToRoleNames")
+    default Set<String> rolesToRoleNames(Set<Role> roles) {
+        if (roles == null)
+            return Collections.emptySet();
+        return roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+    }
 
     @Named("statusToEnabled")
     public static boolean statusToEnabled(Status status) {

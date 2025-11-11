@@ -28,7 +28,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Province {
 
     @Id
-    private Integer code;
+    @Column(name = "code")
+    private Long id;
 
     @Column(nullable = false, length = 100)
     private String name;

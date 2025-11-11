@@ -10,7 +10,7 @@ import java.time.Instant;
 @Data
 @Builder
 public class StyleResponse implements Serializable {
-    private Integer id;
+    private Long id;
     private String name; // bomber, biker, hoodie, blazer, etc.
     private String description;
     private Enums.Status status;

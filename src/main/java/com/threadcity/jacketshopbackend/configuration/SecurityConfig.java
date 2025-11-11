@@ -38,69 +38,69 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final UserDetailsServiceImpl userDetailsService;
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
 
-  private static final String[] PUBLIC_ENDPOINT = {
-      "/api/auth/**",
-      "/actuator/health",
-      "/actuator/info",
-      "/api/docs/**",
-      "/v3/api-docs/**",
-      "/swagger-ui/**",
-      "/swagger-ui.html",
-      "/webjars/**"
-  };
+    private static final String[] PUBLIC_ENDPOINT = {
+            "/api/auth/**",
+            "/actuator/health",
+            "/actuator/info",
+            "/api/docs/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/webjars/**"
+    };
 
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.csrf(AbstractHttpConfigurer::disable);
-    http.cors(cors -> cors.configurationSource(configurationSource()));
-    http.authorizeHttpRequests(auth -> auth
-        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-        .requestMatchers(PUBLIC_ENDPOINT).permitAll()
-        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-        .anyRequest().authenticated());
-    http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-    http.authenticationProvider(provider());
-    http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-    http.exceptionHandling(ex -> ex
-        .authenticationEntryPoint(authenticationEntryPointImpl)
-        .accessDeniedHandler(new AccessDeniedHandlerImpl()));
-    return http.build();
-  }
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.cors(cors -> cors.configurationSource(configurationSource()));
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                .anyRequest().authenticated());
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.authenticationProvider(provider());
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint(authenticationEntryPointImpl)
+                .accessDeniedHandler(new AccessDeniedHandlerImpl()));
+        return http.build();
+    }
 
-  @Bean
-  CorsConfigurationSource configurationSource() {
-    CorsConfiguration cfg = new CorsConfiguration();
-    cfg.setAllowedOrigins(List.of("http://localhost:5173"));
-    cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-    cfg.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-    cfg.setAllowCredentials(true);
+    @Bean
+    CorsConfigurationSource configurationSource() {
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOrigins(List.of("http://localhost:5173"));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        cfg.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        cfg.setAllowCredentials(true);
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", cfg);
-    return source;
-  }
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", cfg);
+        return source;
+    }
 
-  @Bean
-  public PasswordEncoder getPasswordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+    @Bean
+    public PasswordEncoder getPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-    return config.getAuthenticationManager();
-  }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 
-  @Bean
-  public AuthenticationProvider provider() {
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-    provider.setUserDetailsService(userDetailsService);
-    provider.setPasswordEncoder(getPasswordEncoder());
-    provider.setHideUserNotFoundExceptions(false);
-    return provider;
-  }
+    @Bean
+    public AuthenticationProvider provider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(getPasswordEncoder());
+        provider.setHideUserNotFoundExceptions(false);
+        return provider;
+    }
 
 }
