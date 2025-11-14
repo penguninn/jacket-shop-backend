@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
-    ProductResponse toDto(Product brand);
+    ProductResponse toDto(Product product);
 
     Product toEntity(ProductRequest request);
 }
