@@ -69,7 +69,7 @@ public class AuthController {
                 .build();
     }
 
-    @PostMapping("/token/rotate")
+    @PostMapping("/refresh")
     public ApiResponse<?> rotate(@Valid @RequestBody RefreshTokenRequest request) {
         log.info("AuthController::roate execution started");
         TokenResponse tokenResponse = tokenService.rotate(request.getToken());
