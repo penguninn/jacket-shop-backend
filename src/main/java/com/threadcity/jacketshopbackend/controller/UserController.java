@@ -1,10 +1,12 @@
 package com.threadcity.jacketshopbackend.controller;
 
 import java.time.Instant;
+import java.util.List;
 
 import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
 import com.threadcity.jacketshopbackend.dto.response.UserReponse;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
+import com.threadcity.jacketshopbackend.dto.request.UserBulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.UserBulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.UserCreateRequest;
+import com.threadcity.jacketshopbackend.dto.request.UserFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.UserRolesRequset;
 import com.threadcity.jacketshopbackend.dto.request.UserStatusRequset;
 import com.threadcity.jacketshopbackend.dto.request.UserUpdateRequset;
@@ -66,11 +71,24 @@ public class UserController {
     // Admin
     @GetMapping
     public ApiResponse<?> getAllUsers(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) List<String> status,
+            @RequestParam(required = false) List<String> roles,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy) {
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
         log.info("UserController::getAllUsers - Execution started");
-        PageResponse<?> pageResponse = userService.getAllUsers(page, size, sortBy);
+        UserFilterRequest request = UserFilterRequest.builder()
+                .search(search)
+                .status(status)
+                .roles(roles)
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+        PageResponse<?> pageResponse = userService.getAllUsers(request);
         log.info("UserController::getAllStyles - Execution completed");
         return ApiResponse.builder()
                 .code(200)
@@ -141,6 +159,44 @@ public class UserController {
                 .code(200)
                 .message("Assigned role for user successfully.")
                 .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<?> deleteUser(@PathVariable Long id) {
+        log.info("UserController::deleteUser - Execution started. [id: {}]", id);
+        userService.deleteUserById(id);
+        log.info("UserController::deleteUser - Execution completed. [id: {}]", id);
+        return ApiResponse.builder()
+                .code(200)
+                .message("User deleted successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/bulk/status")
+    public ApiResponse<?> updateUsersStatus(@Valid @RequestBody UserBulkStatusRequest request) {
+        int totalUserIds = request.getIds() != null ? request.getIds().size() : 0;
+        log.info("UserController::updateUsersStatus - Execution started. [totalIds: {}]", totalUserIds);
+        userService.updateUsersStatusBulk(request);
+        log.info("UserController::updateUsersStatus - Execution completed. [totalIds: {}]", totalUserIds);
+        return ApiResponse.builder()
+                .code(200)
+                .message("User statuses updated successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/bulk/delete")
+    public ApiResponse<?> deleteUsersBulk(@Valid @RequestBody UserBulkDeleteRequest request) {
+        int totalUserIds = request.getIds() != null ? request.getIds().size() : 0;
+        log.info("UserController::deleteUsersBulk - Execution started. [totalIds: {}]", totalUserIds);
+        userService.deleteUsersBulk(request);
+        log.info("UserController::deleteUsersBulk - Execution completed. [totalIds: {}]", totalUserIds);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Users deleted successfully.")
                 .timestamp(Instant.now())
                 .build();
     }
