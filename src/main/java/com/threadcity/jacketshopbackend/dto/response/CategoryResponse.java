@@ -9,7 +9,7 @@ import java.time.Instant;
 
 @Data
 @Builder
-public class CategoryResponse implements Serializable {
+public class CategoryResponse implements Serializable{
     private Long id;
     private String name;
     private Enums.Status status;

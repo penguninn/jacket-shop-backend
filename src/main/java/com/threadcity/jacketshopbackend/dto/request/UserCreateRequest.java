@@ -22,18 +22,27 @@ import lombok.Data;
 @Builder
 public class UserCreateRequest implements Serializable {
 
-    @NotBlank
-    @Size(min = 2, max = 120)
+    @NotBlank(message = "Full name is required")
+    @Size(min = 2, max = 120, message = "Full name must be between 2 and 120 characters")
     private String fullName;
 
-    @NotBlank
-    @Size(min = 6, max = 50)
+    @NotBlank(message = "Username is required")
+    @Size(min = 6, max = 50, message = "Username must be between 6 and 50 characters")
     private String username;
 
-    @NotBlank
-    @Size(min = 8, max = 128)
+    @NotNull(message = "Status is required")
+    private Status status;
+
+    @NotNull(message = "Role IDs are required")
+    @NotEmpty(message = "At least one role must be selected")
+    @Size(min = 1, message = "At least one role must be selected")
+    private List<Long> roleIds;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, max = 128, message = "Password must be between 8 and 128 characters")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "Password must contain at least one uppercase letter, one lowercase letter, and one number")
     private String password;
 
-    @Pattern(regexp = "^0\\d{9,10}$")
-    private String phoneNumber;
+    @Pattern(regexp = "^0\\d{9,14}$", message = "Phone number must start with 0 and have 10-15 digits")
+    private String phone;
 }
