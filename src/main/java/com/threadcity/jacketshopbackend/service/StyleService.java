@@ -26,11 +26,11 @@ public class StyleService {
     private final StyleRepository styleRepository;
     private final StyleMapper styleMapper;
 
-    public StyleResponse getStyleById(Integer Id) {
-        log.info("StyleService::getStyleById - Execution started. [Id: {}]", Id);
-        Style style = styleRepository.findById(Id)
-                .orElseThrow(() -> new EntityNotFoundException("Style not found with StyleId: " + Id));
-        log.info("StyleService::getStyleById - Execution completed. [StyleId: {}]", Id);
+    public StyleResponse getStyleById(Long id) {
+        log.info("StyleService::getStyleById - Execution started. [Id: {}]", id);
+        Style style = styleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Style not found with StyleId: " + id));
+        log.info("StyleService::getStyleById - Execution completed. [StyleId: {}]", id);
         return styleMapper.toDto(style);
     }
 
@@ -74,7 +74,7 @@ public class StyleService {
         }
     }
     @Transactional
-    public StyleResponse updateStyleById(StyleRequest styleRequest, Integer id) {
+    public StyleResponse updateStyleById(StyleRequest styleRequest, Long id) {
         log.info("StyleService::updateStyleById - Execution started.");
         try {
             Style style = styleRepository.findById(id).orElseThrow(() ->
@@ -92,7 +92,7 @@ public class StyleService {
     }
 
     @Transactional
-    public void deleteStyle(Integer id) {
+    public void deleteStyle(Long id) {
         log.info("StyleService::deleteStyle - Execution started.");
         try {
             if (!styleRepository.existsById(id)) {
