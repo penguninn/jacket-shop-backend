@@ -23,5 +23,4 @@ public class ProductVariantResponse implements Serializable {
     private Enums.Status status;
     private Instant createdAt;
     private Instant updatedAt;
-
 }

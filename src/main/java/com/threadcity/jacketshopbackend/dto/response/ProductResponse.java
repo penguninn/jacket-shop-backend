@@ -21,8 +21,6 @@ public class ProductResponse implements Serializable {
     private Style style;
     private String imagesJson;
     private Enums.Status status;
-    private List<ProductVariant> variants;
     private Instant createdAt;
     private Instant updatedAt;
-
 }

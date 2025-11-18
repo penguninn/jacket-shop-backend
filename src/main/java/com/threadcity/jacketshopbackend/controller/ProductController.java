@@ -1,6 +1,9 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
+import com.threadcity.jacketshopbackend.dto.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -86,4 +89,44 @@ public class ProductController {
                 .timestamp(Instant.now())
                 .build();
     }
+    @PutMapping("/{id}/status")
+    public ApiResponse<?> updateStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateStatusRequest request
+    ) {
+        log.info("ProductController::updateStatus - Execution started. [id: {}]", id);
+        ProductResponse response = productService.updateStatus(id, request.getStatus());
+        log.info("ProductController::updateStatus - Execution completed. [id: {}]", id);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Product status updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/bulk/status")
+    public ApiResponse<?> bulkUpdateStatus(@RequestBody BulkStatusRequest request) {
+        log.info("ProductController::bulkUpdateStatus - Execution started.");
+        productService.bulkUpdateStatus(request.getIds(), request.getStatus());
+        log.info("ProductController::bulkUpdateStatus - Execution completed.");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Bulk update status successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/bulk/delete")
+    public ApiResponse<?> bulkDelete(@RequestBody BulkDeleteRequest request) {
+        log.info("ProductController::bulkDelete - Execution started.");
+        productService.bulkDelete(request.getIds());
+        log.info("ProductController::bulkDelete - Execution completed.");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Bulk delete products successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
 }

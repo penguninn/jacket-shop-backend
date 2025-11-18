@@ -8,6 +8,4 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ProductVariantMapper {
     ProductVariantResponse toDto(ProductVariant productVariant);
-
-    ProductVariant toEntity(ProductVariantRequest request);
 }

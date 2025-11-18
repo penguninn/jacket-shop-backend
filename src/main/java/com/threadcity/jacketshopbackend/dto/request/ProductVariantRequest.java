@@ -12,10 +12,10 @@ import java.math.BigDecimal;
 @Builder
 public class ProductVariantRequest {
     @NotNull(message = "Sku cannot be null")
-    private Product product;
+    private Long product;
     private String sku;
-    private Size size;
-    private Color color;
+    private Long size;
+    private Long color;
     private BigDecimal price;
     private BigDecimal costPrice;
     private BigDecimal salePrice;
