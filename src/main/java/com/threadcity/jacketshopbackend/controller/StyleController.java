@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.request.StyleFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -23,10 +24,16 @@ public class StyleController {
     public ApiResponse<?> getAllStyles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy
-    ) {
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
         log.info("StyleController::getAllStyles - Execution started");
-        PageResponse<?> pageResponse = styleService.getAllStyle(page, size, sortBy);
+        StyleFilterRequest request = StyleFilterRequest.builder()
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+        PageResponse<?> pageResponse = styleService.getAllStyle(request);
         log.info("StyleController::getAllStyles - Execution completed");
         return ApiResponse.builder()
                 .code(200)

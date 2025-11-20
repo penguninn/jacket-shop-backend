@@ -1,6 +1,8 @@
 package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.ProductFilterRequest;
+import com.threadcity.jacketshopbackend.dto.request.ProductVariantFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductVariantRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -24,10 +26,16 @@ public class ProductVariantController {
     public ApiResponse<?> getAllProductVariants(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy
-    ) {
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
         log.info("ProductVariantController::getAllProductVariants - Execution started");
-        PageResponse<?> pageResponse = productVariantService.getAllProductVariant(page, size, sortBy);
+        ProductVariantFilterRequest request = ProductVariantFilterRequest.builder()
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+        PageResponse<?> pageResponse = productVariantService.getAllProductVariant(request);
         log.info("ProductVariantController::getAllProductVariants - Execution completed");
         return ApiResponse.builder()
                 .code(200)

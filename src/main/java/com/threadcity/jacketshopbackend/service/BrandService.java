@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.BrandFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
@@ -7,6 +8,7 @@ import com.threadcity.jacketshopbackend.entity.Brand;
 import com.threadcity.jacketshopbackend.exception.BusinessException;
 import com.threadcity.jacketshopbackend.mapper.BrandMapper;
 import com.threadcity.jacketshopbackend.repository.BrandRepository;
+import com.threadcity.jacketshopbackend.specification.BrandSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,24 +37,27 @@ public class BrandService {
         return brandMapper.toDto(brand);
     }
 
-    public PageResponse<?> getAllBrand(int page, int size, String sortBy) {
+    public PageResponse<?> getAllBrand(BrandFilterRequest request) {
         log.info("BrandService::getAllBrand - Execution started.");
         try {
-            int p = Math.max(0, page);
-            String[] sortParams = sortBy.split(",");
-            Sort sortOrder = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
-            Pageable pageable = PageRequest.of(p, size, sortOrder);
-            Page<Brand> brandPage = brandRepository.findAll(pageable);
-            List<BrandResponse> BrandList = brandPage.stream()
+            Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+            Specification<Brand> spec = BrandSpecification.buildSpec(request);
+            Page<Brand> brandPage = brandRepository.findAll(spec, pageable);
+
+            List<BrandResponse> brandList = brandPage.getContent().stream()
                     .map(brandMapper::toDto)
                     .toList();
+
             log.info("BrandService::getAllBrand - Execution completed.");
             return PageResponse.builder()
-                    .contents(BrandList)
-                    .size(size)
-                    .page(p)
+                    .contents(brandList)
+                    .size(request.getSize())
+                    .page(request.getPage())
                     .totalPages(brandPage.getTotalPages())
-                    .totalElements(brandPage.getTotalElements()).build();
+                    .totalElements(brandPage.getTotalElements())
+                    .build();
         } catch (Exception e) {
             log.error("BrandService::getAllBrand - Execution failed.", e);
             throw new BusinessException("BrandService::getAllBrand - Execution failed.");

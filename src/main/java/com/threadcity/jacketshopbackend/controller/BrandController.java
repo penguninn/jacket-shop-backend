@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.request.BrandFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -23,16 +24,22 @@ public class BrandController {
     public ApiResponse<?> getAllBrands(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy
-    ) {
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
         log.info("BrandController::getAllBrands - Execution started");
-        PageResponse<?> pageResponse = brandService.getAllBrand(page, size, sortBy);
+        BrandFilterRequest request = BrandFilterRequest.builder()
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+        PageResponse<?> pageResponse = brandService.getAllBrand(request);
         log.info("BrandController::getAllBrands - Execution completed");
         return ApiResponse.builder()
                 .code(200)
                 .message("Get all brands successfully.")
                 .data(pageResponse)
-                .timestamp(Instant.now())
+                .timestamp(java.time.Instant.now())
                 .build();
     }
 

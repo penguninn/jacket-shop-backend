@@ -1,9 +1,6 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
-import com.threadcity.jacketshopbackend.dto.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.*;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -26,10 +23,16 @@ public class ProductController {
     public ApiResponse<?> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy
-    ) {
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
         log.info("ProductController::getAllProducts - Execution started");
-        PageResponse<?> pageResponse = productService.getAllProduct(page, size, sortBy);
+        ProductFilterRequest request = ProductFilterRequest.builder()
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+        PageResponse<?> pageResponse = productService.getAllProduct(request);
         log.info("ProductController::getAllProducts - Execution completed");
         return ApiResponse.builder()
                 .code(200)
