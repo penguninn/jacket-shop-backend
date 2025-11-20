@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.controller;
 
 
+import com.threadcity.jacketshopbackend.dto.request.CategoryFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CategoryRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.CategoryResponse;
@@ -19,30 +20,47 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/categorys")
+@RequestMapping("/api/categories")
 @RequiredArgsConstructor
 @Slf4j
 public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ApiResponse<?> getAllCategorys(
+    public ApiResponse<?> getAllCategories(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) List<String> status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir
     ) {
-        log.info("CategoryController::getAllCategorys - Execution started");
-        PageResponse<?> pageResponse = categoryService.getAllCategorys(page, size, sortBy);
-        log.info("CategoryController::getAllCategorys - Execution completed");
+        log.info("CategoryController::getAllCategories - Execution started");
+
+        CategoryFilterRequest request = CategoryFilterRequest.builder()
+                .search(search)
+                .status(status)
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+
+        PageResponse<?> pageResponse = categoryService.getAllCategories(request);
+
+        log.info("CategoryController::getAllCategories - Execution completed");
+
         return ApiResponse.builder()
                 .code(200)
-                .message("Get all category successfully.")
+                .message("Get all categories successfully.")
                 .data(pageResponse)
                 .timestamp(Instant.now())
                 .build();
     }
+
 
     @GetMapping("/{id}")
     public ApiResponse<?> getCategoryById(@PathVariable Long id) {
