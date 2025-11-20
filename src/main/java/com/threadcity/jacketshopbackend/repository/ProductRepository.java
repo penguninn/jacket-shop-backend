@@ -1,10 +1,10 @@
 package com.threadcity.jacketshopbackend.repository;
 
-import com.threadcity.jacketshopbackend.entity.Material;
+import com.threadcity.jacketshopbackend.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MaterialRepository extends JpaRepository<Material, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByName(String name);
 }

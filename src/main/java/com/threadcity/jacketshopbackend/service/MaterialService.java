@@ -26,7 +26,7 @@ public class MaterialService {
     private final MaterialRepository materialRepository;
     private final MaterialMapper materialMapper;
 
-    public MaterialResponse getMaterialById(Integer Id) {
+    public MaterialResponse getMaterialById(Long Id) {
         log.info("MaterialService::getMaterialById - Execution started. [Id: {}]", Id);
         Material material = materialRepository.findById(Id)
                 .orElseThrow(() -> new EntityNotFoundException("Material not found with MaterialId: " + Id));
@@ -74,7 +74,7 @@ public class MaterialService {
         }
     }
     @Transactional
-    public MaterialResponse updateMaterialById(MaterialRequest materialRequest, Integer id) {
+    public MaterialResponse updateMaterialById(MaterialRequest materialRequest,Long id) {
         log.info("MaterialService::updateMaterialById - Execution started.");
         try {
             Material material = materialRepository.findById(id).orElseThrow(() ->
@@ -92,7 +92,7 @@ public class MaterialService {
     }
 
     @Transactional
-    public void deleteMaterial(Integer id) {
+    public void deleteMaterial(Long id) {
         log.info("MaterialService::deleteMaterial - Execution started.");
         try {
             if (!materialRepository.existsById(id)) {

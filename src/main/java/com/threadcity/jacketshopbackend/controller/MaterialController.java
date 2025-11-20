@@ -46,7 +46,7 @@ public class MaterialController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<?> getMaterialById(@PathVariable Integer id) {
+    public ApiResponse<?> getMaterialById(@PathVariable Long id) {
         log.info("MaterialController::getMaterialById - Execution started. [id: {}]", id);
         MaterialResponse response = materialService.getMaterialById(id);
         log.info("MaterialController::getMaterialById - Execution completed. [id: {}]", id);
@@ -72,7 +72,7 @@ public class MaterialController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<?> updateMaterial(@PathVariable Integer id, @RequestBody MaterialRequest  materialRequest) {
+    public ApiResponse<?> updateMaterial(@PathVariable Long id, @RequestBody MaterialRequest  materialRequest) {
         log.info("MaterialController::updateMaterial - Execution started. [id: {}]", id);
         MaterialResponse response = materialService.updateMaterialById(materialRequest, id);
         log.info("MaterialController::updateMaterial - Execution completed. [id: {}]", id);
@@ -85,7 +85,7 @@ public class MaterialController {
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<?> deleteMaterial(@PathVariable Integer id) {
+    public ApiResponse<?> deleteMaterial(@PathVariable Long id) {
         log.info("MaterialController::deleteMaterial - Execution started. [id: {}]", id);
         materialService.deleteMaterial(id);
         log.info("MaterialController::deleteMaterial - Execution completed. [id: {}]", id);
