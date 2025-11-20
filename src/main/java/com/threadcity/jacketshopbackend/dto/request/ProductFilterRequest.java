@@ -15,15 +15,10 @@ public class ProductFilterRequest {
 
     @Size(max = 255, message = "Search term too long")
     private String search;
-
-    private Long categoryId;
-
-    private Long brandId;
-
-    private Long materialId;
-
-    private Long styleId;
-
+    private List<Long> categoryIds;
+    private List<Long> brandIds;
+    private List<Long> materialIds;
+    private List<Long> styleIds;
     private List<String> status; // ACTIVE, INACTIVE
 
     @Builder.Default

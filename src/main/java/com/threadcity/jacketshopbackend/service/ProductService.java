@@ -10,7 +10,6 @@ import com.threadcity.jacketshopbackend.exception.BusinessException;
 import com.threadcity.jacketshopbackend.mapper.ProductMapper;
 import com.threadcity.jacketshopbackend.repository.*;
 import com.threadcity.jacketshopbackend.specification.ProductSpecification;
-import com.threadcity.jacketshopbackend.specification.UserSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -85,26 +84,26 @@ public class ProductService {
             product.setStatus(req.getStatus());
             product.setImagesJson(req.getImagesJson());
 
-            if (req.getCategory() != null) {
-                Category category = categoryRepository.findById(req.getCategory())
+            if (req.getCategoryId() != null) {
+                Category category = categoryRepository.findById(req.getCategoryId())
                         .orElseThrow(() -> new BusinessException("Category not found"));
                 product.setCategory(category);
             }
 
-            if (req.getBrand() != null) {
-                Brand brand = brandRepository.findById(req.getBrand())
+            if (req.getBrandId() != null) {
+                Brand brand = brandRepository.findById(req.getBrandId())
                         .orElseThrow(() -> new BusinessException("Brand not found"));
                 product.setBrand(brand);
             }
 
-            if (req.getMaterial() != null) {
-                Material material = materialRepository.findById(req.getMaterial())
+            if (req.getMaterialId() != null) {
+                Material material = materialRepository.findById(req.getMaterialId())
                         .orElseThrow(() -> new BusinessException("Material not found"));
                 product.setMaterial(material);
             }
 
-            if (req.getStyle() != null) {
-                Style style = styleRepository.findById(req.getStyle())
+            if (req.getStyleId() != null) {
+                Style style = styleRepository.findById(req.getStyleId())
                         .orElseThrow(() -> new BusinessException("Style not found"));
                 product.setStyle(style);
             }
@@ -128,26 +127,26 @@ public class ProductService {
                     .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
 
             // Lấy entity theo request (không phải theo id)
-            if (req.getCategory() != null) {
-                Category category = categoryRepository.findById(req.getCategory())
+            if (req.getCategoryId() != null) {
+                Category category = categoryRepository.findById(req.getCategoryId())
                         .orElseThrow(() -> new EntityNotFoundException("Category not found"));
                 product.setCategory(category);
             }
 
-            if (req.getBrand() != null) {
-                Brand brand = brandRepository.findById(req.getBrand())
+            if (req.getBrandId() != null) {
+                Brand brand = brandRepository.findById(req.getBrandId())
                         .orElseThrow(() -> new EntityNotFoundException("Brand not found"));
                 product.setBrand(brand);
             }
 
-            if (req.getMaterial() != null) {
-                Material material = materialRepository.findById(req.getMaterial())
+            if (req.getMaterialId() != null) {
+                Material material = materialRepository.findById(req.getMaterialId())
                         .orElseThrow(() -> new EntityNotFoundException("Material not found"));
                 product.setMaterial(material);
             }
 
-            if (req.getStyle() != null) {
-                Style style = styleRepository.findById(req.getStyle())
+            if (req.getStyleId() != null) {
+                Style style = styleRepository.findById(req.getStyleId())
                         .orElseThrow(() -> new EntityNotFoundException("Style not found"));
                 product.setStyle(style);
             }

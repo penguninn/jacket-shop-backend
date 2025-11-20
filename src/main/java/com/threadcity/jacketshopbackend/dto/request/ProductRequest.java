@@ -13,11 +13,11 @@ import java.util.List;
 public class ProductRequest {
     @NotNull(message = "Name cannot be null")
     private String name;
-    private Long category;
-    private Long brand;
+    private Long categoryId;
+    private Long brandId;
     private String description;
-    private Long material;
-    private Long style;
+    private Long materialId;
+    private Long styleId;
     private String imagesJson;
     private Enums.Status status;
 }

@@ -20,39 +20,38 @@ public class ProductSpecification {
         };
     }
 
-    public static Specification<Product> hasCategory(Long categoryId) {
+    public static Specification<Product> hasCategories(List<Long> categoryIds) {
         return (root, query, cb) -> {
-            if (categoryId == null) {
-                return null;
+            if (categoryIds == null || categoryIds.isEmpty()) {
+                return cb.conjunction();
             }
-            return cb.equal(root.get("category").get("id"), categoryId);
+            return root.get("category").get("id").in(categoryIds);
+        };
+    }
+    public static Specification<Product> hasBrands(List<Long> brandIds) {
+        return (root, query, cb) -> {
+            if (brandIds == null || brandIds.isEmpty()) {
+                return cb.conjunction();
+            }
+            return root.get("brand").get("id").in(brandIds);
         };
     }
 
-    public static Specification<Product> hasBrand(Long brandId) {
+    public static Specification<Product> hasMaterials(List<Long> materialIds) {
         return (root, query, cb) -> {
-            if (brandId == null) {
-                return null;
+            if (materialIds == null || materialIds.isEmpty()) {
+                return cb.conjunction();
             }
-            return cb.equal(root.get("brand").get("id"), brandId);
+            return root.get("material").get("id").in(materialIds);
         };
     }
 
-    public static Specification<Product> hasMaterial(Long materialId) {
+    public static Specification<Product> hasStyles(List<Long> styleIds) {
         return (root, query, cb) -> {
-            if (materialId == null) {
-                return null;
+            if (styleIds == null || styleIds.isEmpty()) {
+                return cb.conjunction();
             }
-            return cb.equal(root.get("material").get("id"), materialId);
-        };
-    }
-
-    public static Specification<Product> hasStyle(Long styleId) {
-        return (root, query, cb) -> {
-            if (styleId == null) {
-                return null;
-            }
-            return cb.equal(root.get("style").get("id"), styleId);
+            return root.get("style").get("id").in(styleIds);
         };
     }
 
@@ -72,10 +71,11 @@ public class ProductSpecification {
     public static Specification<Product> buildSpec(ProductFilterRequest request) {
         return Specification
                 .where(hasSearch(request.getSearch()))
-                .and(hasCategory(request.getCategoryId()))
-                .and(hasBrand(request.getBrandId()))
-                .and(hasMaterial(request.getMaterialId()))
-                .and(hasStyle(request.getStyleId()))
+                .and(hasCategories(request.getCategoryIds()))
+                .and(hasBrands(request.getBrandIds()))
+                .and(hasMaterials(request.getMaterialIds()))
+                .and(hasStyles(request.getStyleIds()))
                 .and(hasStatuses(request.getStatus()));
     }
+
 }
