@@ -1,4 +1,5 @@
 package com.threadcity.jacketshopbackend.controller;
+import com.threadcity.jacketshopbackend.dto.request.MaterialFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.MaterialRequest;
 import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/materials")
 @RequiredArgsConstructor
@@ -30,16 +33,31 @@ public class MaterialController {
 
     @GetMapping
     public ApiResponse<?> getAllMaterials(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) List<String> status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir
     ) {
         log.info("MaterialController::getAllMaterials - Execution started");
-        PageResponse<?> pageResponse = materialService.getAllMaterials(page, size, sortBy);
+
+        MaterialFilterRequest request = MaterialFilterRequest.builder()
+                .search(search)
+                .status(status)
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+
+        PageResponse<?> pageResponse = materialService.getAllMaterials(request);
+
         log.info("MaterialController::getAllMaterials - Execution completed");
+
         return ApiResponse.builder()
                 .code(200)
-                .message("Get all material successfully.")
+                .message("Get all materials successfully.")
                 .data(pageResponse)
                 .timestamp(Instant.now())
                 .build();
