@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
+import com.threadcity.jacketshopbackend.dto.request.SizeFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/sizes")
@@ -22,21 +24,37 @@ public class SizeController {
     private final SizeService sizeService;
 
     @GetMapping
-    public ApiResponse<?> getAllSize(
+    public ApiResponse<?> getAllSizes(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) List<String> status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir
     ) {
-        log.info("SizeController::getAllSize - Execution started");
-        PageResponse<?> pageResponse = sizeService.getAllSize(page, size, sortBy);
-        log.info("SizeController::getAllSize - Execution completed");
+        log.info("SizeController::getAllSizes - Execution started");
+
+        SizeFilterRequest request = SizeFilterRequest.builder()
+                .search(search)
+                .status(status)
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+
+        PageResponse<?> pageResponse = sizeService.getAllSizes(request);
+
+        log.info("SizeController::getAllSizes - Execution completed");
+
         return ApiResponse.builder()
                 .code(200)
-                .message("Get all size successfully.")
+                .message("Get all sizes successfully.")
                 .data(pageResponse)
                 .timestamp(Instant.now())
                 .build();
     }
+
 
     @GetMapping("/{id}")
     public ApiResponse<?> getSizeByID(@PathVariable Long id) {
