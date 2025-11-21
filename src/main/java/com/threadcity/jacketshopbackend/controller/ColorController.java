@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
+import com.threadcity.jacketshopbackend.dto.request.ColorFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ColorRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/colors")
@@ -23,21 +25,37 @@ public class ColorController {
     private final ColorService colorService;
 
     @GetMapping
-    public ApiResponse<?> getAllColor(
+    public ApiResponse<?> getAllColors(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) List<String> status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir
     ) {
-        log.info("ColorController::getAllColor - Execution started");
-        PageResponse<?> pageResponse = colorService.getAllColor(page, size, sortBy);
-        log.info("ColorController::getAllColor - Execution completed");
+        log.info("ColorController::getAllColors - Execution started");
+
+        ColorFilterRequest request = ColorFilterRequest.builder()
+                .search(search)
+                .status(status)
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+
+        PageResponse<?> pageResponse = colorService.getAllColors(request);
+
+        log.info("ColorController::getAllColors - Execution completed");
+
         return ApiResponse.builder()
                 .code(200)
-                .message("Get all color successfully.")
+                .message("Get all colors successfully.")
                 .data(pageResponse)
                 .timestamp(Instant.now())
                 .build();
     }
+
 
     @GetMapping("/{id}")
     public ApiResponse<?> getColorById(@PathVariable Long id) {

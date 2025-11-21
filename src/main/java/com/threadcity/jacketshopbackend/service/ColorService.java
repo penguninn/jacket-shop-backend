@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.ColorFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ColorRequest;
 import com.threadcity.jacketshopbackend.dto.response.ColorResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -7,6 +8,7 @@ import com.threadcity.jacketshopbackend.entity.Color;
 import com.threadcity.jacketshopbackend.exception.BusinessException;
 import com.threadcity.jacketshopbackend.mapper.ColorMapper;
 import com.threadcity.jacketshopbackend.repository.ColorRepository;
+import com.threadcity.jacketshopbackend.specification.ColorSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,29 +37,35 @@ public class ColorService {
         return colorMapper.toDto(color);
     }
 
-    public PageResponse<?> getAllColor(int page, int size, String sortBy) {
-        log.info("ColorService::getAllColor - Execution started.");
+    public PageResponse<?> getAllColors(ColorFilterRequest request) {
+        log.info("ColorService::getAllColors - Execution started.");
+
         try {
-            int p = Math.max(0, page);
-            String[] sortParams = sortBy.split(",");
-            Sort sortOrder = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
-            Pageable pageable = PageRequest.of(p, size, sortOrder);
-            Page<Color> colorPage = colorRepository.findAll(pageable);
-            List<ColorResponse> ColorList = colorPage.stream()
+            Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+            Specification<Color> spec = ColorSpecification.buildSpec(request);
+            Page<Color> colorPage = colorRepository.findAll(spec, pageable);
+
+            List<ColorResponse> colorList = colorPage.getContent().stream()
                     .map(colorMapper::toDto)
                     .toList();
-            log.info("ColorService::getAllColor - Execution completed.");
+
+            log.info("ColorService::getAllColors - Execution completed.");
             return PageResponse.builder()
-                    .contents(ColorList)
-                    .size(size)
-                    .page(p)
+                    .contents(colorList)
+                    .size(request.getSize())
+                    .page(request.getPage())
                     .totalPages(colorPage.getTotalPages())
-                    .totalElements(colorPage.getTotalElements()).build();
+                    .totalElements(colorPage.getTotalElements())
+                    .build();
+
         } catch (Exception e) {
-            log.error("ColorService::getAllColor - Execution failed.", e);
-            throw new BusinessException("ColorService::getAllColor - Execution failed.");
+            log.error("ColorService::getAllColors - Execution failed.", e);
+            throw new BusinessException("ColorService::getAllColors - Execution failed.");
         }
     }
+
     @Transactional
     public ColorResponse createColor(ColorRequest color) {
         log.info("ColorService::createColor - Execution started.");
