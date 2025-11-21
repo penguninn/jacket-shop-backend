@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.request.CouponFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CouponRequest;
 import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/coupons")
@@ -22,21 +24,43 @@ public class CouponController {
     private final CouponService couponService;
 
     @GetMapping
-    public ApiResponse<?> getAllCoupon(
+    public ApiResponse<?> getAllCoupons(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) List<String> status,
+            @RequestParam(required = false) List<String> type,
+            @RequestParam(required = false) Instant validFrom,
+            @RequestParam(required = false) Instant validTo,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir
     ) {
-        log.info("CouponController::getAllCoupon - Execution started");
-        PageResponse<?> pageResponse = couponService.getAllCoupon(page, size, sortBy);
-        log.info("CouponController::getAllCoupon - Execution completed");
+        log.info("CouponController::getAllCoupons - Execution started");
+
+        CouponFilterRequest request = CouponFilterRequest.builder()
+                .search(search)
+                .status(status)
+                .type(type)
+                .validFrom(validFrom)
+                .validTo(validTo)
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+
+        PageResponse<?> pageResponse = couponService.getAllCoupons(request);
+
+        log.info("CouponController::getAllCoupons - Execution completed");
+
         return ApiResponse.builder()
                 .code(200)
-                .message("Get all coupon successfully.")
+                .message("Get all coupons successfully.")
                 .data(pageResponse)
                 .timestamp(Instant.now())
                 .build();
     }
+
 
     @GetMapping("/{id}")
     public ApiResponse<?> getCouponByID(@PathVariable Long id) {
