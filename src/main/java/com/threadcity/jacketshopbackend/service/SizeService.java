@@ -91,6 +91,7 @@ public class SizeService {
             Size size = sizeRepository.findById(id).orElseThrow(() ->
                     new EntityNotFoundException("Size not found with SizeId: " + id));
             size.setName(sizeRequest.getName());
+            size.setDescription(sizeRequest.getDescription());
             size.setStatus(sizeRequest.getStatus());
             Size saveSize = sizeRepository.save(size);
             log.info("SizeService::updateProfile - Execution completed. [SizeId: {}]", id);

@@ -89,6 +89,7 @@ public class ColorService {
             Color color = colorRepository.findById(id).orElseThrow(() ->
                     new EntityNotFoundException("Color not found with ColorId: " + id));
             color.setName(colorRequest.getName());
+            color.setDescription(colorRequest.getDescription());
             color.setStatus(colorRequest.getStatus());
             Color savedColor = colorRepository.save(color);
             log.info("ColorService::updateProfile - Execution completed. [ColorId: {}]", id);
