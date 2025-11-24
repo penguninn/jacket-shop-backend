@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
+import com.threadcity.jacketshopbackend.dto.request.SizeFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
 import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -10,6 +11,7 @@ import com.threadcity.jacketshopbackend.entity.Size;
 import com.threadcity.jacketshopbackend.exception.BusinessException;
 import com.threadcity.jacketshopbackend.mapper.SizeMapper;
 import com.threadcity.jacketshopbackend.repository.SizeRepository;
+import com.threadcity.jacketshopbackend.specification.SizeSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,29 +39,35 @@ public class SizeService {
         return sizeMapper.toDto(size);
     }
 
-    public PageResponse<?> getAllSize(int page, int size, String sortBy) {
-        log.info("SizeService::getAllSize - Execution started.");
+    public PageResponse<?> getAllSizes(SizeFilterRequest request) {
+        log.info("SizeService::getAllSizes - Execution started.");
+
         try {
-            int p = Math.max(0, page);
-            String[] sortParams = sortBy.split(",");
-            Sort sortOrder = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
-            Pageable pageable = PageRequest.of(p, size, sortOrder);
-            Page<Size> sizePage = sizeRepository.findAll(pageable);
-            List<SizeResponse> BrandList = sizePage.stream()
+            Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+            Specification<Size> spec = SizeSpecification.buildSpec(request);
+            Page<Size> sizePage = sizeRepository.findAll(spec, pageable);
+
+            List<SizeResponse> sizeList = sizePage.getContent().stream()
                     .map(sizeMapper::toDto)
                     .toList();
-            log.info("SizeService::getAllSize - Execution completed.");
+
+            log.info("SizeService::getAllSizes - Execution completed.");
             return PageResponse.builder()
-                    .contents(BrandList)
-                    .size(size)
-                    .page(p)
+                    .contents(sizeList)
+                    .size(request.getSize())
+                    .page(request.getPage())
                     .totalPages(sizePage.getTotalPages())
-                    .totalElements(sizePage.getTotalElements()).build();
+                    .totalElements(sizePage.getTotalElements())
+                    .build();
+
         } catch (Exception e) {
-            log.error("SizeService::getAllSize - Execution failed.", e);
-            throw new BusinessException("SizeService::getAllSize - Execution failed.");
+            log.error("SizeService::getAllSizes - Execution failed.", e);
+            throw new BusinessException("SizeService::getAllSizes - Execution failed.");
         }
     }
+
     @Transactional
     public SizeResponse createSize(SizeRequest size) {
         log.info("SizeService::createSize- Execution started.");
@@ -82,6 +91,7 @@ public class SizeService {
             Size size = sizeRepository.findById(id).orElseThrow(() ->
                     new EntityNotFoundException("Size not found with SizeId: " + id));
             size.setName(sizeRequest.getName());
+            size.setDescription(sizeRequest.getDescription());
             size.setStatus(sizeRequest.getStatus());
             Size saveSize = sizeRepository.save(size);
             log.info("SizeService::updateProfile - Execution completed. [SizeId: {}]", id);
