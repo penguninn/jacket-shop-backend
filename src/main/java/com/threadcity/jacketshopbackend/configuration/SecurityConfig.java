@@ -54,23 +54,46 @@ public class SecurityConfig {
             "/webjars/**"
     };
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
-        http.cors(cors -> cors.configurationSource(configurationSource()));
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(PUBLIC_ENDPOINT).permitAll()
-                .requestMatchers( "/api/**").permitAll()
-                .anyRequest().authenticated());
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.authenticationProvider(provider());
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint(authenticationEntryPointImpl)
-                .accessDeniedHandler(new AccessDeniedHandlerImpl()));
-        return http.build();
-    }
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http.csrf(AbstractHttpConfigurer::disable);
+//        http.cors(cors -> cors.configurationSource(configurationSource()));
+//        http.authorizeHttpRequests(auth -> auth
+//                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+//                .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+//                .requestMatchers( "/api/**").permitAll()
+//                .anyRequest().authenticated());
+//        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//        http.authenticationProvider(provider());
+//        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+//        http.exceptionHandling(ex -> ex
+//                .authenticationEntryPoint(authenticationEntryPointImpl)
+//                .accessDeniedHandler(new AccessDeniedHandlerImpl()));
+//        return http.build();
+//    }
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable);
+    http.cors(cors -> cors.configurationSource(configurationSource()));
+
+    http.authorizeHttpRequests(auth -> auth
+            .anyRequest().permitAll()  // Cho phép tất cả request
+    );
+
+    http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    http.authenticationProvider(provider());
+
+    // TẮT JWT filter để test
+    // http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+    // Bạn cũng có thể tắt exception handling:
+    // http.exceptionHandling(ex -> ex
+    //        .authenticationEntryPoint(authenticationEntryPointImpl)
+    //        .accessDeniedHandler(new AccessDeniedHandlerImpl())
+    // );
+
+    return http.build();
+}
 
     @Bean
     CorsConfigurationSource configurationSource() {
