@@ -18,7 +18,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -111,5 +113,53 @@ public class StyleService {
             log.error("StyleService::deleteStyle - Execution failed.", e);
             throw new BusinessException("StyleService::deleteStyle - Execution failed.");
         }
+    }
+    @Transactional
+    public StyleResponse updateStatus(Long id, String status) {
+        log.info("StyleService::updateStatus - Execution started. [id: {}]", id);
+
+        Style style = styleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Style not found with id: " + id));
+
+        style.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase()));
+
+        Style saved = styleRepository.save(style);
+
+        log.info("StyleService::updateStatus - Execution completed. [id: {}]", id);
+
+        return styleMapper.toDto(saved);
+    }
+
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @Transactional
+    public void bulkUpdateStatus(List<Long> ids, String status) {
+        log.info("StyleService::bulkUpdateStatus - Execution started.");
+
+        List<Style> styles = styleRepository.findAllById(ids);
+        styles.forEach(s -> s.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase())));
+
+        styleRepository.saveAll(styles);
+
+        log.info("StyleService::bulkUpdateStatus - Execution completed.");
+    }
+
+    // =============================
+    // BULK DELETE
+    // =============================
+    @Transactional
+    public void bulkDelete(List<Long> ids) {
+        log.info("StyleService::bulkDelete - Execution started.");
+
+        List<Style> styles = styleRepository.findAllById(ids);
+
+        if (styles.size() != ids.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Một hoặc nhiều style không tồn tại.");
+        }
+
+        styleRepository.deleteAllInBatch(styles);
+
+        log.info("StyleService::bulkDelete - Execution completed.");
     }
 }

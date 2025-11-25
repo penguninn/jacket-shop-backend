@@ -18,7 +18,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -110,5 +112,53 @@ public class BrandService {
             log.error("BrandService::deleteBrand - Execution failed.", e);
             throw new BusinessException("BrandService::deleteBrand - Execution failed.");
         }
+    }
+    @Transactional
+    public BrandResponse updateStatus(Long id, String status) {
+        log.info("BrandService::updateStatus - Execution started. [id: {}]", id);
+
+        Brand brand = brandRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Brand not found with id: " + id));
+
+        brand.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase()));
+
+        Brand saved = brandRepository.save(brand);
+
+        log.info("BrandService::updateStatus - Execution completed. [id: {}]", id);
+
+        return brandMapper.toDto(saved);
+    }
+
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @Transactional
+    public void bulkUpdateStatus(List<Long> ids, String status) {
+        log.info("BrandService::bulkUpdateStatus - Execution started.");
+
+        List<Brand> brands = brandRepository.findAllById(ids);
+        brands.forEach(b -> b.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase())));
+
+        brandRepository.saveAll(brands);
+
+        log.info("BrandService::bulkUpdateStatus - Execution completed.");
+    }
+
+    // =============================
+    // BULK DELETE
+    // =============================
+    @Transactional
+    public void bulkDelete(List<Long> ids) {
+        log.info("BrandService::bulkDelete - Execution started.");
+
+        List<Brand> brands = brandRepository.findAllById(ids);
+
+        if (brands.size() != ids.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Một hoặc nhiều thương hiệu không tồn tại.");
+        }
+
+        brandRepository.deleteAllInBatch(brands);
+
+        log.info("BrandService::bulkDelete - Execution completed.");
     }
 }
