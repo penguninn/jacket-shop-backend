@@ -19,11 +19,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.threadcity.jacketshopbackend.exception.AccessDeniedHandlerImpl;
+import com.threadcity.jacketshopbackend.exception.AuthenticationEntryPointImpl;
 import com.threadcity.jacketshopbackend.filter.JwtAuthenticationFilter;
 import com.threadcity.jacketshopbackend.service.auth.UserDetailsServiceImpl;
 
@@ -37,31 +40,60 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
 
     private static final String[] PUBLIC_ENDPOINT = {
-            "/auth/**",
+            "/api/auth/**",
+            "/api/token/**",
             "/actuator/health",
             "/actuator/info",
             "/api/docs/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/webjars/**"
     };
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
-        http.cors(Customizer.withDefaults());
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(PUBLIC_ENDPOINT).permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-                .anyRequest().authenticated());
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.authenticationProvider(provider());
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http.csrf(AbstractHttpConfigurer::disable);
+//        http.cors(cors -> cors.configurationSource(configurationSource()));
+//        http.authorizeHttpRequests(auth -> auth
+//                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+//                .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+//                .requestMatchers( "/api/**").permitAll()
+//                .anyRequest().authenticated());
+//        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//        http.authenticationProvider(provider());
+//        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+//        http.exceptionHandling(ex -> ex
+//                .authenticationEntryPoint(authenticationEntryPointImpl)
+//                .accessDeniedHandler(new AccessDeniedHandlerImpl()));
+//        return http.build();
+//    }
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable);
+    http.cors(cors -> cors.configurationSource(configurationSource()));
+
+    http.authorizeHttpRequests(auth -> auth
+            .anyRequest().permitAll()  // Cho phép tất cả request
+    );
+
+    http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    http.authenticationProvider(provider());
+
+    // TẮT JWT filter để test
+    // http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+    // Bạn cũng có thể tắt exception handling:
+    // http.exceptionHandling(ex -> ex
+    //        .authenticationEntryPoint(authenticationEntryPointImpl)
+    //        .accessDeniedHandler(new AccessDeniedHandlerImpl())
+    // );
+
+    return http.build();
+}
 
     @Bean
     CorsConfigurationSource configurationSource() {

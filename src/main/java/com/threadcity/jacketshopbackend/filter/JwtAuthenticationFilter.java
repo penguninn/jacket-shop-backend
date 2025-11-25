@@ -1,8 +1,16 @@
 package com.threadcity.jacketshopbackend.filter;
 
-import java.io.IOException;
-
+import com.threadcity.jacketshopbackend.exception.AuthenticationEntryPointImpl;
+import com.threadcity.jacketshopbackend.service.auth.JwtService;
+import com.threadcity.jacketshopbackend.service.auth.UserDetailsServiceImpl;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,18 +18,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.threadcity.jacketshopbackend.service.auth.JwtService;
-import com.threadcity.jacketshopbackend.service.auth.UserDetailsServiceImpl;
-
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -30,92 +27,94 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
+    private final AuthenticationEntryPointImpl authenticationEntryPoint;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain)
             throws ServletException, IOException {
 
-        final String token = extractTokenFromRequset(request);
+        final String token = extractToken(request);
+
         if (token == null) {
-            filterChain.doFilter(request, response);
+            chain.doFilter(request, response);
             return;
         }
-        try {
-            final String username = jwtService.extractUsername(token);
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                if (jwtService.isTokenValid(token, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                    log.debug("Authentication set for user: {} with authorities: {}",
-                            username, userDetails.getAuthorities());
-                } else {
-                    log.warn("Invalid token for user: {}", username);
-                }
-            }
-        } catch (ExpiredJwtException e) {
-            log.error("JWT token expired: {}", e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
-                    "Token has expired");
-            return;
-        } catch (UnsupportedJwtException e) {
-            log.error("Unsupported JWT token: {}", e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
-                    "Token format not supported");
-            return;
 
-        } catch (MalformedJwtException e) {
-            log.error("Malformed JWT token: {}", e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
-                    "Invalid token format");
-            return;
+        try {
+            if (!jwtService.isSignatureValid(token) || jwtService.isTokenExpired(token)) {
+                SecurityContextHolder.clearContext();
+                authenticationEntryPoint.commence(
+                    request, response,
+                    new AuthenticationException("Invalid or expired token") {}
+                );
+                return;
+            }
+
+            if (jwtService.isRefreshToken(token)) {
+                if (isRefreshEndpoint(request.getRequestURI())) {
+                    chain.doFilter(request, response);
+                } else {
+                    SecurityContextHolder.clearContext();
+                    authenticationEntryPoint.commence(
+                        request, response,
+                        new AuthenticationException("Refresh token is not allowed for this endpoint") {}
+                    );
+                }
+                return;
+            }
+
+            if (jwtService.isAccessToken(token)) {
+                final String username = jwtService.extractUsername(token);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails user = userDetailsService.loadUserByUsername(username);
+                    if (!jwtService.isTokenValid(token, user)) {
+                        SecurityContextHolder.clearContext();
+                        authenticationEntryPoint.commence(
+                            request, response,
+                            new AuthenticationException("Token subject mismatch or user disabled") {}
+                        );
+                        return;
+                    }
+                    var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
+                chain.doFilter(request, response);
+                return;
+            }
+
+            SecurityContextHolder.clearContext();
+            authenticationEntryPoint.commence(
+                request, response,
+                new AuthenticationException("Unknown token type") {}
+            );
 
         } catch (UsernameNotFoundException e) {
-            log.error("User not found: {}", e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
-                    "User not found");
-            return;
-
+            log.warn("User not found: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
+            authenticationEntryPoint.commence(
+                request, response,
+                new AuthenticationException("User not found") {}
+            );
         } catch (Exception e) {
-            log.error("Cannot set user authentication: {}", e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    "Authentication error");
-            return;
+            log.error("Authentication processing error", e);
+            SecurityContextHolder.clearContext();
+            authenticationEntryPoint.commence(
+                request, response,
+                new AuthenticationException("Authentication error") {}
+            );
         }
-
-        filterChain.doFilter(request, response);
     }
 
-    private String extractTokenFromRequset(HttpServletRequest request) {
-        final String authHeader = request.getHeader("Authorization");
-
-        if(authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
-        }
-        return null;
+    private String extractToken(HttpServletRequest request) {
+        final String auth = request.getHeader("Authorization");
+        return (auth != null && auth.startsWith("Bearer ")) ? auth.substring(7) : null;
     }
 
-    private void sendErrorResponse(HttpServletResponse response, int status, String message)
-            throws IOException {
-        response.setStatus(status); 
-        response.setContentType("application/json;charset=UTF-8");
-
-        String jsonResponse = String.format(
-                "{\"status\":%d,\"error\":\"%s\",\"timestamp\":%d,\"path\":\"%s\"}",
-                status,
-                message,
-                System.currentTimeMillis(),
-                response.getHeader("X-Request-Path"));
-
-        response.getWriter().write(jsonResponse);
-        response.getWriter().flush();
+    private boolean isRefreshEndpoint(String path) {
+        return "/api/auth/refresh".equals(path);
     }
-
 }
+

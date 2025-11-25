@@ -17,10 +17,15 @@ import org.springframework.stereotype.Service;
 import com.threadcity.jacketshopbackend.common.Enums.TokenType;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -30,10 +35,10 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.access-ttl-seconds:1800000}") // 30 minutes default
+    @Value("${jwt.access-ttl-ms}")
     private long accessTokenExpiration;
 
-    @Value("${jwt.refresh-ttl-seconds:604800000}") // 7 days default
+    @Value("${jwt.refresh-ttl-ms}")
     private long refreshTokenExpiration;
 
     @Value("${jwt.issuer}")
@@ -41,15 +46,30 @@ public class JwtService {
 
     // Extract claims
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        try {
+            return extractClaim(token, Claims::getSubject);
+        } catch (JwtException e) {
+            log.error("Failed to extract username from token: {}", e.getMessage());
+            return null;
+        }
     }
 
     public String extractType(String token) {
-        return extractClaim(token, claims -> claims.get("type", String.class));
+        try {
+            return extractClaim(token, claims -> claims.get("type", String.class));
+        } catch (JwtException e) {
+            log.error("Failed to extract type from token: {}", e.getMessage());
+            return null;
+        }
     }
 
     public String extractJti(String token) {
-        return extractClaim(token, claims -> claims.get("jti", String.class));
+        try {
+            return extractClaim(token, claims -> claims.get("jti", String.class));
+        } catch (JwtException e) {
+            log.error("Failed to extract JTI from token: {}", e.getMessage());
+            return null;
+        }
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
@@ -58,22 +78,70 @@ public class JwtService {
     }
 
     public Claims extractAllClaims(String token) {
-        return Jwts
-                .parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .requireIssuer(issuer)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (SignatureException e) {
+            log.error("Invalid JWT signature: {}", e.getMessage());
+            throw new JwtException("Invalid token signature", e);
+        } catch (MalformedJwtException e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
+            throw new JwtException("Malformed token", e);
+        } catch (ExpiredJwtException e) {
+            log.error("JWT token is expired: {}", e.getMessage());
+            throw new JwtException("Token expired", e);
+        } catch (UnsupportedJwtException e) {
+            log.error("JWT token is unsupported: {}", e.getMessage());
+            throw new JwtException("Unsupported token", e);
+        } catch (IllegalArgumentException e) {
+            log.error("JWT claims string is empty: {}", e.getMessage());
+            throw new JwtException("Token claims empty", e);
+        }
     }
 
     // Check tokens is valid
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        try {
+            final String username = extractUsername(token);
+
+            return username != null
+                    && username.equals(userDetails.getUsername())
+                    && !isTokenExpired(token)
+                    && isSignatureValid(token);
+        } catch (Exception e) {
+            log.error("Token validation failed: {}", e.getMessage());
+            return false;
+        }
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration).before(new Date());
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expiration = extractClaim(token, Claims::getExpiration);
+            return expiration.before(new Date());
+        } catch (JwtException e) {
+            log.error("Failed to check token expiration: {}", e.getMessage());
+            return true;
+        }
+    }
+
+    public boolean isSignatureValid(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (SignatureException e) {
+            log.error("Invalid signature: {}", e.getMessage());
+            return false;
+        } catch (JwtException e) {
+            log.error("Token validation failed: {}", e.getMessage());
+            return false;
+        }
     }
 
     // Check type of token
@@ -105,12 +173,14 @@ public class JwtService {
     }
 
     private String buildToken(Map<String, Object> claims, UserDetails userDetails, long expiration) {
+        long currentTimeMillis = System.currentTimeMillis();
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuer(issuer)
                 .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setIssuedAt(new Date(currentTimeMillis))
+                .setExpiration(new Date(currentTimeMillis + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
