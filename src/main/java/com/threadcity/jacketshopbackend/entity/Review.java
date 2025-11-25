@@ -4,7 +4,6 @@ import java.time.Instant;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.threadcity.jacketshopbackend.common.Enums.ReviewStatus;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
@@ -21,7 +20,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.EntityListeners;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +28,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "reviews")
 @Getter
 @Setter

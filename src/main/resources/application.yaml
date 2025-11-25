@@ -10,7 +10,7 @@ spring:
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=JacketShop;encrypt=true;trustServerCertificate=true;
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    username: sasql
+    username: sa
     password: 123456
   jpa:
     hibernate:
@@ -18,12 +18,7 @@ spring:
 
 jwt:
   secret: d50d1cab322c6f8ba9d82e8765c5e47b0dde58f4b288b24d07c05eca4458e87e40ef773a02434725d020f35eff4a33e0c83c4addd80ec5a7c7a9239b8d137a59
-  access-ttl-ms: 60000
-  refresh-ttl-ms: 604800000
+  access-ttl-seconds: 300
+  refresh-ttl-seconds: 604800000
   issuer: jacket-shop
 
-logging:
-  level:
-    org:
-      springframework:
-        security: DEBUG

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 
@@ -27,7 +26,6 @@ import jakarta.persistence.Table;
 
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.EntityListeners;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,7 +33,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "carts")
 @Getter
 @Setter
