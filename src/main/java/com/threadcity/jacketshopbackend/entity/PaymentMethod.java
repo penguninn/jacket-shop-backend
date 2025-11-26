@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 
@@ -28,7 +27,6 @@ import jakarta.persistence.Table;
 
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.EntityListeners;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,7 +34,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "payment_methods")
 @Getter
 @Setter
@@ -47,7 +44,7 @@ public class PaymentMethod {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(nullable = false, length = 80)
     private String name; // COD, Banking, MoMo, ZaloPay

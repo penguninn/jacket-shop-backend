@@ -8,17 +8,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.EntityListeners;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "provinces")
 @Getter
 @Setter
@@ -28,8 +25,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Province {
 
     @Id
-    @Column(name = "code")
-    private Long id;
+    private Integer code;
 
     @Column(nullable = false, length = 100)
     private String name;
