@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.CouponFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CouponRequest;
 import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
 import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
@@ -12,6 +13,7 @@ import com.threadcity.jacketshopbackend.mapper.CouponMapper;
 import com.threadcity.jacketshopbackend.mapper.SizeMapper;
 import com.threadcity.jacketshopbackend.repository.CouponRepository;
 import com.threadcity.jacketshopbackend.repository.SizeRepository;
+import com.threadcity.jacketshopbackend.specification.CouponSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,28 +41,35 @@ public class CouponService {
         return couponMapper.toDto(coupon);
     }
 
-    public PageResponse<?> getAllCoupon(int page, int size, String sortBy) {
-        log.info("CouponService::getAllCoupon - Execution started.");
+    public PageResponse<?> getAllCoupons(CouponFilterRequest request) {
+        log.info("CouponService::getAllCoupons - Execution started.");
+
         try {
-            int p = Math.max(0, page);
-            String[] sortParams = sortBy.split(",");
-            Sort sortOrder = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
-            Pageable pageable = PageRequest.of(p, size, sortOrder);
-            Page<Coupon> couponPage = couponRepository.findAll(pageable);
-            List<CouponResponse> CouponList = couponPage.stream()
+            Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+            Specification<Coupon> spec = CouponSpecification.buildSpec(request);
+            Page<Coupon> couponPage = couponRepository.findAll(spec, pageable);
+
+            List<CouponResponse> couponList = couponPage.getContent().stream()
                     .map(couponMapper::toDto)
                     .toList();
-            log.info("CouponService::getAllCoupon - Execution completed.");
+
+            log.info("CouponService::getAllCoupons - Execution completed.");
             return PageResponse.builder()
-                    .contents(CouponList)
-                    .page(p)
+                    .contents(couponList)
+                    .size(request.getSize())
+                    .page(request.getPage())
                     .totalPages(couponPage.getTotalPages())
-                    .totalElements(couponPage.getTotalElements()).build();
+                    .totalElements(couponPage.getTotalElements())
+                    .build();
+
         } catch (Exception e) {
-            log.error("CouponService::getAllCoupon - Execution failed.", e);
-            throw new BusinessException("CouponService::getAllCoupon - Execution failed.");
+            log.error("CouponService::getAllCoupons - Execution failed.", e);
+            throw new BusinessException("CouponService::getAllCoupons - Execution failed.");
         }
     }
+
     @Transactional
     public CouponResponse createCoupon(CouponRequest coupon) {
         log.info("CouponService::createCoupon- Execution started.");
