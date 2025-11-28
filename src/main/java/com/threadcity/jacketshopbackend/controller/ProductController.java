@@ -1,9 +1,6 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
-import com.threadcity.jacketshopbackend.dto.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.*;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -13,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -24,12 +22,30 @@ public class ProductController {
 
     @GetMapping
     public ApiResponse<?> getAllProducts(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) List<String> status,
+            @RequestParam(required = false) List<Long> categoryIds,
+            @RequestParam(required = false) List<Long> brandIds,
+            @RequestParam(required = false) List<Long> materialIds,
+            @RequestParam(required = false) List<Long> styleIds,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sortBy
-    ) {
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
         log.info("ProductController::getAllProducts - Execution started");
-        PageResponse<?> pageResponse = productService.getAllProduct(page, size, sortBy);
+        ProductFilterRequest request = ProductFilterRequest.builder()
+                .search(search)
+                .status(status)
+                .categoryIds(categoryIds)
+                .brandIds(brandIds)
+                .materialIds(materialIds)
+                .styleIds(styleIds)
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+        PageResponse<?> pageResponse = productService.getAllProduct(request);
         log.info("ProductController::getAllProducts - Execution completed");
         return ApiResponse.builder()
                 .code(200)

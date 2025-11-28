@@ -14,11 +14,11 @@ import java.util.List;
 public class ProductResponse implements Serializable {
     private Long id;
     private String name;
-    private Category category;
-    private Brand brand;
+    private CategoryResponse category;
+    private BrandResponse brand;
     private String description;
-    private Material material;
-    private Style style;
+    private MaterialResponse material;
+    private StyleResponse style;
     private String imagesJson;
     private Enums.Status status;
     private Instant createdAt;

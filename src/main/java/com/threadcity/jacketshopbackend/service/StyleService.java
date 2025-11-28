@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.StyleFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.StyleResponse;
@@ -7,6 +8,7 @@ import com.threadcity.jacketshopbackend.entity.Style;
 import com.threadcity.jacketshopbackend.exception.BusinessException;
 import com.threadcity.jacketshopbackend.mapper.StyleMapper;
 import com.threadcity.jacketshopbackend.repository.StyleRepository;
+import com.threadcity.jacketshopbackend.specification.StyleSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +17,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -34,29 +39,33 @@ public class StyleService {
         return styleMapper.toDto(style);
     }
 
-    public PageResponse<?> getAllStyle(int page, int size, String sortBy) {
+    public PageResponse<?> getAllStyle(StyleFilterRequest request) {
         log.info("StyleService::getAllStyle - Execution started.");
         try {
-            int p = Math.max(0, page);
-            String[] sortParams = sortBy.split(",");
-            Sort sortOrder = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
-            Pageable pageable = PageRequest.of(p, size, sortOrder);
-            Page<Style> stylePage = styleRepository.findAll(pageable);
-            List<StyleResponse> StyleList = stylePage.stream()
+            Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+            Specification<Style> spec = StyleSpecification.buildSpec(request);
+            Page<Style> stylePage = styleRepository.findAll(spec, pageable);
+
+            List<StyleResponse> styleResponse = stylePage.getContent().stream()
                     .map(styleMapper::toDto)
                     .toList();
             log.info("StyleService::getAllStyle - Execution completed.");
             return PageResponse.builder()
-                    .contents(StyleList)
-                    .size(size)
-                    .page(p)
+                    .contents(styleResponse)
+                    .size(request.getSize())
+                    .page(request.getPage())
                     .totalPages(stylePage.getTotalPages())
-                    .totalElements(stylePage.getTotalElements()).build();
+                    .totalElements(stylePage.getTotalElements())
+                    .build();
+
         } catch (Exception e) {
             log.error("StyleService::getAllStyle - Execution failed.", e);
-            throw new BusinessException("StyleService::getAllStyle - Execution failed.");
+            throw new BusinessException("Failed to get styles.");
         }
     }
+
     @Transactional
     public StyleResponse createStyle(StyleRequest style) {
         log.info("StyleService::createStyle - Execution started.");
@@ -104,5 +113,53 @@ public class StyleService {
             log.error("StyleService::deleteStyle - Execution failed.", e);
             throw new BusinessException("StyleService::deleteStyle - Execution failed.");
         }
+    }
+    @Transactional
+    public StyleResponse updateStatus(Long id, String status) {
+        log.info("StyleService::updateStatus - Execution started. [id: {}]", id);
+
+        Style style = styleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Style not found with id: " + id));
+
+        style.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase()));
+
+        Style saved = styleRepository.save(style);
+
+        log.info("StyleService::updateStatus - Execution completed. [id: {}]", id);
+
+        return styleMapper.toDto(saved);
+    }
+
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @Transactional
+    public void bulkUpdateStatus(List<Long> ids, String status) {
+        log.info("StyleService::bulkUpdateStatus - Execution started.");
+
+        List<Style> styles = styleRepository.findAllById(ids);
+        styles.forEach(s -> s.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase())));
+
+        styleRepository.saveAll(styles);
+
+        log.info("StyleService::bulkUpdateStatus - Execution completed.");
+    }
+
+    // =============================
+    // BULK DELETE
+    // =============================
+    @Transactional
+    public void bulkDelete(List<Long> ids) {
+        log.info("StyleService::bulkDelete - Execution started.");
+
+        List<Style> styles = styleRepository.findAllById(ids);
+
+        if (styles.size() != ids.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Một hoặc nhiều style không tồn tại.");
+        }
+
+        styleRepository.deleteAllInBatch(styles);
+
+        log.info("StyleService::bulkDelete - Execution completed.");
     }
 }
