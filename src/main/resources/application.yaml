@@ -12,7 +12,7 @@ spring:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: sa
     password: 123456
-
+    
   jpa:
     hibernate:
       ddl-auto: update
