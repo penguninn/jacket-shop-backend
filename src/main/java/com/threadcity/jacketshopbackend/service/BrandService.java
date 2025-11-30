@@ -84,6 +84,9 @@ public class BrandService {
     @Transactional
     public BrandResponse updateBrandById(BrandRequest brandRequest, Long id) {
         log.info("BrandService::updateBrandById - Execution started.");
+        if (brandRepository.existsByName(brandRequest.getName())) {
+            throw new BusinessException("Brand already exists with name: " + brandRequest.getName());
+        }
         try {
             Brand brand = brandRepository.findById(id).orElseThrow(() ->
                     new EntityNotFoundException("Brand not found with BrandId: " + id));
