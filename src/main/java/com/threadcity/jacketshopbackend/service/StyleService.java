@@ -18,9 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -82,6 +80,7 @@ public class StyleService {
             throw new BusinessException("StyleService::createStyle - Execution failed.");
         }
     }
+
     @Transactional
     public StyleResponse updateStyleById(StyleRequest styleRequest, Long id) {
         log.info("StyleService::updateStyleById - Execution started.");
@@ -89,8 +88,8 @@ public class StyleService {
             throw new BusinessException("Style already exists with name: " + styleRequest.getName());
         }
         try {
-            Style style = styleRepository.findById(id).orElseThrow(() ->
-                    new EntityNotFoundException("Style not found with StyleId: " + id));
+            Style style = styleRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Style not found with StyleId: " + id));
             style.setName(styleRequest.getName());
             style.setDescription(styleRequest.getDescription());
             style.setStatus(styleRequest.getStatus());
@@ -117,6 +116,7 @@ public class StyleService {
             throw new BusinessException("StyleService::deleteStyle - Execution failed.");
         }
     }
+
     @Transactional
     public StyleResponse updateStatus(Long id, String status) {
         log.info("StyleService::updateStatus - Execution started. [id: {}]", id);
@@ -141,7 +141,8 @@ public class StyleService {
         log.info("StyleService::bulkUpdateStatus - Execution started.");
 
         List<Style> styles = styleRepository.findAllById(ids);
-        styles.forEach(s -> s.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase())));
+        styles.forEach(s -> s.setStatus(
+                Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase())));
 
         styleRepository.saveAll(styles);
 
@@ -158,7 +159,7 @@ public class StyleService {
         List<Style> styles = styleRepository.findAllById(ids);
 
         if (styles.size() != ids.size()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Một hoặc nhiều style không tồn tại.");
+            throw new EntityNotFoundException("One or more styles do not exist.");
         }
 
         styleRepository.deleteAllInBatch(styles);

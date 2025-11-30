@@ -14,7 +14,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UserReponse implements Serializable {
+public class UserResponse implements Serializable {
 
     private Long id;
 

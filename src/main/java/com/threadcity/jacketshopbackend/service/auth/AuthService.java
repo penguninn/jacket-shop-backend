@@ -17,7 +17,7 @@ import com.threadcity.jacketshopbackend.dto.request.LoginRequest;
 import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
 import com.threadcity.jacketshopbackend.dto.response.LoginResponse;
 import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
-import com.threadcity.jacketshopbackend.dto.response.UserReponse;
+import com.threadcity.jacketshopbackend.dto.response.UserResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
 import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.entity.User;
@@ -60,7 +60,7 @@ public class AuthService {
             LoginResponse loginResponse = LoginResponse.builder()
                     .accessToken(tokenResponse.getAccessToken())
                     .refreshToken(tokenResponse.getRefreshToken())
-                    .user(UserReponse.builder()
+                    .user(UserResponse.builder()
                             .id(user.getId())
                             .username(user.getUsername())
                             .fullName(user.getFullName())

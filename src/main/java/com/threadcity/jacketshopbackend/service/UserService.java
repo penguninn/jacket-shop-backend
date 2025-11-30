@@ -2,7 +2,7 @@ package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
-import com.threadcity.jacketshopbackend.dto.response.UserReponse;
+import com.threadcity.jacketshopbackend.dto.response.UserResponse;
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,15 +18,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.request.ProfileUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.request.UserBulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.UserBulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.UserCreateRequest;
 import com.threadcity.jacketshopbackend.dto.request.UserFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserRolesRequset;
-import com.threadcity.jacketshopbackend.dto.request.UserStatusRequset;
-import com.threadcity.jacketshopbackend.dto.request.UserUpdateRequset;
+import com.threadcity.jacketshopbackend.dto.request.UserRolesRequest;
+import com.threadcity.jacketshopbackend.dto.request.UserStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.UserUpdateRequest;
 import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.BusinessException;
@@ -41,6 +40,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -72,12 +72,12 @@ public class UserService {
         return userMapper.toProfile(user);
     }
 
-    public UserReponse getUserById(Long Id) {
+    public UserResponse getUserById(Long Id) {
         log.info("UserService::getUserById - Execution started. [Id: {}]", Id);
         User user = userRepository.findById(Id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with UserId: " + Id));
         log.info("UserService::getUserById - Execution completed. [UserId: {}]", Id);
-        return userMapper.toUserReponse(user);
+        return userMapper.toUserResponse(user);
     }
 
     public PageResponse<?> getAllUsers(UserFilterRequest request) {
@@ -89,8 +89,8 @@ public class UserService {
             Specification<User> spec = UserSpecification.buildSpec(request);
             Page<User> userPage = userRepository.findAll(spec, pageable);
 
-            List<UserReponse> usersResponse = userPage.getContent().stream()
-                    .map(userMapper::toUserReponse)
+            List<UserResponse> usersResponse = userPage.getContent().stream()
+                    .map(userMapper::toUserResponse)
                     .toList();
             log.info("UserService::getAllUsers - Execution completed.");
             return PageResponse.builder()
@@ -106,7 +106,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserReponse createUser(UserCreateRequest request) {
+    public UserResponse createUser(UserCreateRequest request) {
         log.info("UserService::createUser - Execution started.");
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new BusinessException("User already exists with username: " + request.getUsername());
@@ -132,7 +132,7 @@ public class UserService {
             user.getRoles().addAll(roles);
             user = userRepository.save(user);
             log.info("UserService::createUser - Execution completed.");
-            return userMapper.toUserReponse(user);
+            return userMapper.toUserResponse(user);
         } catch (Exception e) {
             log.error("UserService::createUser - Execution failed.", e);
             throw new BusinessException("UserService::createUser - Execution failed.");
@@ -140,7 +140,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserReponse updateUserById(UserUpdateRequset request, Long id) {
+    public UserResponse updateUserById(UserUpdateRequest request, Long id) {
         log.info("UserService::updateUserById - Execution started.");
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with userId: " + id));
@@ -167,7 +167,7 @@ public class UserService {
 
             User userSaved = userRepository.save(user);
             log.info("UserService::updateUserById - Execution completed. [UserId: {}]", id);
-            return userMapper.toUserReponse(userSaved);
+            return userMapper.toUserResponse(userSaved);
         } catch (RuntimeException e) {
             log.error("UserService::updateUserById - Execution failed.", e);
             throw new BusinessException("UserService::updateUserById - Execution failed.");
@@ -175,7 +175,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserReponse updateUserStatusById(UserStatusRequset request, Long id) {
+    public UserResponse updateUserStatusById(UserStatusRequest request, Long id) {
         log.info("UserService::updateUserStatusById - Execution started.");
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with userId: " + id));
@@ -183,7 +183,7 @@ public class UserService {
             user.setStatus(request.getStatus());
             User userSaved = userRepository.save(user);
             log.info("UserService::updateUserStatusById - Execution completed. [UserId: {}]", id);
-            return userMapper.toUserReponse(userSaved);
+            return userMapper.toUserResponse(userSaved);
         } catch (RuntimeException e) {
             log.error("UserService::updateUserStatusById - Execution failed.", e);
             throw new BusinessException("UserService::updateUserStatusById - Execution failed.");
@@ -191,7 +191,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserReponse updateUserRolesById(UserRolesRequset request, Long id) {
+    public UserResponse updateUserRolesById(UserRolesRequest request, Long id) {
         log.info("UserService::updateUserRolesById - Execution started.");
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with userId: " + id));
@@ -208,7 +208,7 @@ public class UserService {
             user.setRoles(roles);
             User userSaved = userRepository.save(user);
             log.info("UserService::updateUserRolesById - Execution completed. [UserId: {}]", id);
-            return userMapper.toUserReponse(userSaved);
+            return userMapper.toUserResponse(userSaved);
         } catch (RuntimeException e) {
             log.error("UserService::updateUserRolesById - Execution failed.", e);
             throw new BusinessException("UserService::updateUserRolesById - Execution failed.");
@@ -235,7 +235,7 @@ public class UserService {
     }
 
     @Transactional
-    public List<UserReponse> updateUsersStatusBulk(UserBulkStatusRequest request) {
+    public List<UserResponse> updateUsersStatusBulk(UserBulkStatusRequest request) {
         log.info("UserService::updateUsersStatusBulk - Execution started.");
         List<User> users = userRepository.findAllById(request.getIds());
         if (users.size() != request.getIds().size()) {
@@ -248,7 +248,7 @@ public class UserService {
             users.forEach(user -> user.setStatus(request.getStatus()));
             List<User> savedUsers = userRepository.saveAll(users);
             log.info("UserService::updateUsersStatusBulk - Execution completed.");
-            return savedUsers.stream().map(userMapper::toUserReponse).toList();
+            return savedUsers.stream().map(userMapper::toUserResponse).toList();
         } catch (RuntimeException e) {
             log.error("UserService::updateUsersStatusBulk - Execution failed.", e);
             throw new BusinessException("UserService::updateUsersStatusBulk - Execution failed.");

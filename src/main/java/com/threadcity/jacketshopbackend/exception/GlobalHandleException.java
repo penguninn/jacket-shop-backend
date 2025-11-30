@@ -25,7 +25,7 @@ public class GlobalHandleException {
                 .forEach(error -> fieldErrors.put(error.getField(), error.getDefaultMessage()));
 
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
-        problemDetail.setType(URI.create("https://api.blog.com/problems/validation-error"));
+        problemDetail.setType(URI.create("about:blank"));
         problemDetail.setTitle("Validation Error");
         problemDetail.setDetail("Request body has invalid fields");
         problemDetail.setProperty("errors", fieldErrors);
@@ -37,7 +37,7 @@ public class GlobalHandleException {
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<ProblemDetail> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
-        problemDetail.setType(URI.create("https://api.blog.com/problems/username-already-exists-error"));
+        problemDetail.setType(URI.create("about:blank"));
         problemDetail.setTitle("Validation Error");
         problemDetail.setDetail(ex.getMessage());
         return ResponseEntity.unprocessableEntity()
@@ -48,7 +48,7 @@ public class GlobalHandleException {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleEntityNotFoundException(EntityNotFoundException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        problemDetail.setType(URI.create("https://api.blog.com/problems/entity-not-found-error"));
+        problemDetail.setType(URI.create("about:blank"));
         problemDetail.setTitle("Entity Not Found Error");
         problemDetail.setDetail(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -59,7 +59,7 @@ public class GlobalHandleException {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ProblemDetail> handleBusinessException(BusinessException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        problemDetail.setType(URI.create("https://api.blog.com/problems/business-error"));
+        problemDetail.setType(URI.create("about:blank"));
         problemDetail.setTitle("Business Error");
         problemDetail.setDetail(ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -70,7 +70,7 @@ public class GlobalHandleException {
     @ExceptionHandler(AuthServiceException.class)
     public ResponseEntity<ProblemDetail> handleAuthServiceException(AuthServiceException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
-        problemDetail.setType(URI.create("https://api.blog.com/problems/auth-error"));
+        problemDetail.setType(URI.create("about:blank"));
         problemDetail.setTitle("Auth Error");
         problemDetail.setDetail(ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -81,7 +81,7 @@ public class GlobalHandleException {
     @ExceptionHandler(TokenServiceException.class)
     public ResponseEntity<ProblemDetail> handleTokenServiceException(TokenServiceException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
-        problemDetail.setType(URI.create("https://api.blog.com/problems/token-error"));
+        problemDetail.setType(URI.create("about:blank"));
         problemDetail.setTitle("Token Error");
         problemDetail.setDetail(ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

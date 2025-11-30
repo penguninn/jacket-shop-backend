@@ -49,10 +49,10 @@ public class ProductVariantService {
     public PageResponse<?> getAllProductVariant(ProductVariantFilterRequest request) {
         log.info("ProductVariantService::getAllProductVariant");
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(),sort);
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
 
         Specification<ProductVariant> spec = ProductVariantSpecification.buildSpec(request);
-        Page<ProductVariant> productVariantPage = productVariantRepository.findAll(spec,pageable);
+        Page<ProductVariant> productVariantPage = productVariantRepository.findAll(spec, pageable);
 
         List<ProductVariantResponse> productVariantResponse = productVariantPage.getContent().stream()
                 .map(productVariantMapper::toDto)
@@ -166,7 +166,7 @@ public class ProductVariantService {
         log.info("ProductVariantService::bulkDelete");
         List<ProductVariant> variants = productVariantRepository.findAllById(ids);
         if (variants.size() != ids.size()) {
-            throw new EntityNotFoundException("Một hoặc nhiều ProductVariant không tồn tại.");
+            throw new EntityNotFoundException("One or more product variants do not exist.");
         }
         productVariantRepository.deleteAllInBatch(variants);
     }
