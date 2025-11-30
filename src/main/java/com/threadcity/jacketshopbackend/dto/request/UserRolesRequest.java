@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UserRolesRequset implements Serializable {
+public class UserRolesRequest implements Serializable {
 
     private Set<Long> roleIds;
 }

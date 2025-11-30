@@ -18,9 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -65,6 +63,7 @@ public class BrandService {
             throw new BusinessException("BrandService::getAllBrand - Execution failed.");
         }
     }
+
     @Transactional
     public BrandResponse createBrand(BrandRequest brand) {
         log.info("BrandService::createBrand - Execution started.");
@@ -81,6 +80,7 @@ public class BrandService {
             throw new BusinessException("BrandService::createBrand - Execution failed.");
         }
     }
+
     @Transactional
     public BrandResponse updateBrandById(BrandRequest brandRequest, Long id) {
         log.info("BrandService::updateBrandById - Execution started.");
@@ -88,8 +88,8 @@ public class BrandService {
             throw new BusinessException("Brand already exists with name: " + brandRequest.getName());
         }
         try {
-            Brand brand = brandRepository.findById(id).orElseThrow(() ->
-                    new EntityNotFoundException("Brand not found with BrandId: " + id));
+            Brand brand = brandRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Brand not found with BrandId: " + id));
             brand.setName(brandRequest.getName());
             brand.setLogoUrl(brandRequest.getLogoUrl());
             brand.setStatus(brandRequest.getStatus());
@@ -116,6 +116,7 @@ public class BrandService {
             throw new BusinessException("BrandService::deleteBrand - Execution failed.");
         }
     }
+
     @Transactional
     public BrandResponse updateStatus(Long id, String status) {
         log.info("BrandService::updateStatus - Execution started. [id: {}]", id);
@@ -140,7 +141,8 @@ public class BrandService {
         log.info("BrandService::bulkUpdateStatus - Execution started.");
 
         List<Brand> brands = brandRepository.findAllById(ids);
-        brands.forEach(b -> b.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase())));
+        brands.forEach(b -> b.setStatus(
+                Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase())));
 
         brandRepository.saveAll(brands);
 
@@ -157,7 +159,7 @@ public class BrandService {
         List<Brand> brands = brandRepository.findAllById(ids);
 
         if (brands.size() != ids.size()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Một hoặc nhiều thương hiệu không tồn tại.");
+            throw new EntityNotFoundException("One or more brands do not exist.");
         }
 
         brandRepository.deleteAllInBatch(brands);

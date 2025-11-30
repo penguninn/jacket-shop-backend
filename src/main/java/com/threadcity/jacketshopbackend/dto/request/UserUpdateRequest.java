@@ -2,7 +2,6 @@ package com.threadcity.jacketshopbackend.dto.request;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 
@@ -16,7 +15,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UserUpdateRequset implements Serializable {
+public class UserUpdateRequest implements Serializable {
 
     @NotBlank(message = "Full name is required")
     @Size(min = 2, max = 120, message = "Full name must be between 2 and 120 characters")

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.threadcity.jacketshopbackend.dto.request.UserCreateRequest;
 import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
-import com.threadcity.jacketshopbackend.dto.response.UserReponse;
+import com.threadcity.jacketshopbackend.dto.response.UserResponse;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +24,7 @@ import com.threadcity.jacketshopbackend.service.auth.UserDetailsImpl;
 public interface UserMapper {
 
     @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToRoleNames")
-    UserReponse toUserReponse(User user);
+    UserResponse toUserResponse(User user);
 
     @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToRoleNames")
     ProfileResponse toProfile(User user);

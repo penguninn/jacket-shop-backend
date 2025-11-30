@@ -16,9 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -46,7 +44,7 @@ public class ProductService {
         log.info("ProductService::getAllProduct - Execution started.");
         try {
             Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
-            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(),sort);
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
 
             Specification<Product> spec = ProductSpecification.buildSpec(request);
             Page<Product> productPage = productRepository.findAll(spec, pageable);
@@ -224,10 +222,7 @@ public class ProductService {
         List<Product> products = productRepository.findAllById(ids);
 
         if (products.size() != ids.size()) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Một hoặc nhiều sản phẩm không tồn tại."
-            );
+            throw new EntityNotFoundException("One or more products do not exist.");
         }
 
         productRepository.deleteAllInBatch(products);
