@@ -5,6 +5,8 @@ import org.springframework.data.jpa.domain.Specification;
 import com.threadcity.jacketshopbackend.entity.Style;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 
+import java.util.List;
+
 public class StyleSpecification {
 
     public static Specification<Style> hasSearch(String search) {
@@ -17,18 +19,21 @@ public class StyleSpecification {
         };
     }
 
-    public static Specification<Style> hasStatus(String status) {
+    public static Specification<Style> hasStatuses(List<String> status) {
         return (root, query, cb) -> {
-            if (status == null || status.isBlank()) {
+            if (status == null || status.isEmpty()) {
                 return null;
             }
-            return cb.equal(root.get("status"), Status.valueOf(status.toUpperCase()));
+            List<Status> statusEnums = status.stream()
+                    .map(s -> Status.valueOf(s.toUpperCase()))
+                    .toList();
+            return root.get("status").in(statusEnums);
         };
     }
 
     public static Specification<Style> buildSpec(StyleFilterRequest request) {
         return Specification
                 .where(hasSearch(request.getSearch()))
-                .and(hasStatus(request.getStatus()));
+                .and(hasStatuses(request.getStatus()));
     }
 }

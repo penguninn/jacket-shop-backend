@@ -85,6 +85,9 @@ public class StyleService {
     @Transactional
     public StyleResponse updateStyleById(StyleRequest styleRequest, Long id) {
         log.info("StyleService::updateStyleById - Execution started.");
+        if (styleRepository.existsByName(styleRequest.getName())) {
+            throw new BusinessException("Style already exists with name: " + styleRequest.getName());
+        }
         try {
             Style style = styleRepository.findById(id).orElseThrow(() ->
                     new EntityNotFoundException("Style not found with StyleId: " + id));
