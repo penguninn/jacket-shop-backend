@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.ProductVariantFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductVariantRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
@@ -10,6 +11,8 @@ import com.threadcity.jacketshopbackend.repository.ColorRepository;
 import com.threadcity.jacketshopbackend.repository.ProductRepository;
 import com.threadcity.jacketshopbackend.repository.ProductVariantRepository;
 import com.threadcity.jacketshopbackend.repository.SizeRepository;
+import com.threadcity.jacketshopbackend.specification.ProductSpecification;
+import com.threadcity.jacketshopbackend.specification.ProductVariantSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,21 +46,23 @@ public class ProductVariantService {
     }
 
     // GET ALL
-    public PageResponse<?> getAllProductVariant(int page, int size, String sortBy) {
+    public PageResponse<?> getAllProductVariant(ProductVariantFilterRequest request) {
         log.info("ProductVariantService::getAllProductVariant");
-        String[] sortParts = sortBy.split(",");
-        Sort sort = Sort.by(Sort.Direction.fromString(sortParts[1]), sortParts[0]);
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<ProductVariant> variantPage = productVariantRepository.findAll(pageable);
-        List<ProductVariantResponse> content = variantPage.stream()
+        Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+        Specification<ProductVariant> spec = ProductVariantSpecification.buildSpec(request);
+        Page<ProductVariant> productVariantPage = productVariantRepository.findAll(spec, pageable);
+
+        List<ProductVariantResponse> productVariantResponse = productVariantPage.getContent().stream()
                 .map(productVariantMapper::toDto)
                 .toList();
         return PageResponse.builder()
-                .contents(content)
-                .page(variantPage.getNumber())
-                .size(variantPage.getSize())
-                .totalElements(variantPage.getTotalElements())
-                .totalPages(variantPage.getTotalPages())
+                .contents(productVariantResponse)
+                .page(request.getPage())
+                .size(request.getSize())
+                .totalElements(productVariantPage.getTotalElements())
+                .totalPages(productVariantPage.getTotalPages())
                 .build();
     }
 
@@ -160,7 +166,7 @@ public class ProductVariantService {
         log.info("ProductVariantService::bulkDelete");
         List<ProductVariant> variants = productVariantRepository.findAllById(ids);
         if (variants.size() != ids.size()) {
-            throw new EntityNotFoundException("Một hoặc nhiều ProductVariant không tồn tại.");
+            throw new EntityNotFoundException("One or more product variants do not exist.");
         }
         productVariantRepository.deleteAllInBatch(variants);
     }

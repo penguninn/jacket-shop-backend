@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.BrandFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
@@ -7,6 +8,7 @@ import com.threadcity.jacketshopbackend.entity.Brand;
 import com.threadcity.jacketshopbackend.exception.BusinessException;
 import com.threadcity.jacketshopbackend.mapper.BrandMapper;
 import com.threadcity.jacketshopbackend.repository.BrandRepository;
+import com.threadcity.jacketshopbackend.specification.BrandSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,29 +37,33 @@ public class BrandService {
         return brandMapper.toDto(brand);
     }
 
-    public PageResponse<?> getAllBrand(int page, int size, String sortBy) {
+    public PageResponse<?> getAllBrand(BrandFilterRequest request) {
         log.info("BrandService::getAllBrand - Execution started.");
         try {
-            int p = Math.max(0, page);
-            String[] sortParams = sortBy.split(",");
-            Sort sortOrder = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
-            Pageable pageable = PageRequest.of(p, size, sortOrder);
-            Page<Brand> brandPage = brandRepository.findAll(pageable);
-            List<BrandResponse> BrandList = brandPage.stream()
+            Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+            Specification<Brand> spec = BrandSpecification.buildSpec(request);
+            Page<Brand> brandPage = brandRepository.findAll(spec, pageable);
+
+            List<BrandResponse> brandList = brandPage.getContent().stream()
                     .map(brandMapper::toDto)
                     .toList();
+
             log.info("BrandService::getAllBrand - Execution completed.");
             return PageResponse.builder()
-                    .contents(BrandList)
-                    .size(size)
-                    .page(p)
+                    .contents(brandList)
+                    .size(request.getSize())
+                    .page(request.getPage())
                     .totalPages(brandPage.getTotalPages())
-                    .totalElements(brandPage.getTotalElements()).build();
+                    .totalElements(brandPage.getTotalElements())
+                    .build();
         } catch (Exception e) {
             log.error("BrandService::getAllBrand - Execution failed.", e);
             throw new BusinessException("BrandService::getAllBrand - Execution failed.");
         }
     }
+
     @Transactional
     public BrandResponse createBrand(BrandRequest brand) {
         log.info("BrandService::createBrand - Execution started.");
@@ -73,12 +80,16 @@ public class BrandService {
             throw new BusinessException("BrandService::createBrand - Execution failed.");
         }
     }
+
     @Transactional
     public BrandResponse updateBrandById(BrandRequest brandRequest, Long id) {
         log.info("BrandService::updateBrandById - Execution started.");
+        if (brandRepository.existsByName(brandRequest.getName())) {
+            throw new BusinessException("Brand already exists with name: " + brandRequest.getName());
+        }
         try {
-            Brand brand = brandRepository.findById(id).orElseThrow(() ->
-                    new EntityNotFoundException("Brand not found with BrandId: " + id));
+            Brand brand = brandRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Brand not found with BrandId: " + id));
             brand.setName(brandRequest.getName());
             brand.setLogoUrl(brandRequest.getLogoUrl());
             brand.setStatus(brandRequest.getStatus());
@@ -104,5 +115,55 @@ public class BrandService {
             log.error("BrandService::deleteBrand - Execution failed.", e);
             throw new BusinessException("BrandService::deleteBrand - Execution failed.");
         }
+    }
+
+    @Transactional
+    public BrandResponse updateStatus(Long id, String status) {
+        log.info("BrandService::updateStatus - Execution started. [id: {}]", id);
+
+        Brand brand = brandRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Brand not found with id: " + id));
+
+        brand.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase()));
+
+        Brand saved = brandRepository.save(brand);
+
+        log.info("BrandService::updateStatus - Execution completed. [id: {}]", id);
+
+        return brandMapper.toDto(saved);
+    }
+
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @Transactional
+    public void bulkUpdateStatus(List<Long> ids, String status) {
+        log.info("BrandService::bulkUpdateStatus - Execution started.");
+
+        List<Brand> brands = brandRepository.findAllById(ids);
+        brands.forEach(b -> b.setStatus(
+                Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase())));
+
+        brandRepository.saveAll(brands);
+
+        log.info("BrandService::bulkUpdateStatus - Execution completed.");
+    }
+
+    // =============================
+    // BULK DELETE
+    // =============================
+    @Transactional
+    public void bulkDelete(List<Long> ids) {
+        log.info("BrandService::bulkDelete - Execution started.");
+
+        List<Brand> brands = brandRepository.findAllById(ids);
+
+        if (brands.size() != ids.size()) {
+            throw new EntityNotFoundException("One or more brands do not exist.");
+        }
+
+        brandRepository.deleteAllInBatch(brands);
+
+        log.info("BrandService::bulkDelete - Execution completed.");
     }
 }

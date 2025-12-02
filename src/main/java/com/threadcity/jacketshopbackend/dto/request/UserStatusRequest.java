@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UserStatusRequset implements Serializable {
+public class UserStatusRequest implements Serializable {
 
     private Status status;
 }

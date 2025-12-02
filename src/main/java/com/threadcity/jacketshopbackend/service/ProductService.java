@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums;
+import com.threadcity.jacketshopbackend.dto.request.ProductFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
 import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -8,14 +9,14 @@ import com.threadcity.jacketshopbackend.entity.*;
 import com.threadcity.jacketshopbackend.exception.BusinessException;
 import com.threadcity.jacketshopbackend.mapper.ProductMapper;
 import com.threadcity.jacketshopbackend.repository.*;
+import com.threadcity.jacketshopbackend.specification.ProductSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -39,25 +40,23 @@ public class ProductService {
         return productMapper.toDto(product);
     }
 
-    public PageResponse<?> getAllProduct(int page, int size, String sortBy) {
+    public PageResponse<?> getAllProduct(ProductFilterRequest request) {
         log.info("ProductService::getAllProduct - Execution started.");
         try {
-            int p = Math.max(0, page);
-            String[] sortParams = sortBy.split(",");
-            Sort sortOrder = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
-            Pageable pageable = PageRequest.of(p, size, sortOrder);
+            Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
 
-            Page<Product> productPage = productRepository.findAll(pageable);
-            List<ProductResponse> productList = productPage
-                    .stream()
+            Specification<Product> spec = ProductSpecification.buildSpec(request);
+            Page<Product> productPage = productRepository.findAll(spec, pageable);
+
+            List<ProductResponse> productResponse = productPage.getContent().stream()
                     .map(productMapper::toDto)
                     .toList();
-
             log.info("ProductService::getAllProduct - Execution completed.");
             return PageResponse.builder()
-                    .contents(productList)
-                    .size(size)
-                    .page(p)
+                    .contents(productResponse)
+                    .size(request.getSize())
+                    .page(request.getPage())
                     .totalPages(productPage.getTotalPages())
                     .totalElements(productPage.getTotalElements())
                     .build();
@@ -83,26 +82,26 @@ public class ProductService {
             product.setStatus(req.getStatus());
             product.setImagesJson(req.getImagesJson());
 
-            if (req.getCategory() != null) {
-                Category category = categoryRepository.findById(req.getCategory())
+            if (req.getCategoryId() != null) {
+                Category category = categoryRepository.findById(req.getCategoryId())
                         .orElseThrow(() -> new BusinessException("Category not found"));
                 product.setCategory(category);
             }
 
-            if (req.getBrand() != null) {
-                Brand brand = brandRepository.findById(req.getBrand())
+            if (req.getBrandId() != null) {
+                Brand brand = brandRepository.findById(req.getBrandId())
                         .orElseThrow(() -> new BusinessException("Brand not found"));
                 product.setBrand(brand);
             }
 
-            if (req.getMaterial() != null) {
-                Material material = materialRepository.findById(req.getMaterial())
+            if (req.getMaterialId() != null) {
+                Material material = materialRepository.findById(req.getMaterialId())
                         .orElseThrow(() -> new BusinessException("Material not found"));
                 product.setMaterial(material);
             }
 
-            if (req.getStyle() != null) {
-                Style style = styleRepository.findById(req.getStyle())
+            if (req.getStyleId() != null) {
+                Style style = styleRepository.findById(req.getStyleId())
                         .orElseThrow(() -> new BusinessException("Style not found"));
                 product.setStyle(style);
             }
@@ -126,26 +125,26 @@ public class ProductService {
                     .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
 
             // Lấy entity theo request (không phải theo id)
-            if (req.getCategory() != null) {
-                Category category = categoryRepository.findById(req.getCategory())
+            if (req.getCategoryId() != null) {
+                Category category = categoryRepository.findById(req.getCategoryId())
                         .orElseThrow(() -> new EntityNotFoundException("Category not found"));
                 product.setCategory(category);
             }
 
-            if (req.getBrand() != null) {
-                Brand brand = brandRepository.findById(req.getBrand())
+            if (req.getBrandId() != null) {
+                Brand brand = brandRepository.findById(req.getBrandId())
                         .orElseThrow(() -> new EntityNotFoundException("Brand not found"));
                 product.setBrand(brand);
             }
 
-            if (req.getMaterial() != null) {
-                Material material = materialRepository.findById(req.getMaterial())
+            if (req.getMaterialId() != null) {
+                Material material = materialRepository.findById(req.getMaterialId())
                         .orElseThrow(() -> new EntityNotFoundException("Material not found"));
                 product.setMaterial(material);
             }
 
-            if (req.getStyle() != null) {
-                Style style = styleRepository.findById(req.getStyle())
+            if (req.getStyleId() != null) {
+                Style style = styleRepository.findById(req.getStyleId())
                         .orElseThrow(() -> new EntityNotFoundException("Style not found"));
                 product.setStyle(style);
             }
@@ -223,10 +222,7 @@ public class ProductService {
         List<Product> products = productRepository.findAllById(ids);
 
         if (products.size() != ids.size()) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Một hoặc nhiều sản phẩm không tồn tại."
-            );
+            throw new EntityNotFoundException("One or more products do not exist.");
         }
 
         productRepository.deleteAllInBatch(products);
