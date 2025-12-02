@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.controller;
 import com.threadcity.jacketshopbackend.dto.request.MaterialFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.MaterialRequest;
+import com.threadcity.jacketshopbackend.dto.request.MaterialStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.MaterialResponse;
@@ -110,6 +111,25 @@ public class MaterialController {
         return ApiResponse.builder()
                 .code(200)
                 .message("Material deleted successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PutMapping("/{id}/status")
+    public ApiResponse<?> updateMaterialStatus(
+            @PathVariable Long id,
+            @RequestBody MaterialStatusRequest request
+    ) {
+        log.info("MaterialController::updateMaterialStatus - Execution started. [id: {}]", id);
+
+        MaterialResponse response = materialService.updateMaterialStatus(id, request.getStatus());
+
+        log.info("MaterialController::updateMaterialStatus - Execution completed. [id: {}]", id);
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Material status updated successfully.")
+                .data(response)
                 .timestamp(Instant.now())
                 .build();
     }

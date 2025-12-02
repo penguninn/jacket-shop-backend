@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.request.MaterialFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.MaterialRequest;
 import com.threadcity.jacketshopbackend.dto.response.MaterialResponse;
@@ -123,6 +124,26 @@ public class MaterialService {
         } catch (Exception e) {
             log.error("MaterialService::deleteMaterial - Execution failed.", e);
             throw new BusinessException("MaterialService::deleteMaterial - Execution failed.");
+        }
+    }
+
+    @Transactional
+    public MaterialResponse updateMaterialStatus(Long id, Enums.Status status) {
+        log.info("MaterialService::updateMaterialStatus - Execution started. [MaterialId: {}]", id);
+
+        Material material = materialRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Material not found with MaterialId: " + id));
+
+        try {
+            material.setStatus(status);
+            Material updated = materialRepository.save(material);
+
+            log.info("MaterialService::updateMaterialStatus - Execution completed. [MaterialId: {}]", id);
+            return materialMapper.toDto(updated);
+
+        } catch (Exception e) {
+            log.error("MaterialService::updateMaterialStatus - Execution failed.", e);
+            throw new BusinessException("MaterialService::updateMaterialStatus - Execution failed.");
         }
     }
 }

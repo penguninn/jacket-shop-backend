@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.request.CategoryFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CategoryRequest;
 import com.threadcity.jacketshopbackend.dto.response.CategoryResponse;
@@ -132,4 +133,25 @@ public class CategoryService {
             throw new BusinessException("CategoryService::deleteCategory - Execution failed.");
         }
     }
+
+    @Transactional
+    public CategoryResponse updateCategoryStatus(Long id, Enums.Status status) {
+        log.info("CategoryService::updateCategoryStatus - Execution started. [CategoryId: {}]", id);
+
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with CategoryId: " + id));
+
+        try {
+            category.setStatus(status);
+            Category updated = categoryRepository.save(category);
+
+            log.info("CategoryService::updateCategoryStatus - Execution completed. [CategoryId: {}]", id);
+            return categoryMapper.toDto(updated);
+
+        } catch (Exception e) {
+            log.error("CategoryService::updateCategoryStatus - Execution failed.", e);
+            throw new BusinessException("CategoryService::updateCategoryStatus - Execution failed.");
+        }
+    }
+
 }

@@ -15,6 +15,4 @@ public class MaterialRequest {
     private String description;
 
     private Enums.Status status;
-
-
 }

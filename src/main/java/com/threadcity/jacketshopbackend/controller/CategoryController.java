@@ -3,6 +3,7 @@ package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.request.CategoryFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CategoryRequest;
+import com.threadcity.jacketshopbackend.dto.request.CategoryStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.CategoryResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -112,4 +114,24 @@ public class CategoryController {
                 .timestamp(Instant.now())
                 .build();
     }
+
+    @PutMapping("/{id}/status")
+    public ApiResponse<?> updateCategoryStatus(
+            @PathVariable Long id,
+            @RequestBody CategoryStatusRequest request
+    ) {
+        log.info("CategoryController::updateCategoryStatus - Execution started. [id: {}]", id);
+
+        CategoryResponse response = categoryService.updateCategoryStatus(id, request.getStatus());
+
+        log.info("CategoryController::updateCategoryStatus - Execution completed. [id: {}]", id);
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Category status updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
 }
