@@ -11,7 +11,6 @@ import java.time.Instant;
 @Data
 @Builder
 public class CouponRequest {
-    @NotNull(message = "Coupon cannot be null")
     private String code;
     private String description;
     private Enums.CouponType type;

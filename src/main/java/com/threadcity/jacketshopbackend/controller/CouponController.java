@@ -1,14 +1,15 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.CouponFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.CouponRequest;
-import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
+import com.threadcity.jacketshopbackend.dto.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.SizeResponse;
+import com.threadcity.jacketshopbackend.dto.request.CouponRequest;
+import com.threadcity.jacketshopbackend.dto.request.CouponFilterRequest;
 import com.threadcity.jacketshopbackend.service.CouponService;
-import com.threadcity.jacketshopbackend.service.SizeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -21,38 +22,32 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CouponController {
+
     private final CouponService couponService;
 
     @GetMapping
     public ApiResponse<?> getAllCoupons(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) List<String> status,
-            @RequestParam(required = false) List<String> type,
-            @RequestParam(required = false) Instant validFrom,
-            @RequestParam(required = false) Instant validTo,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "DESC") String sortDir
-    ) {
-        log.info("CouponController::getAllCoupons - Execution started");
+            @RequestParam(defaultValue = "DESC") String sortDir,
+            @RequestParam(required = false) List<String> type
 
+            ) {
+        log.info("CouponController::getAllCoupons - Execution started");
         CouponFilterRequest request = CouponFilterRequest.builder()
                 .search(search)
-                .status(status)
                 .type(type)
-                .validFrom(validFrom)
-                .validTo(validTo)
+                .status(status)
                 .page(page)
                 .size(size)
                 .sortBy(sortBy)
                 .sortDir(sortDir)
                 .build();
-
         PageResponse<?> pageResponse = couponService.getAllCoupons(request);
-
         log.info("CouponController::getAllCoupons - Execution completed");
-
         return ApiResponse.builder()
                 .code(200)
                 .message("Get all coupons successfully.")
@@ -61,12 +56,11 @@ public class CouponController {
                 .build();
     }
 
-
     @GetMapping("/{id}")
-    public ApiResponse<?> getCouponByID(@PathVariable Long id) {
-        log.info("CouponController::getCouponByID - Execution started. [id: {}]", id);
+    public ApiResponse<?> getCouponById(@PathVariable Long id) {
+        log.info("CouponController::getCouponById - Execution started. [id: {}]", id);
         CouponResponse response = couponService.getCouponById(id);
-        log.info("CouponController::getCouponByID - Execution completed. [id: {}]", id);
+        log.info("CouponController::getCouponById - Execution completed. [id: {}]", id);
         return ApiResponse.builder()
                 .code(200)
                 .message("Get coupon by ID successfully.")
@@ -76,10 +70,10 @@ public class CouponController {
     }
 
     @PostMapping
-    public ApiResponse<?> createCoupon(@RequestBody CouponRequest couponRequest) {
-        log.info("CouponController::createCoupon - Execution started.");
-        CouponResponse response = couponService.createCoupon(couponRequest);
-        log.info("CouponController::createCoupon - Execution completed.");
+    public ApiResponse<?> createCoupon(@Valid @RequestBody CouponRequest request) {
+        log.info("CouponController::createCoupon - Execution started");
+        CouponResponse response = couponService.createCoupon(request);
+        log.info("CouponController::createCoupon - Execution completed");
         return ApiResponse.builder()
                 .code(201)
                 .message("Coupon created successfully.")
@@ -89,9 +83,9 @@ public class CouponController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<?> updateCoupon(@PathVariable Long id, @RequestBody CouponRequest couponRequest) {
+    public ApiResponse<?> updateCoupon(@PathVariable Long id, @Valid @RequestBody CouponRequest request) {
         log.info("CouponController::updateCoupon - Execution started. [id: {}]", id);
-        CouponResponse response = couponService.updateCouponById(couponRequest, id);
+        CouponResponse response = couponService.updateCouponById(id, request);
         log.info("CouponController::updateCoupon - Execution completed. [id: {}]", id);
         return ApiResponse.builder()
                 .code(200)
@@ -112,6 +106,42 @@ public class CouponController {
                 .timestamp(Instant.now())
                 .build();
     }
+
+    @PutMapping("/{id}/status")
+    public ApiResponse<?> updateStatus(@PathVariable Long id, @RequestBody UpdateStatusRequest request) {
+        log.info("CouponController::updateStatus - Execution started. [id: {}]", id);
+        CouponResponse response = couponService.updateStatus(id, request.getStatus());
+        log.info("CouponController::updateStatus - Execution completed. [id: {}]", id);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Coupon status updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/bulk/status")
+    public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
+        log.info("CouponController::bulkUpdateStatus - Execution started");
+        couponService.bulkUpdateStatus(request.getIds(), request.getStatus());
+        log.info("CouponController::bulkUpdateStatus - Execution completed");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Bulk update status successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/bulk/delete")
+    public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
+        log.info("CouponController::bulkDelete - Execution started");
+        couponService.bulkDelete(request.getIds());
+        log.info("CouponController::bulkDelete - Execution completed");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Bulk delete coupons successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
 }
-
-
