@@ -100,6 +100,9 @@ public class CategoryService {
 
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with CategoryId: " + id));
+        if (categoryRepository.existsByNameAndIdNot(request.getName(), id)) {
+            throw new BusinessException("Category already exists with name: " + request.getName());
+        }
 
         try {
             category.setName(request.getName());
@@ -154,4 +157,40 @@ public class CategoryService {
         }
     }
 
+
+
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @Transactional
+    public void bulkUpdateStatus(List<Long> ids, String status) {
+        log.info("CategoryService::bulkUpdateStatus - Execution started.");
+
+        List<Category> categories = categoryRepository.findAllById(ids);
+        categories.forEach(c -> c.setStatus(
+                Enum.valueOf(Enums.Status.class, status.toUpperCase())
+        ));
+
+        categoryRepository.saveAll(categories);
+
+        log.info("CategoryService::bulkUpdateStatus - Execution completed.");
+    }
+
+    // =============================
+    // BULK DELETE
+    // =============================
+    @Transactional
+    public void bulkDelete(List<Long> ids) {
+        log.info("CategoryService::bulkDelete - Execution started.");
+
+        List<Category> categories = categoryRepository.findAllById(ids);
+
+        if (categories.size() != ids.size()) {
+            throw new EntityNotFoundException("One or more categories do not exist.");
+        }
+
+        categoryRepository.deleteAllInBatch(categories);
+
+        log.info("CategoryService::bulkDelete - Execution completed.");
+    }
 }

@@ -1,12 +1,16 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.PaymentMethodFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.PaymentMethodRequest;
+import com.threadcity.jacketshopbackend.dto.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.PaymentMethodResponse;
 import com.threadcity.jacketshopbackend.service.PaymentMethodService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -117,6 +121,54 @@ public class PaymentMethodController {
         return ApiResponse.builder()
                 .code(200)
                 .message("Payment method deleted successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+    @PutMapping("/{id}/status")
+    public ApiResponse<?> updateStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateStatusRequest request
+    ) {
+        log.info("PaymentMethodController::updateStatus - Execution started. [id: {}]", id);
+        PaymentMethodResponse response = paymentMethodService.updateStatus(id, request.getStatus());
+        log.info("PaymentMethodController::updateStatus - Execution completed. [id: {}]", id);
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Payment method status updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @PostMapping("/bulk/status")
+    public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
+        log.info("PaymentMethodController::bulkUpdateStatus - Execution started.");
+        paymentMethodService.bulkUpdateStatus(request.getIds(), request.getStatus());
+        log.info("PaymentMethodController::bulkUpdateStatus - Execution completed.");
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Bulk update payment methods status successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    // =============================
+    // BULK DELETE
+    // =============================
+    @PostMapping("/bulk/delete")
+    public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
+        log.info("PaymentMethodController::bulkDelete - Execution started.");
+        paymentMethodService.bulkDelete(request.getIds());
+        log.info("PaymentMethodController::bulkDelete - Execution completed.");
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Bulk delete payment methods successfully.")
                 .timestamp(Instant.now())
                 .build();
     }

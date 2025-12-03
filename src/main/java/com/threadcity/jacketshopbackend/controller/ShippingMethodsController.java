@@ -1,11 +1,15 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.ShippingMethodsFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ShippingMethodsRequest;
+import com.threadcity.jacketshopbackend.dto.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ShippingMethodsResponse;
 import com.threadcity.jacketshopbackend.service.ShippingMethodsService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -123,6 +127,53 @@ public class ShippingMethodsController {
         return ApiResponse.builder()
                 .code(200)
                 .message("Shipping method deleted successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+    @PutMapping("/{id}/status")
+    public ApiResponse<?> updateStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateStatusRequest request
+    ) {
+        log.info("ShippingMethodController::updateStatus - Execution started. [id: {}]", id);
+        ShippingMethodsResponse response = shippingMethodService.updateStatus(id, request.getStatus());
+        log.info("ShippingMethodController::updateStatus - Execution completed. [id: {}]", id);
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Shipping method status updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @PostMapping("/bulk/status")
+    public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
+        log.info("ShippingMethodController::bulkUpdateStatus - Execution started.");
+        shippingMethodService.bulkUpdateStatus(request.getIds(), request.getStatus());
+        log.info("ShippingMethodController::bulkUpdateStatus - Execution completed.");
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Bulk update shipping methods status successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    // =============================
+    // BULK DELETE
+    // =============================
+    @PostMapping("/bulk/delete")
+    public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
+        log.info("ShippingMethodController::bulkDelete - Execution started.");
+        shippingMethodService.bulkDelete(request.getIds());
+        log.info("ShippingMethodController::bulkDelete - Execution completed.");
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Bulk delete shipping methods successfully.")
                 .timestamp(Instant.now())
                 .build();
     }

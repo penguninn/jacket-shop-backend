@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.request.PaymentMethodFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.PaymentMethodRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -103,6 +104,11 @@ public class PaymentMethodService {
         PaymentMethod entity = paymentMethodRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Payment method not found with Id: " + id));
 
+        // FIX: Kiểm tra trùng name nhưng phải loại trừ chính record đang update
+        if (paymentMethodRepository.existsByNameAndIdNot(request.getName(), id)) {
+            throw new BusinessException("Payment method already exists with name: " + request.getName());
+        }
+
         try {
             entity.setName(request.getName());
             entity.setDescription(request.getDescription());
@@ -120,6 +126,7 @@ public class PaymentMethodService {
         }
     }
 
+
     @Transactional
     public void deletePaymentMethod(Long id) {
         log.info("PaymentMethodService::deletePaymentMethod - Execution started. [Id: {}]", id);
@@ -136,5 +143,54 @@ public class PaymentMethodService {
             log.error("PaymentMethodService::deletePaymentMethod - Execution failed.", e);
             throw new BusinessException("PaymentMethodService::deletePaymentMethod - Execution failed.");
         }
+    }
+    @Transactional
+    public PaymentMethodResponse updateStatus(Long id, String status) {
+        log.info("PaymentMethodService::updateStatus - Execution started. [id: {}]", id);
+
+        PaymentMethod method = paymentMethodRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Payment method not found with id: " + id));
+
+        method.setStatus(Enum.valueOf(Enums.Status.class, status.toUpperCase()));
+
+        PaymentMethod saved = paymentMethodRepository.save(method);
+
+        log.info("PaymentMethodService::updateStatus - Execution completed. [id: {}]", id);
+
+        return paymentMethodMapper.toDto(saved);
+    }
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @Transactional
+    public void bulkUpdateStatus(List<Long> ids, String status) {
+        log.info("PaymentMethodService::bulkUpdateStatus - Execution started.");
+
+        List<PaymentMethod> methods = paymentMethodRepository.findAllById(ids);
+        methods.forEach(m -> m.setStatus(
+                Enum.valueOf(Enums.Status.class, status.toUpperCase())
+        ));
+
+        paymentMethodRepository.saveAll(methods);
+
+        log.info("PaymentMethodService::bulkUpdateStatus - Execution completed.");
+    }
+
+    // =============================
+    // BULK DELETE
+    // =============================
+    @Transactional
+    public void bulkDelete(List<Long> ids) {
+        log.info("PaymentMethodService::bulkDelete - Execution started.");
+
+        List<PaymentMethod> methods = paymentMethodRepository.findAllById(ids);
+
+        if (methods.size() != ids.size()) {
+            throw new EntityNotFoundException("One or more payment methods do not exist.");
+        }
+
+        paymentMethodRepository.deleteAllInBatch(methods);
+
+        log.info("PaymentMethodService::bulkDelete - Execution completed.");
     }
 }

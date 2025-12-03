@@ -94,6 +94,9 @@ public class MaterialService {
 
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Material not found with MaterialId: " + id));
+        if (materialRepository.existsByNameAndIdNot(request.getName(), id)) {
+            throw new BusinessException("Material already exists with name: " + request.getName());
+        }
 
         try {
             material.setName(request.getName());
@@ -146,4 +149,40 @@ public class MaterialService {
             throw new BusinessException("MaterialService::updateMaterialStatus - Execution failed.");
         }
     }
+
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @Transactional
+    public void bulkUpdateStatus(List<Long> ids, String status) {
+        log.info("MaterialService::bulkUpdateStatus - Execution started.");
+
+        List<Material> materials = materialRepository.findAllById(ids);
+        materials.forEach(m -> m.setStatus(
+                Enum.valueOf(Enums.Status.class, status.toUpperCase())
+        ));
+
+        materialRepository.saveAll(materials);
+
+        log.info("MaterialService::bulkUpdateStatus - Execution completed.");
+    }
+
+    // =============================
+    // BULK DELETE
+    // =============================
+    @Transactional
+    public void bulkDelete(List<Long> ids) {
+        log.info("MaterialService::bulkDelete - Execution started.");
+
+        List<Material> materials = materialRepository.findAllById(ids);
+
+        if (materials.size() != ids.size()) {
+            throw new EntityNotFoundException("One or more materials do not exist.");
+        }
+
+        materialRepository.deleteAllInBatch(materials);
+
+        log.info("MaterialService::bulkDelete - Execution completed.");
+    }
 }
+

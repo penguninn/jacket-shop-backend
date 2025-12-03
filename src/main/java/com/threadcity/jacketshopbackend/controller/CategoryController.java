@@ -1,5 +1,7 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.CategoryFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CategoryRequest;
 import com.threadcity.jacketshopbackend.dto.request.CategoryStatusRequest;
@@ -88,19 +90,20 @@ public class CategoryController {
                                 .build();
         }
 
-        @PutMapping("/{id}")
-        public ApiResponse<?> updateCategory(@PathVariable Long id,
-                        @Valid @RequestBody CategoryRequest categoryRequest) {
-                log.info("CategoryController::updateCategory - Execution started. [id: {}]", id);
-                CategoryResponse response = categoryService.updateCategoryById(categoryRequest, id);
-                log.info("CategoryController::updateCategory - Execution completed. [id: {}]", id);
-                return ApiResponse.builder()
-                                .code(200)
-                                .message("Category updated successfully.")
-                                .data(response)
-                                .timestamp(Instant.now())
-                                .build();
-        }
+    @PutMapping("/{id}")
+    public ApiResponse<?> updateCategory(@PathVariable Long id,
+                                         @Valid @RequestBody CategoryRequest categoryRequest) {
+        log.info("CategoryController::updateCategory - Execution started. [id: {}]", id);
+        CategoryResponse response = categoryService.updateCategoryById(categoryRequest, id);
+        log.info("CategoryController::updateCategory - Execution completed. [id: {}]", id);
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Category updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
 
 
     @DeleteMapping("/{id}")
@@ -133,6 +136,40 @@ public class CategoryController {
                 .timestamp(Instant.now())
                 .build();
     }
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @PostMapping("/bulk/status")
+    public ApiResponse<?> bulkUpdateStatus(@RequestBody BulkStatusRequest request) {
+        log.info("CategoryController::bulkUpdateStatus - Execution started.");
 
+        categoryService.bulkUpdateStatus(request.getIds(), request.getStatus());
+
+        log.info("CategoryController::bulkUpdateStatus - Execution completed.");
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Bulk update category status successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    // =============================
+    // BULK DELETE
+    // =============================
+    @PostMapping("/bulk/delete")
+    public ApiResponse<?> bulkDelete(@RequestBody BulkDeleteRequest request) {
+        log.info("CategoryController::bulkDelete - Execution started.");
+
+        categoryService.bulkDelete(request.getIds());
+
+        log.info("CategoryController::bulkDelete - Execution completed.");
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Bulk delete categories successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
 
 }

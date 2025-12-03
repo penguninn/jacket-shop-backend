@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.request.ShippingMethodsFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ShippingMethodsRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -102,6 +103,10 @@ public class ShippingMethodsService {
 
         ShippingMethod method = shippingMethodRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("ShippingMethod not found with id: " + id));
+        if (shippingMethodRepository.existsByNameAndIdNot(request.getName(), id)) {
+            throw new BusinessException("Shipping method already exists with name: " + request.getName());
+        }
+
 
         try {
             method.setName(request.getName());
@@ -138,5 +143,53 @@ public class ShippingMethodsService {
             log.error("ShippingMethodService::deleteShippingMethod - Execution failed.", e);
             throw new BusinessException("ShippingMethodService::deleteShippingMethod - Execution failed.");
         }
+    }
+    // =============================
+    // BULK UPDATE STATUS
+    // =============================
+    @Transactional
+    public void bulkUpdateStatus(List<Long> ids, String status) {
+        log.info("ShippingMethodService::bulkUpdateStatus - Execution started.");
+
+        List<ShippingMethod> methods = shippingMethodRepository.findAllById(ids);
+        methods.forEach(m -> m.setStatus(
+                Enum.valueOf(Enums.Status.class, status.toUpperCase())
+        ));
+
+        shippingMethodRepository.saveAll(methods);
+
+        log.info("ShippingMethodService::bulkUpdateStatus - Execution completed.");
+    }
+    @Transactional
+    public ShippingMethodsResponse updateStatus(Long id, String status) {
+        log.info("ShippingMethodService::updateStatus - Execution started. [id: {}]", id);
+
+        ShippingMethod method = shippingMethodRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Shipping method not found with id: " + id));
+
+        method.setStatus(Enum.valueOf(Enums.Status.class, status.toUpperCase()));
+
+        ShippingMethod saved = shippingMethodRepository.save(method);
+
+        log.info("ShippingMethodService::updateStatus - Execution completed. [id: {}]", id);
+
+        return shippingMethodMapper.toDto(saved);
+    }
+    // =============================
+    // BULK DELETE
+    // =============================
+    @Transactional
+    public void bulkDelete(List<Long> ids) {
+        log.info("ShippingMethodService::bulkDelete - Execution started.");
+
+        List<ShippingMethod> methods = shippingMethodRepository.findAllById(ids);
+
+        if (methods.size() != ids.size()) {
+            throw new EntityNotFoundException("One or more shipping methods do not exist.");
+        }
+
+        shippingMethodRepository.deleteAllInBatch(methods);
+
+        log.info("ShippingMethodService::bulkDelete - Execution completed.");
     }
 }
