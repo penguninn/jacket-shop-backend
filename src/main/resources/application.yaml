@@ -11,8 +11,8 @@ spring:
     url: jdbc:sqlserver://localhost:1433;databaseName=JacketShop;encrypt=true;trustServerCertificate=true;
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: sa
-    password: 123456
-    
+    password: JacketShop123!
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -22,6 +22,11 @@ jwt:
   access-ttl-ms: 900000
   refresh-ttl-ms: 604800000
   issuer: jacket-shop
+
+cloudinary:
+  name: ${CLOUDINARY_NAME:dfjfuptii}
+  api_key: ${CLOUDINARY_API_KEY:311937242479286}
+  api_secret: ${CLOUDINARY_API_SECRET:sHrQ69iVAL7l-mGUWUdVQzuP35E}
 
 logging:
   level:
