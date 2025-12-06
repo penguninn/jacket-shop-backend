@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
+import com.threadcity.jacketshopbackend.common.Enums.PaymentStatus;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 
 import jakarta.persistence.CascadeType;
@@ -67,10 +68,6 @@ public class Order {
     @Column(name = "customer_phone", length = 20)
     private String customerPhone;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id")
-    private Address address;
-
     @Column(name = "shipping_recipient_name", length = 120)
     private String shippingRecipientName;
 
@@ -80,36 +77,41 @@ public class Order {
     @Column(name = "shipping_address_line", nullable = false, length = 255)
     private String shippingAddressLine;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shipping_ward_code", nullable = false)
-    private Ward shippingWard;
+    @Column(name = "shipping_province_code", length = 20)
+    private String shippingProvinceCode;
 
-    @Column(name = "shipping_ward_name", nullable = false, length = 100)
+    @Column(name = "shipping_district_code", length = 20)
+    private String shippingDistrictCode;
+
+    @Column(name = "shipping_ward_code", length = 20)
+    private String shippingWardCode;
+
+    @Column(name = "shipping_province_name")
+    private String shippingProvinceName;
+
+    @Column(name = "shipping_district_name")
+    private String shippingDistrictName;
+
+    @Column(name = "shipping_ward_name")
     private String shippingWardName;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shipping_province_code", nullable = false)
-    private Province shippingProvince;
-
-    @Column(name = "shipping_province_name", nullable = false, length = 100)
-    private String shippingProvinceName;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "payment_method_id", nullable = false)
-    private PaymentMethod paymentMethod;
+    private PaymentMethod paymentMethod; // cod, stripe, qr_online, cash, or_pos
 
     @Column(name = "payment_method_name", length = 80)
     private String paymentMethodName;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status")
+    private PaymentStatus paymentStatus;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shipping_method_id", nullable = false)
-    private ShippingMethod shippingMethod;
+    private ShippingMethod shippingMethod; // VTPOST, EMS, VNPOST, GHTK, GHNV3, SPX
 
     @Column(name = "shipping_method_name", length = 100)
     private String shippingMethodName;
-
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal subtotal;
 
     @Column(nullable = false, precision = 12, scale = 2)
     @Builder.Default
@@ -127,12 +129,20 @@ public class Order {
     private BigDecimal discount = BigDecimal.ZERO;
 
     @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal subtotal;
+
+    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal total;
+
+    @Column(name = "transaction_id")
+    private String transactionId;
+
+    @Column(name = "payment_date")
+    private Instant paymentDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    @Builder.Default
-    private OrderStatus status = OrderStatus.PENDING;
+    private OrderStatus status;
 
     @Column(length = 500)
     private String note;

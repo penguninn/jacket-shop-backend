@@ -50,14 +50,10 @@ public class PaymentMethod {
     private Long id;
 
     @Column(nullable = false, length = 80)
-    private String name; // COD, Banking, MoMo, ZaloPay
+    private String name;
 
     @Column(length = 255)
     private String description;
-
-    @Lob
-    @Column(name = "config_json", columnDefinition = "NVARCHAR(MAX)")
-    private String configJson;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

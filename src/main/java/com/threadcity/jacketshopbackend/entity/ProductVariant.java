@@ -19,6 +19,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -76,6 +77,10 @@ public class ProductVariant {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status;
+
+    @Lob
+    @Column(name = "image", columnDefinition = "NVARCHAR(MAX)")
+    private String image;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false)

@@ -3,6 +3,8 @@ package com.threadcity.jacketshopbackend.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -17,7 +19,6 @@ import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "wards")
 @Getter
 @Setter
@@ -27,19 +28,16 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Ward {
 
     @Id
-    @Column(name = "code")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+    @Column(name = "code", unique = true, nullable = false)
+    private String code; 
 
-    @Column(nullable = false, length = 50)
-    private String codename;
+    @Column(name = "name", nullable = false)
+    private String name; 
 
-    @Column(name = "division_type", length = 50)
-    private String divisionType;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "province_code", nullable = false)
-    private Province province;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "district_id")
+    private District district;
 }

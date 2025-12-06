@@ -7,11 +7,11 @@ public class Enums {
     }
 
     public enum OrderStatus {
-        PENDING, CONFIRMED, SHIPPING, COMPLETED, CANCELLED
+        PENDING, CONFIRMED, SHIPPING, COMPLETED, CANCELLED, RETURNED
     }
 
     public enum PaymentStatus {
-        PENDING, SUCCESS, FAILED
+        UNPAID, PAID, REFUNDED
     }
 
     public enum TokenType {
