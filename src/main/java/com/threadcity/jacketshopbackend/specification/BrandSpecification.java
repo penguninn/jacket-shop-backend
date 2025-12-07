@@ -32,8 +32,7 @@ public class BrandSpecification {
     }
 
     public static Specification<Brand> buildSpec(BrandFilterRequest request) {
-        return Specification
-                .where(hasSearch(request.getSearch()))
+        return hasSearch(request.getSearch())
                 .and(hasStatuses(request.getStatus()));
     }
 }

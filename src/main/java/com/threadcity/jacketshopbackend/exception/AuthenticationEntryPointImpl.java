@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -16,25 +15,30 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 
-    private ObjectMapper om = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
-        String path = request.getRequestURI();
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
-        pd.setTitle("Unauthorized");
-        pd.setDetail(authException.getMessage());
-        pd.setType(URI.create("https://api.jacketshop.com/problems/unauthorized"));
-        pd.setInstance(URI.create(path));
+        log.error("Authentication Failed: {}", authException.getMessage());
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
-        om.writeValue(response.getWriter(), pd);
+        response.setContentType("application/json");
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setTitle("Authentication Failed");
+        problemDetail.setDetail(authException.getMessage());
+        problemDetail.setProperty("errorCode", ErrorCodes.AUTH_INVALID_CREDENTIALS);
+
+        objectMapper.writeValue(response.getOutputStream(), problemDetail);
     }
 
 }

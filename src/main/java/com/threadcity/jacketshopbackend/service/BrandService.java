@@ -5,11 +5,12 @@ import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
 import com.threadcity.jacketshopbackend.entity.Brand;
-import com.threadcity.jacketshopbackend.exception.BusinessException;
+import com.threadcity.jacketshopbackend.exception.ErrorCodes;
+import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
+import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.BrandMapper;
 import com.threadcity.jacketshopbackend.repository.BrandRepository;
 import com.threadcity.jacketshopbackend.specification.BrandSpecification;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,89 +33,79 @@ public class BrandService {
     public BrandResponse getBrandById(Long Id) {
         log.info("BrandService::getBrandById - Execution started. [Id: {}]", Id);
         Brand brand = brandRepository.findById(Id)
-                .orElseThrow(() -> new EntityNotFoundException("Brand not found with BrandId: " + Id));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND,
+                        "Brand not found with id: " + Id));
         log.info("BrandService::getBrandById - Execution completed. [BrandId: {}]", Id);
         return brandMapper.toDto(brand);
     }
 
     public PageResponse<?> getAllBrand(BrandFilterRequest request) {
         log.info("BrandService::getAllBrand - Execution started.");
-        try {
-            Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
-            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
 
-            Specification<Brand> spec = BrandSpecification.buildSpec(request);
-            Page<Brand> brandPage = brandRepository.findAll(spec, pageable);
+        Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
 
-            List<BrandResponse> brandList = brandPage.getContent().stream()
-                    .map(brandMapper::toDto)
-                    .toList();
+        Specification<Brand> spec = BrandSpecification.buildSpec(request);
+        Page<Brand> brandPage = brandRepository.findAll(spec, pageable);
 
-            log.info("BrandService::getAllBrand - Execution completed.");
-            return PageResponse.builder()
-                    .contents(brandList)
-                    .size(request.getSize())
-                    .page(request.getPage())
-                    .totalPages(brandPage.getTotalPages())
-                    .totalElements(brandPage.getTotalElements())
-                    .build();
-        } catch (Exception e) {
-            log.error("BrandService::getAllBrand - Execution failed.", e);
-            throw new BusinessException("BrandService::getAllBrand - Execution failed.");
-        }
+        List<BrandResponse> brandList = brandPage.getContent().stream()
+                .map(brandMapper::toDto)
+                .toList();
+
+        log.info("BrandService::getAllBrand - Execution completed.");
+        return PageResponse.builder()
+                .contents(brandList)
+                .size(request.getSize())
+                .page(request.getPage())
+                .totalPages(brandPage.getTotalPages())
+                .totalElements(brandPage.getTotalElements())
+                .build();
     }
 
     @Transactional
     public BrandResponse createBrand(BrandRequest brand) {
         log.info("BrandService::createBrand - Execution started.");
         if (brandRepository.existsByName(brand.getName())) {
-            throw new BusinessException("Brand already exists with name: " + brand.getName());
+            throw new ResourceConflictException(ErrorCodes.BRAND_NAME_DUPLICATE,
+                    "Brand already exists with name: " + brand.getName());
         }
-        try {
-            Brand brandEntity = brandMapper.toEntity(brand);
-            Brand savedBrand = brandRepository.save(brandEntity);
-            log.info("BrandService::createBrand - Execution completed.");
-            return brandMapper.toDto(savedBrand);
-        } catch (Exception e) {
-            log.error("BrandService::createBrand - Execution failed.", e);
-            throw new BusinessException("BrandService::createBrand - Execution failed.");
-        }
+
+        Brand brandEntity = brandMapper.toEntity(brand);
+        Brand savedBrand = brandRepository.save(brandEntity);
+        log.info("BrandService::createBrand - Execution completed.");
+        return brandMapper.toDto(savedBrand);
     }
 
     @Transactional
     public BrandResponse updateBrandById(BrandRequest brandRequest, Long id) {
         log.info("BrandService::updateBrandById - Execution started.");
-        if (brandRepository.existsByName(brandRequest.getName())) {
-            throw new BusinessException("Brand already exists with name: " + brandRequest.getName());
+
+        Brand brand = brandRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND,
+                        "Brand not found with id: " + id));
+
+        if (!brand.getName().equals(brandRequest.getName()) && brandRepository.existsByName(brandRequest.getName())) {
+            throw new ResourceConflictException(ErrorCodes.BRAND_NAME_DUPLICATE,
+                    "Brand already exists with name: " + brandRequest.getName());
         }
-        try {
-            Brand brand = brandRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Brand not found with BrandId: " + id));
-            brand.setName(brandRequest.getName());
-            brand.setLogoUrl(brandRequest.getLogoUrl());
-            brand.setStatus(brandRequest.getStatus());
-            Brand savedBrand = brandRepository.save(brand);
-            log.info("BrandService::updateProfile - Execution completed. [BrandId: {}]", id);
-            return brandMapper.toDto(savedBrand);
-        } catch (RuntimeException e) {
-            log.error("BrandService::updateProfile - Execution failed.", e);
-            throw new BusinessException("BrandService::updateProfile - Execution failed.");
-        }
+
+        brand.setName(brandRequest.getName());
+        brand.setLogoUrl(brandRequest.getLogoUrl());
+        brand.setStatus(brandRequest.getStatus());
+        Brand savedBrand = brandRepository.save(brand);
+        log.info("BrandService::updateProfile - Execution completed. [BrandId: {}]", id);
+        return brandMapper.toDto(savedBrand);
     }
 
     @Transactional
     public void deleteBrand(Long id) {
         log.info("BrandService::deleteBrand - Execution started.");
-        try {
-            if (!brandRepository.existsById(id)) {
-                throw new EntityNotFoundException("Brand not found with BrandId: " + id);
-            }
-            brandRepository.deleteById(id);
-            log.info("BrandService::deleteBrand - Execution completed.");
-        } catch (Exception e) {
-            log.error("BrandService::deleteBrand - Execution failed.", e);
-            throw new BusinessException("BrandService::deleteBrand - Execution failed.");
+
+        if (!brandRepository.existsById(id)) {
+            throw new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND, "Brand not found with id: " + id);
         }
+        brandRepository.deleteById(id);
+        log.info("BrandService::deleteBrand - Execution completed.");
     }
 
     @Transactional
@@ -122,7 +113,8 @@ public class BrandService {
         log.info("BrandService::updateStatus - Execution started. [id: {}]", id);
 
         Brand brand = brandRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Brand not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND,
+                        "Brand not found with id: " + id));
 
         brand.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase()));
 
@@ -159,7 +151,10 @@ public class BrandService {
         List<Brand> brands = brandRepository.findAllById(ids);
 
         if (brands.size() != ids.size()) {
-            throw new EntityNotFoundException("One or more brands do not exist.");
+            // Calculate missing IDs
+            List<Long> foundIds = brands.stream().map(Brand::getId).toList();
+            List<Long> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).toList();
+            throw new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND, "Brands not found: " + missingIds);
         }
 
         brandRepository.deleteAllInBatch(brands);

@@ -5,12 +5,13 @@ import com.threadcity.jacketshopbackend.dto.request.CategoryRequest;
 import com.threadcity.jacketshopbackend.dto.response.CategoryResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Category;
-import com.threadcity.jacketshopbackend.exception.BusinessException;
+import com.threadcity.jacketshopbackend.exception.ErrorCodes;
+import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
+import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.CategoryMapper;
 import com.threadcity.jacketshopbackend.repository.CategoryRepository;
 import com.threadcity.jacketshopbackend.specification.CategorySpecification;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,44 +33,39 @@ public class CategoryService {
     public CategoryResponse getCategoryById(Long id) {
         log.info("CategoryService::getCategoryById - Execution started. [Id: {}]", id);
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category not found with CategoryId: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND,
+                        "Category not found with id: " + id));
 
         log.info("CategoryService::getCategoryById - Execution completed. [CategoryId: {}]", id);
         return categoryMapper.toDto(category);
     }
+
     public PageResponse<?> getAllCategories(CategoryFilterRequest request) {
         log.info("CategoryService::getAllCategories - Execution started.");
 
-        try {
-            Sort sort = Sort.by(
-                    Sort.Direction.fromString(request.getSortDir()),
-                    request.getSortBy()
-            );
-            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+        Sort sort = Sort.by(
+                Sort.Direction.fromString(request.getSortDir()),
+                request.getSortBy());
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
 
-            Specification<Category> spec = CategorySpecification.buildSpec(request);
+        Specification<Category> spec = CategorySpecification.buildSpec(request);
 
-            Page<Category> categoryPage = categoryRepository.findAll(spec, pageable);
+        Page<Category> categoryPage = categoryRepository.findAll(spec, pageable);
 
-            List<CategoryResponse> responseList = categoryPage.getContent()
-                    .stream()
-                    .map(categoryMapper::toDto)
-                    .toList();
+        List<CategoryResponse> responseList = categoryPage.getContent()
+                .stream()
+                .map(categoryMapper::toDto)
+                .toList();
 
-            log.info("CategoryService::getAllCategories - Execution completed.");
+        log.info("CategoryService::getAllCategories - Execution completed.");
 
-            return PageResponse.builder()
-                    .contents(responseList)
-                    .size(request.getSize())
-                    .page(request.getPage())
-                    .totalPages(categoryPage.getTotalPages())
-                    .totalElements(categoryPage.getTotalElements())
-                    .build();
-
-        } catch (Exception e) {
-            log.error("CategoryService::getAllCategories - Execution failed.", e);
-            throw new BusinessException("CategoryService::getAllCategories - Execution failed.");
-        }
+        return PageResponse.builder()
+                .contents(responseList)
+                .size(request.getSize())
+                .page(request.getPage())
+                .totalPages(categoryPage.getTotalPages())
+                .totalElements(categoryPage.getTotalElements())
+                .build();
     }
 
     @Transactional
@@ -77,20 +73,15 @@ public class CategoryService {
         log.info("CategoryService::createCategory - Execution started.");
 
         if (categoryRepository.existsByName(request.getName())) {
-            throw new BusinessException("Category already exists with name: " + request.getName());
+            throw new ResourceConflictException(ErrorCodes.CATEGORY_NAME_DUPLICATE,
+                    "Category already exists with name: " + request.getName());
         }
 
-        try {
-            Category category = categoryMapper.toEntity(request);
-            Category savedCategory = categoryRepository.save(category);
+        Category category = categoryMapper.toEntity(request);
+        Category savedCategory = categoryRepository.save(category);
 
-            log.info("CategoryService::createCategory - Execution completed.");
-            return categoryMapper.toDto(savedCategory);
-
-        } catch (Exception e) {
-            log.error("CategoryService::createCategory - Execution failed.", e);
-            throw new BusinessException("CategoryService::createCategory - Execution failed.");
-        }
+        log.info("CategoryService::createCategory - Execution completed.");
+        return categoryMapper.toDto(savedCategory);
     }
 
     @Transactional
@@ -98,21 +89,16 @@ public class CategoryService {
         log.info("CategoryService::updateCategoryById - Execution started.");
 
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category not found with CategoryId: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND,
+                        "Category not found with id: " + id));
 
-        try {
-            category.setName(request.getName());
-            category.setStatus(request.getStatus());
+        category.setName(request.getName());
+        category.setStatus(request.getStatus());
 
-            Category savedCategory = categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
 
-            log.info("CategoryService::updateCategoryById - Execution completed. [CategoryId: {}]", id);
-            return categoryMapper.toDto(savedCategory);
-
-        } catch (RuntimeException e) {
-            log.error("CategoryService::updateCategoryById - Execution failed.", e);
-            throw new BusinessException("CategoryService::updateCategoryById - Execution failed.");
-        }
+        log.info("CategoryService::updateCategoryById - Execution completed. [CategoryId: {}]", id);
+        return categoryMapper.toDto(savedCategory);
     }
 
     @Transactional
@@ -120,16 +106,10 @@ public class CategoryService {
         log.info("CategoryService::deleteCategory - Execution started. [CategoryId: {}]", id);
 
         if (!categoryRepository.existsById(id)) {
-            throw new EntityNotFoundException("Category not found with CategoryId: " + id);
+            throw new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND, "Category not found with id: " + id);
         }
 
-        try {
-            categoryRepository.deleteById(id);
-            log.info("CategoryService::deleteCategory - Execution completed. [CategoryId: {}]", id);
-
-        } catch (Exception e) {
-            log.error("CategoryService::deleteCategory - Execution failed.", e);
-            throw new BusinessException("CategoryService::deleteCategory - Execution failed.");
-        }
+        categoryRepository.deleteById(id);
+        log.info("CategoryService::deleteCategory - Execution completed. [CategoryId: {}]", id);
     }
 }

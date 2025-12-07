@@ -1,6 +1,5 @@
 package com.threadcity.jacketshopbackend.specification;
 
-
 import com.threadcity.jacketshopbackend.dto.request.SizeFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Size;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
@@ -12,7 +11,7 @@ import java.util.List;
 public class SizeSpecification {
 
     public static Specification<Size> buildSpec(SizeFilterRequest request) {
-        return Specification.where(search(request.getSearch()))
+        return search(request.getSearch())
                 .and(filterStatus(request.getStatus()));
     }
 
@@ -24,8 +23,7 @@ public class SizeSpecification {
             String pattern = "%" + search.toLowerCase() + "%";
             return cb.or(
                     cb.like(cb.lower(root.get("name")), pattern),
-                    cb.like(cb.lower(root.get("description")), pattern)
-            );
+                    cb.like(cb.lower(root.get("description")), pattern));
         };
     }
 

@@ -1,7 +1,6 @@
 package com.threadcity.jacketshopbackend.dto.request;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.entity.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +18,7 @@ public class ProductVariantRequest {
     private BigDecimal price;
     private BigDecimal costPrice;
     private BigDecimal salePrice;
+    @Builder.Default
     private Integer quantity = 0;
     private Enums.Status status;
 }

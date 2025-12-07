@@ -6,11 +6,12 @@ import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
 import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.*;
-import com.threadcity.jacketshopbackend.exception.BusinessException;
+import com.threadcity.jacketshopbackend.exception.ErrorCodes;
+import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
+import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.ProductMapper;
 import com.threadcity.jacketshopbackend.repository.*;
 import com.threadcity.jacketshopbackend.specification.ProductSpecification;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,151 +36,138 @@ public class ProductService {
     public ProductResponse getProductById(Long id) {
         log.info("ProductService::getProductById - Execution started. [id: {}]", id);
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
+                        "Product not found with id: " + id));
         log.info("ProductService::getProductById - Execution completed. [id: {}]", id);
         return productMapper.toDto(product);
     }
 
     public PageResponse<?> getAllProduct(ProductFilterRequest request) {
         log.info("ProductService::getAllProduct - Execution started.");
-        try {
-            Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
-            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
 
-            Specification<Product> spec = ProductSpecification.buildSpec(request);
-            Page<Product> productPage = productRepository.findAll(spec, pageable);
+        Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
 
-            List<ProductResponse> productResponse = productPage.getContent().stream()
-                    .map(productMapper::toDto)
-                    .toList();
-            log.info("ProductService::getAllProduct - Execution completed.");
-            return PageResponse.builder()
-                    .contents(productResponse)
-                    .size(request.getSize())
-                    .page(request.getPage())
-                    .totalPages(productPage.getTotalPages())
-                    .totalElements(productPage.getTotalElements())
-                    .build();
+        Specification<Product> spec = ProductSpecification.buildSpec(request);
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
 
-        } catch (Exception e) {
-            log.error("ProductService::getAllProduct - Execution failed.", e);
-            throw new BusinessException("Failed to get products.");
-        }
+        List<ProductResponse> productResponse = productPage.getContent().stream()
+                .map(productMapper::toDto)
+                .toList();
+        log.info("ProductService::getAllProduct - Execution completed.");
+        return PageResponse.builder()
+                .contents(productResponse)
+                .size(request.getSize())
+                .page(request.getPage())
+                .totalPages(productPage.getTotalPages())
+                .totalElements(productPage.getTotalElements())
+                .build();
     }
 
     @Transactional
     public ProductResponse createProduct(ProductRequest req) {
         log.info("ProductService::createProduct - Execution started.");
-
         if (productRepository.existsByName(req.getName())) {
-            throw new BusinessException("Product already exists with name: " + req.getName());
+            throw new ResourceConflictException(ErrorCodes.PRODUCT_NAME_DUPLICATE,
+                    "Product already exists with name: " + req.getName());
         }
 
-        try {
-            Product product = new Product();
-            product.setName(req.getName());
-            product.setDescription(req.getDescription());
-            product.setStatus(req.getStatus());
-            product.setImagesJson(req.getImagesJson());
+        Product product = new Product();
 
-            if (req.getCategoryId() != null) {
-                Category category = categoryRepository.findById(req.getCategoryId())
-                        .orElseThrow(() -> new BusinessException("Category not found"));
-                product.setCategory(category);
-            }
-
-            if (req.getBrandId() != null) {
-                Brand brand = brandRepository.findById(req.getBrandId())
-                        .orElseThrow(() -> new BusinessException("Brand not found"));
-                product.setBrand(brand);
-            }
-
-            if (req.getMaterialId() != null) {
-                Material material = materialRepository.findById(req.getMaterialId())
-                        .orElseThrow(() -> new BusinessException("Material not found"));
-                product.setMaterial(material);
-            }
-
-            if (req.getStyleId() != null) {
-                Style style = styleRepository.findById(req.getStyleId())
-                        .orElseThrow(() -> new BusinessException("Style not found"));
-                product.setStyle(style);
-            }
-
-            Product saved = productRepository.save(product);
-            log.info("ProductService::createProduct - Execution completed.");
-            return productMapper.toDto(saved);
-
-        } catch (Exception e) {
-            log.error("ProductService::createProduct - Execution failed.", e);
-            throw new BusinessException("Failed to create product.");
+        if (req.getCategoryId() != null) {
+            Category category = categoryRepository.findById(req.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND,
+                            "Category not found with id: " + req.getCategoryId()));
+            product.setCategory(category);
         }
+
+        if (req.getBrandId() != null) {
+            Brand brand = brandRepository.findById(req.getBrandId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND,
+                            "Brand not found with id: " + req.getBrandId()));
+            product.setBrand(brand);
+        }
+
+        if (req.getMaterialId() != null) {
+            Material material = materialRepository.findById(req.getMaterialId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.MATERIAL_NOT_FOUND,
+                            "Material not found with id: " + req.getMaterialId()));
+            product.setMaterial(material);
+        }
+
+        if (req.getStyleId() != null) {
+            Style style = styleRepository.findById(req.getStyleId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.STYLE_NOT_FOUND,
+                            "Style not found with id: " + req.getStyleId()));
+            product.setStyle(style);
+        }
+
+        product.setName(req.getName());
+        product.setDescription(req.getDescription());
+        product.setStatus(req.getStatus());
+        product.setThumbnail(req.getThumbnail());
+        Product saved = productRepository.save(product);
+
+        log.info("ProductService::createProduct - Execution completed.");
+        return productMapper.toDto(saved);
     }
 
     @Transactional
     public ProductResponse updateProductById(ProductRequest req, Long id) {
         log.info("ProductService::updateProductById - Execution started. [id: {}]", id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
+                        "Product not found with id: " + id));
 
-        try {
-            Product product = productRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
-
-            // Lấy entity theo request (không phải theo id)
-            if (req.getCategoryId() != null) {
-                Category category = categoryRepository.findById(req.getCategoryId())
-                        .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-                product.setCategory(category);
-            }
-
-            if (req.getBrandId() != null) {
-                Brand brand = brandRepository.findById(req.getBrandId())
-                        .orElseThrow(() -> new EntityNotFoundException("Brand not found"));
-                product.setBrand(brand);
-            }
-
-            if (req.getMaterialId() != null) {
-                Material material = materialRepository.findById(req.getMaterialId())
-                        .orElseThrow(() -> new EntityNotFoundException("Material not found"));
-                product.setMaterial(material);
-            }
-
-            if (req.getStyleId() != null) {
-                Style style = styleRepository.findById(req.getStyleId())
-                        .orElseThrow(() -> new EntityNotFoundException("Style not found"));
-                product.setStyle(style);
-            }
-
-            product.setName(req.getName());
-            product.setImagesJson(req.getImagesJson());
-            product.setDescription(req.getDescription());
-            product.setStatus(req.getStatus());
-
-            Product saved = productRepository.save(product);
-
-            log.info("ProductService::updateProductById - Execution completed. [id: {}]", id);
-            return productMapper.toDto(saved);
-
-        } catch (RuntimeException e) {
-            log.error("ProductService::updateProductById - Execution failed.", e);
-            throw new BusinessException("Failed to update product.");
+        if (req.getCategoryId() != null) {
+            Category category = categoryRepository.findById(req.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND,
+                            "Category not found with id: " + req.getCategoryId()));
+            product.setCategory(category);
         }
+
+        if (req.getBrandId() != null) {
+            Brand brand = brandRepository.findById(req.getBrandId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND,
+                            "Brand not found with id: " + req.getBrandId()));
+            System.out.println("bvbskvbdskj" + req.getBrandId());
+            product.setBrand(brand);
+        }
+
+        if (req.getMaterialId() != null) {
+            Material material = materialRepository.findById(req.getMaterialId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.MATERIAL_NOT_FOUND,
+                            "Material not found with id: " + req.getMaterialId()));
+            product.setMaterial(material);
+        }
+
+        if (req.getStyleId() != null) {
+            Style style = styleRepository.findById(req.getStyleId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.STYLE_NOT_FOUND,
+                            "Style not found with id: " + req.getStyleId()));
+            product.setStyle(style);
+        }
+
+        product.setName(req.getName());
+        product.setThumbnail(req.getThumbnail());
+        product.setDescription(req.getDescription());
+        product.setStatus(req.getStatus());
+        Product saved = productRepository.save(product);
+
+        log.info("ProductService::updateProductById - Execution completed. [id: {}]", id);
+        return productMapper.toDto(saved);
     }
 
     @Transactional
     public void deleteProduct(Long id) {
         log.info("ProductService::deleteProduct - Execution started. [id: {}]", id);
 
-        try {
-            if (!productRepository.existsById(id)) {
-                throw new EntityNotFoundException("Product not found with id: " + id);
-            }
-            productRepository.deleteById(id);
-
-            log.info("ProductService::deleteProduct - Execution completed. [id: {}]", id);
-        } catch (Exception e) {
-            log.error("ProductService::deleteProduct - Execution failed.", e);
-            throw new BusinessException("Failed to delete product.");
+        if (!productRepository.existsById(id)) {
+            throw new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND, "Product not found with id: " + id);
         }
+        productRepository.deleteById(id);
+
+        log.info("ProductService::deleteProduct - Execution completed. [id: {}]", id);
     }
 
     // =============================
@@ -190,7 +178,8 @@ public class ProductService {
         log.info("ProductService::updateStatus - Execution started. [id: {}]", id);
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
+                        "Product not found with id: " + id));
         product.setStatus(Enums.Status.valueOf(status.toUpperCase()));
         Product saved = productRepository.save(product);
 
@@ -222,7 +211,10 @@ public class ProductService {
         List<Product> products = productRepository.findAllById(ids);
 
         if (products.size() != ids.size()) {
-            throw new EntityNotFoundException("One or more products do not exist.");
+            // Find missing IDs for better error message
+            List<Long> foundIds = products.stream().map(Product::getId).toList();
+            List<Long> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).toList();
+            throw new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND, "Products not found: " + missingIds);
         }
 
         productRepository.deleteAllInBatch(products);

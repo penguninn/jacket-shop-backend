@@ -2,9 +2,7 @@ package com.threadcity.jacketshopbackend.dto.request;
 
 import java.io.Serializable;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;

@@ -70,8 +70,8 @@ public class Product {
     private Style style;
 
     @Lob
-    @Column(name = "images_json", columnDefinition = "NVARCHAR(MAX)")
-    private String imagesJson;
+    @Column(name = "thumbnail", columnDefinition = "NVARCHAR(MAX)")
+    private String thumbnail;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

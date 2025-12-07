@@ -1,12 +1,9 @@
 package com.threadcity.jacketshopbackend.dto.request;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.entity.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -18,6 +15,6 @@ public class ProductRequest {
     private String description;
     private Long materialId;
     private Long styleId;
-    private String imagesJson;
+    private String thumbnail;
     private Enums.Status status;
 }

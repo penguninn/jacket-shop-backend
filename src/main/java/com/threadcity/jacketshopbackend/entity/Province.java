@@ -1,24 +1,23 @@
 package com.threadcity.jacketshopbackend.entity;
 
 import java.util.List;
-import java.util.ArrayList;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.EntityListeners;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "provinces")
 @Getter
 @Setter
@@ -28,22 +27,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Province {
 
     @Id
-    @Column(name = "code")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "code", unique = true, nullable = false)
+    private String code;
+
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(nullable = false, length = 50)
-    private String codename;
-
-    @Column(name = "division_type", length = 50)
-    private String divisionType;
-
-    @Column(name = "phone_code")
-    private Integer phoneCode;
-
-    @OneToMany(mappedBy = "province")
-    @Builder.Default
-    private List<Ward> wards = new ArrayList<>();
+    @OneToMany(mappedBy = "province", cascade = CascadeType.ALL)
+    private List<District> districts;
 }

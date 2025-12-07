@@ -13,7 +13,8 @@ public class ProductVariantSpecification {
 
     public static Specification<ProductVariant> hasSearch(String search) {
         return (root, query, cb) -> {
-            if (search == null || search.isBlank()) return null;
+            if (search == null || search.isBlank())
+                return null;
             String pattern = "%" + search.toLowerCase() + "%";
             return cb.like(cb.lower(root.get("sku")), pattern);
         };
@@ -21,28 +22,32 @@ public class ProductVariantSpecification {
 
     public static Specification<ProductVariant> hasProduct(Long productId) {
         return (root, query, cb) -> {
-            if (productId == null) return null;
+            if (productId == null)
+                return null;
             return cb.equal(root.get("product").get("id"), productId);
         };
     }
 
     public static Specification<ProductVariant> hasSize(Long sizeId) {
         return (root, query, cb) -> {
-            if (sizeId == null) return null;
+            if (sizeId == null)
+                return null;
             return cb.equal(root.get("size").get("id"), sizeId);
         };
     }
 
     public static Specification<ProductVariant> hasColor(Long colorId) {
         return (root, query, cb) -> {
-            if (colorId == null) return null;
+            if (colorId == null)
+                return null;
             return cb.equal(root.get("color").get("id"), colorId);
         };
     }
 
     public static Specification<ProductVariant> hasPriceRange(BigDecimal from, BigDecimal to) {
         return (root, query, cb) -> {
-            if (from == null && to == null) return null;
+            if (from == null && to == null)
+                return null;
 
             if (from != null && to != null)
                 return cb.between(root.get("price"), from, to);
@@ -56,7 +61,8 @@ public class ProductVariantSpecification {
 
     public static Specification<ProductVariant> hasStatuses(List<String> statuses) {
         return (root, query, cb) -> {
-            if (statuses == null || statuses.isEmpty()) return null;
+            if (statuses == null || statuses.isEmpty())
+                return null;
 
             List<Status> statusEnums = statuses.stream()
                     .map(s -> Status.valueOf(s.toUpperCase()))
@@ -67,11 +73,8 @@ public class ProductVariantSpecification {
     }
 
     public static Specification<ProductVariant> buildSpec(ProductVariantFilterRequest request) {
-        return Specification
-                .where(hasSearch(request.getSearch()))
-                .and(hasProduct(request.getProductId()))
+        return hasColor(request.getColorId())
                 .and(hasSize(request.getSizeId()))
-                .and(hasColor(request.getColorId()))
                 .and(hasPriceRange(request.getFromPrice(), request.getToPrice()))
                 .and(hasStatuses(request.getStatus()));
     }

@@ -4,13 +4,11 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,7 +17,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -41,6 +38,7 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
+    private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
 
     private static final String[] PUBLIC_ENDPOINT = {
             "/api/auth/**",
@@ -54,46 +52,23 @@ public class SecurityConfig {
             "/webjars/**"
     };
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http.csrf(AbstractHttpConfigurer::disable);
-//        http.cors(cors -> cors.configurationSource(configurationSource()));
-//        http.authorizeHttpRequests(auth -> auth
-//                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-//                .requestMatchers(PUBLIC_ENDPOINT).permitAll()
-//                .requestMatchers( "/api/**").permitAll()
-//                .anyRequest().authenticated());
-//        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//        http.authenticationProvider(provider());
-//        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-//        http.exceptionHandling(ex -> ex
-//                .authenticationEntryPoint(authenticationEntryPointImpl)
-//                .accessDeniedHandler(new AccessDeniedHandlerImpl()));
-//        return http.build();
-//    }
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.csrf(AbstractHttpConfigurer::disable);
-    http.cors(cors -> cors.configurationSource(configurationSource()));
-
-    http.authorizeHttpRequests(auth -> auth
-            .anyRequest().permitAll()  // Cho phép tất cả request
-    );
-
-    http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-    http.authenticationProvider(provider());
-
-    // TẮT JWT filter để test
-    // http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-    // Bạn cũng có thể tắt exception handling:
-    // http.exceptionHandling(ex -> ex
-    //        .authenticationEntryPoint(authenticationEntryPointImpl)
-    //        .accessDeniedHandler(new AccessDeniedHandlerImpl())
-    // );
-
-    return http.build();
-}
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.cors(cors -> cors.configurationSource(configurationSource()));
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+                .requestMatchers("/api/**").permitAll()
+                .anyRequest().authenticated());
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.authenticationProvider(provider());
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint(authenticationEntryPointImpl)
+                .accessDeniedHandler(accessDeniedHandlerImpl));
+        return http.build();
+    }
 
     @Bean
     CorsConfigurationSource configurationSource() {

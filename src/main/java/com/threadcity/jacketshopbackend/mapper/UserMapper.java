@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.threadcity.jacketshopbackend.dto.request.UserCreateRequest;
 import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
 import com.threadcity.jacketshopbackend.dto.response.UserResponse;
 

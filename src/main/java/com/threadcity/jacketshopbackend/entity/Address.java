@@ -49,12 +49,15 @@ public class Address {
     private Ward ward;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "district_code", nullable = false)
+    private District district;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "province_code", nullable = false)
     private Province province;
 
     @Column(name = "is_default", nullable = false)
-    @Builder.Default
-    private Boolean isDefault = false;
+    private Boolean isDefault;
 
     @Column(name = "recipient_name", length = 120)
     private String recipientName;

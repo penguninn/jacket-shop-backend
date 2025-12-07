@@ -28,6 +28,7 @@ public class ProductSpecification {
             return root.get("category").get("id").in(categoryIds);
         };
     }
+
     public static Specification<Product> hasBrands(List<Long> brandIds) {
         return (root, query, cb) -> {
             if (brandIds == null || brandIds.isEmpty()) {
@@ -69,8 +70,7 @@ public class ProductSpecification {
     }
 
     public static Specification<Product> buildSpec(ProductFilterRequest request) {
-        return Specification
-                .where(hasSearch(request.getSearch()))
+        return hasSearch(request.getSearch())
                 .and(hasCategories(request.getCategoryIds()))
                 .and(hasBrands(request.getBrandIds()))
                 .and(hasMaterials(request.getMaterialIds()))

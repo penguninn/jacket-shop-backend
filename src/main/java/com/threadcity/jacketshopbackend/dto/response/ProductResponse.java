@@ -1,16 +1,18 @@
 package com.threadcity.jacketshopbackend.dto.response;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.entity.*;
 import lombok.Builder;
 import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductResponse implements Serializable {
     private Long id;
     private String name;
