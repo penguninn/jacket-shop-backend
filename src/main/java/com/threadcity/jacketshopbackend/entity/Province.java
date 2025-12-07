@@ -1,7 +1,6 @@
 package com.threadcity.jacketshopbackend.entity;
 
 import java.util.List;
-import java.util.ArrayList;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -9,7 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.EntityListeners;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import lombok.AllArgsConstructor;
@@ -17,7 +16,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "provinces")
@@ -36,7 +34,7 @@ public class Province {
     private String code;
 
     @Column(name = "name", nullable = false)
-    private String name; 
+    private String name;
 
     @OneToMany(mappedBy = "province", cascade = CascadeType.ALL)
     private List<District> districts;

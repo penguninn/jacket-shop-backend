@@ -10,7 +10,7 @@ import java.util.List;
 public class MaterialSpecification {
 
     public static Specification<Material> buildSpec(MaterialFilterRequest request) {
-        return Specification.where(search(request.getSearch()))
+        return search(request.getSearch())
                 .and(filterStatus(request.getStatus()));
     }
 
@@ -22,8 +22,7 @@ public class MaterialSpecification {
             String pattern = "%" + search.toLowerCase() + "%";
             return cb.or(
                     cb.like(cb.lower(root.get("name")), pattern),
-                    cb.like(cb.lower(root.get("description")), pattern)
-            );
+                    cb.like(cb.lower(root.get("description")), pattern));
         };
     }
 

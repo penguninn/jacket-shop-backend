@@ -2,14 +2,19 @@ package com.threadcity.jacketshopbackend.dto.response;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 
+import com.threadcity.jacketshopbackend.common.Enums.Status;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class ProfileResponse implements Serializable {
 
     private Long id;
@@ -21,7 +26,9 @@ public class ProfileResponse implements Serializable {
     private String phone;
 
     private Set<String> roles;
-    
+
+    private Status status;
+
     private Instant createdAt;
 
     private Instant updatedAt;

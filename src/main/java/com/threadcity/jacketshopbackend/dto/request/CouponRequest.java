@@ -1,7 +1,6 @@
 package com.threadcity.jacketshopbackend.dto.request;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 

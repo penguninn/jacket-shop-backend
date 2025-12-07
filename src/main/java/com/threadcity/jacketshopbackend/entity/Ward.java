@@ -9,14 +9,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.EntityListeners;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "wards")
@@ -32,10 +30,10 @@ public class Ward {
     private Long id;
 
     @Column(name = "code", unique = true, nullable = false)
-    private String code; 
+    private String code;
 
     @Column(name = "name", nullable = false)
-    private String name; 
+    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "district_id")

@@ -9,7 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.threadcity.jacketshopbackend.dto.response.ImageUploadResponse;
-import com.threadcity.jacketshopbackend.exception.CloudinaryServiceException;
+import com.threadcity.jacketshopbackend.exception.ErrorCodes;
+import com.threadcity.jacketshopbackend.exception.ExternalServiceException;
+import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,31 +24,37 @@ public class CloudinaryService {
     private final Cloudinary cloudinary;
 
     public ImageUploadResponse uploadImages(MultipartFile file) {
+        log.info("CloudinaryService::uploadImages execution started");
         validateFile(file);
         try {
-            Map<String, Object> uploadResult = cloudinary.uploader().upload(
+            @SuppressWarnings("unchecked")
+            Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader().upload(
                     file.getBytes(),
                     ObjectUtils.asMap(
                             "resource_type", "auto",
                             "folder", "blog-assets"));
+            log.info("CloudinaryService::uploadImages execution ended");
             return ImageUploadResponse.builder()
                     .url(uploadResult.get("secure_url").toString())
                     .build();
         } catch (IOException e) {
-            throw new CloudinaryServiceException("Failed to upload asset to Cloudinary: " + e.getMessage());
+            log.error("Cloudinary upload failed (IOException)", e);
+            throw new ExternalServiceException(ErrorCodes.CLOUDINARY_UPLOAD_FAILED,
+                    "Failed to upload asset to Cloudinary", "CloudinaryService", e);
         } catch (Exception e) {
-            throw new CloudinaryServiceException("Unexpected error during asset upload: " + e.getMessage());
+            log.error("Cloudinary upload failed (Exception)", e);
+            throw new ExternalServiceException(ErrorCodes.CLOUDINARY_UPLOAD_FAILED,
+                    "Unexpected error during asset upload to Cloudinary", "CloudinaryService", e);
         }
     }
 
     private void validateFile(MultipartFile file) {
         if (file.isEmpty()) {
-            throw new CloudinaryServiceException("File cannot be empty");
+            throw new InvalidRequestException(ErrorCodes.CLOUDINARY_INVALID_FILE, "File cannot be empty");
         }
 
         if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
-            throw new CloudinaryServiceException("Only image files are allowed");
+            throw new InvalidRequestException(ErrorCodes.CLOUDINARY_INVALID_FILE, "Only image files are allowed");
         }
     }
-
 }

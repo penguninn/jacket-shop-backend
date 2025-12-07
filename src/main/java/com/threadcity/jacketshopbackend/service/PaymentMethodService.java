@@ -5,12 +5,13 @@ import com.threadcity.jacketshopbackend.dto.request.PaymentMethodRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.PaymentMethodResponse;
 import com.threadcity.jacketshopbackend.entity.PaymentMethod;
-import com.threadcity.jacketshopbackend.exception.BusinessException;
+import com.threadcity.jacketshopbackend.exception.ErrorCodes;
+import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
+import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.PaymentMethodMapper;
 import com.threadcity.jacketshopbackend.repository.PaymentMethodRepository;
 import com.threadcity.jacketshopbackend.specification.PaymentMethodSpecification;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,8 @@ public class PaymentMethodService {
         log.info("PaymentMethodService::getPaymentMethodById - Execution started. [Id: {}]", id);
 
         PaymentMethod method = paymentMethodRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Payment method not found with Id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND,
+                        "Payment method not found with Id: " + id));
 
         log.info("PaymentMethodService::getPaymentMethodById - Execution completed. [Id: {}]", id);
         return paymentMethodMapper.toDto(method);
@@ -42,37 +44,30 @@ public class PaymentMethodService {
     public PageResponse<?> getAllPaymentMethods(PaymentMethodFilterRequest request) {
         log.info("PaymentMethodService::getAllPaymentMethods - Execution started.");
 
-        try {
-            Sort sort = Sort.by(
-                    Sort.Direction.fromString(request.getSortDir()),
-                    request.getSortBy()
-            );
+        Sort sort = Sort.by(
+                Sort.Direction.fromString(request.getSortDir()),
+                request.getSortBy());
 
-            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
 
-            Specification<PaymentMethod> spec = PaymentMethodSpecification.buildSpec(request);
+        Specification<PaymentMethod> spec = PaymentMethodSpecification.buildSpec(request);
 
-            Page<PaymentMethod> page = paymentMethodRepository.findAll(spec, pageable);
+        Page<PaymentMethod> page = paymentMethodRepository.findAll(spec, pageable);
 
-            List<PaymentMethodResponse> responseList = page.getContent()
-                    .stream()
-                    .map(paymentMethodMapper::toDto)
-                    .toList();
+        List<PaymentMethodResponse> responseList = page.getContent()
+                .stream()
+                .map(paymentMethodMapper::toDto)
+                .toList();
 
-            log.info("PaymentMethodService::getAllPaymentMethods - Execution completed.");
+        log.info("PaymentMethodService::getAllPaymentMethods - Execution completed.");
 
-            return PageResponse.builder()
-                    .contents(responseList)
-                    .size(request.getSize())
-                    .page(request.getPage())
-                    .totalPages(page.getTotalPages())
-                    .totalElements(page.getTotalElements())
-                    .build();
-
-        } catch (Exception e) {
-            log.error("PaymentMethodService::getAllPaymentMethods - Execution failed.", e);
-            throw new BusinessException("PaymentMethodService::getAllPaymentMethods - Execution failed.");
-        }
+        return PageResponse.builder()
+                .contents(responseList)
+                .size(request.getSize())
+                .page(request.getPage())
+                .totalPages(page.getTotalPages())
+                .totalElements(page.getTotalElements())
+                .build();
     }
 
     @Transactional
@@ -80,20 +75,15 @@ public class PaymentMethodService {
         log.info("PaymentMethodService::createPaymentMethod - Execution started.");
 
         if (paymentMethodRepository.existsByName(request.getName())) {
-            throw new BusinessException("Payment method already exists with name: " + request.getName());
+            throw new ResourceConflictException(ErrorCodes.PAYMENT_METHOD_NAME_DUPLICATE,
+                    "Payment method already exists with name: " + request.getName());
         }
 
-        try {
-            PaymentMethod entity = paymentMethodMapper.toEntity(request);
-            PaymentMethod saved = paymentMethodRepository.save(entity);
+        PaymentMethod entity = paymentMethodMapper.toEntity(request);
+        PaymentMethod saved = paymentMethodRepository.save(entity);
 
-            log.info("PaymentMethodService::createPaymentMethod - Execution completed.");
-            return paymentMethodMapper.toDto(saved);
-
-        } catch (Exception e) {
-            log.error("PaymentMethodService::createPaymentMethod - Execution failed.", e);
-            throw new BusinessException("PaymentMethodService::createPaymentMethod - Execution failed.");
-        }
+        log.info("PaymentMethodService::createPaymentMethod - Execution completed.");
+        return paymentMethodMapper.toDto(saved);
     }
 
     @Transactional
@@ -101,23 +91,23 @@ public class PaymentMethodService {
         log.info("PaymentMethodService::updatePaymentMethodById - Execution started. [Id: {}]", id);
 
         PaymentMethod entity = paymentMethodRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Payment method not found with Id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND,
+                        "Payment method not found with Id: " + id));
 
-        try {
-            entity.setName(request.getName());
-            entity.setDescription(request.getDescription());
-            entity.setConfigJson(request.getConfigJson());
-            entity.setStatus(request.getStatus());
-
-            PaymentMethod saved = paymentMethodRepository.save(entity);
-
-            log.info("PaymentMethodService::updatePaymentMethodById - Execution completed. [Id: {}]", id);
-            return paymentMethodMapper.toDto(saved);
-
-        } catch (RuntimeException e) {
-            log.error("PaymentMethodService::updatePaymentMethodById - Execution failed.", e);
-            throw new BusinessException("PaymentMethodService::updatePaymentMethodById - Execution failed.");
+        // Check for duplicate name if updating name
+        if (!entity.getName().equals(request.getName()) && paymentMethodRepository.existsByName(request.getName())) {
+            throw new ResourceConflictException(ErrorCodes.PAYMENT_METHOD_NAME_DUPLICATE,
+                    "Payment method already exists with name: " + request.getName());
         }
+
+        entity.setName(request.getName());
+        entity.setDescription(request.getDescription());
+        entity.setStatus(request.getStatus());
+
+        PaymentMethod saved = paymentMethodRepository.save(entity);
+
+        log.info("PaymentMethodService::updatePaymentMethodById - Execution completed. [Id: {}]", id);
+        return paymentMethodMapper.toDto(saved);
     }
 
     @Transactional
@@ -125,16 +115,11 @@ public class PaymentMethodService {
         log.info("PaymentMethodService::deletePaymentMethod - Execution started. [Id: {}]", id);
 
         if (!paymentMethodRepository.existsById(id)) {
-            throw new EntityNotFoundException("Payment method not found with Id: " + id);
+            throw new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND,
+                    "Payment method not found with Id: " + id);
         }
 
-        try {
-            paymentMethodRepository.deleteById(id);
-            log.info("PaymentMethodService::deletePaymentMethod - Execution completed. [Id: {}]", id);
-
-        } catch (Exception e) {
-            log.error("PaymentMethodService::deletePaymentMethod - Execution failed.", e);
-            throw new BusinessException("PaymentMethodService::deletePaymentMethod - Execution failed.");
-        }
+        paymentMethodRepository.deleteById(id);
+        log.info("PaymentMethodService::deletePaymentMethod - Execution completed. [Id: {}]", id);
     }
 }

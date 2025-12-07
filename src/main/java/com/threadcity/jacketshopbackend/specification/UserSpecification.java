@@ -48,9 +48,8 @@ public class UserSpecification {
     }
 
     public static Specification<User> buildSpec(UserFilterRequest request) {
-        return Specification
-                .where(hasSearch(request.getSearch()))
-                .and(hasStatuses(request.getStatus()))
-                .and(hasRoles(request.getRoles()));
+        return hasSearch(request.getSearch())
+                .and(hasRoles(request.getRoles()))
+                .and(hasStatuses(request.getStatus()));
     }
 }

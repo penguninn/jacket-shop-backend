@@ -30,21 +30,24 @@ public class PaymentMethodSpecification {
 
             List<Status> statusEnums = statuses.stream()
                     .map(s -> {
-                        try { return Status.valueOf(s.toUpperCase()); }
-                        catch (Exception e) { return null; }
+                        try {
+                            return Status.valueOf(s.toUpperCase());
+                        } catch (Exception e) {
+                            return null;
+                        }
                     })
                     .filter(x -> x != null)
                     .toList();
 
-            if (statusEnums.isEmpty()) return null;
+            if (statusEnums.isEmpty())
+                return null;
 
             return root.get("status").in(statusEnums);
         };
     }
 
     public static Specification<PaymentMethod> buildSpec(PaymentMethodFilterRequest request) {
-        return Specification
-                .where(hasSearch(request.getSearch()))
+        return hasSearch(request.getSearch())
                 .and(hasStatuses(request.getStatus()));
     }
 }

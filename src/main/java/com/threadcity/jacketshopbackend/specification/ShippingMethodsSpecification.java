@@ -19,12 +19,11 @@ public class ShippingMethodsSpecification {
 
             return cb.or(
                     cb.like(cb.lower(root.get("name")), pattern),
-                    cb.like(cb.lower(root.get("description")), pattern)
-            );
+                    cb.like(cb.lower(root.get("description")), pattern));
         };
     }
 
-    public static Specification<ShippingMethod> hasStatuses(List<String> statuses) {
+    public static Specification<ShippingMethod> hasStatus(List<String> statuses) {
         return (root, query, cb) -> {
 
             if (statuses == null || statuses.isEmpty()) {
@@ -42,15 +41,15 @@ public class ShippingMethodsSpecification {
                     .filter(x -> x != null)
                     .toList();
 
-            if (statusEnums.isEmpty()) return null;
+            if (statusEnums.isEmpty())
+                return null;
 
             return root.get("status").in(statusEnums);
         };
     }
 
     public static Specification<ShippingMethod> buildSpec(ShippingMethodsFilterRequest request) {
-        return Specification
-                .where(hasSearch(request.getSearch()))
-                .and(hasStatuses(request.getStatus()));
+        return hasSearch(request.getSearch())
+                .and(hasStatus(request.getStatus()));
     }
 }

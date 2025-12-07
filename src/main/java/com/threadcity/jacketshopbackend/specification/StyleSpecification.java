@@ -33,7 +33,7 @@ public class StyleSpecification {
 
     public static Specification<Style> buildSpec(StyleFilterRequest request) {
         return Specification
-                .where(hasSearch(request.getSearch()))
-                .and(hasStatuses(request.getStatus()));
+                .allOf(hasSearch(request.getSearch()),
+                        hasStatuses(request.getStatus()));
     }
 }
