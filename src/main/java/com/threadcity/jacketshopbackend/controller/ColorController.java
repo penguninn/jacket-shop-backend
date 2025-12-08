@@ -2,6 +2,9 @@ package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.filter.ColorFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ColorRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.ColorResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -92,6 +95,19 @@ public class ColorController {
                                 .build();
         }
 
+        @PutMapping("/{id}/status")
+        public ApiResponse<?> updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
+                log.info("ColorController::updateStatus - Execution started. [id: {}]", id);
+                ColorResponse response = colorService.updateStatus(request, id);
+                log.info("ColorController::updateStatus - Execution completed. [id: {}]", id);
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Color status updated successfully.")
+                                .data(response)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
         @DeleteMapping("/{id}")
         public ApiResponse<?> deleteColor(@PathVariable Long id) {
                 log.info("ColorController::deleteColor - Execution started. [id: {}]", id);
@@ -100,6 +116,31 @@ public class ColorController {
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Color deleted successfully.")
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @PostMapping("/bulk/status")
+        public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
+                log.info("ColorController::bulkUpdateStatus - Execution started.");
+                List<ColorResponse> responses = colorService.bulkUpdateStatus(request);
+                log.info("ColorController::bulkUpdateStatus - Execution completed.");
+                return ApiResponse.builder()
+                                .code(200)
+                                .data(responses)
+                                .message("Colors statuses updated successfully.")
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @PostMapping("/bulk/delete")
+        public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
+                log.info("ColorController::bulkDelete - Execution started.");
+                colorService.bulkDelete(request);
+                log.info("ColorController::bulkDelete - Execution completed.");
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Colors deleted successfully.")
                                 .timestamp(Instant.now())
                                 .build();
         }

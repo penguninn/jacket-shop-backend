@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.filter.BrandFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
@@ -23,7 +24,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,8 +45,8 @@ public class BrandService {
         return brandMapper.toDto(brand);
     }
 
-    public PageResponse<?> getAllBrand(BrandFilterRequest request) {
-        log.info("BrandService::getAllBrand - Execution started.");
+    public PageResponse<?> getAllBrands(BrandFilterRequest request) {
+        log.info("BrandService::getAllBrands - Execution started.");
 
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
@@ -54,7 +58,7 @@ public class BrandService {
                 .map(brandMapper::toDto)
                 .toList();
 
-        log.info("BrandService::getAllBrand - Execution completed.");
+        log.info("BrandService::getAllBrands - Execution completed.");
         return PageResponse.builder()
                 .contents(brandList)
                 .size(request.getSize())
@@ -86,7 +90,7 @@ public class BrandService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND,
                         "Brand not found with id: " + id));
 
-        if (!brand.getName().equals(brandRequest.getName()) && brandRepository.existsByName(brandRequest.getName())) {
+        if (brandRepository.existsByNameAndIdNot(brandRequest.getName(), id)) {
             throw new ResourceConflictException(ErrorCodes.BRAND_NAME_DUPLICATE,
                     "Brand already exists with name: " + brandRequest.getName());
         }
@@ -112,8 +116,8 @@ public class BrandService {
     }
 
     @Transactional
-    public BrandResponse updateStatus(Long id, UpdateStatusRequest request) {
-        log.info("BrandService::updateStatus - Execution started. [id: {}]", id);
+    public BrandResponse updateStatus(UpdateStatusRequest request, Long id) {
+        log.info("BrandService::updateStatus - Execution started.");
 
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND,
@@ -129,32 +133,40 @@ public class BrandService {
     }
 
     @Transactional
-    public void bulkUpdateStatus(List<Long> ids, BulkStatusRequest request) {
-        log.info("BrandService::bulkUpdateStatus - Execution started.");
+    public List<BrandResponse> bulkUpdateBrandsStatus(BulkStatusRequest request) {
+        log.info("BrandService::bulkUpdateBrandsStatus - Execution started.");
 
-        List<Brand> brands = brandRepository.findAllById(ids);
+        List<Brand> brands = brandRepository.findAllById(request.getIds());
+        if (brands.size() != request.getIds().size()) {
+            Set<Long> foundIds = brands.stream().map(Brand::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND, "Brands not found: " + missingIds);
+        }
+
         brands.forEach(b -> b.setStatus(request.getStatus()));
 
-        brandRepository.saveAll(brands);
+        List<Brand> savedBrands = brandRepository.saveAll(brands);
 
-        log.info("BrandService::bulkUpdateStatus - Execution completed.");
+        log.info("BrandService::bulkUpdateBrandsStatus - Execution completed.");
+        return savedBrands.stream().map(brandMapper::toDto).toList();
     }
 
     @Transactional
-    public void bulkDelete(List<Long> ids) {
-        log.info("BrandService::bulkDelete - Execution started.");
+    public void bulkDeleteBrands(BulkDeleteRequest request) {
+        log.info("BrandService::bulkDeleteBrands - Execution started.");
 
-        List<Brand> brands = brandRepository.findAllById(ids);
+        List<Brand> brands = brandRepository.findAllById(request.getIds());
 
-        if (brands.size() != ids.size()) {
-            // Calculate missing IDs
-            List<Long> foundIds = brands.stream().map(Brand::getId).toList();
-            List<Long> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).toList();
+        if (brands.size() != request.getIds().size()) {
+            Set<Long> foundIds = brands.stream().map(Brand::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
             throw new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND, "Brands not found: " + missingIds);
         }
 
         brandRepository.deleteAllInBatch(brands);
 
-        log.info("BrandService::bulkDelete - Execution completed.");
+        log.info("BrandService::bulkDeleteBrands - Execution completed.");
     }
 }

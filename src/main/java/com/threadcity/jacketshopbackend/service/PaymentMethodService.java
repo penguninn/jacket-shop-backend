@@ -1,23 +1,28 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.filter.PaymentMethodFilterRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.PaymentMethodRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.PaymentMethodResponse;
 import com.threadcity.jacketshopbackend.entity.PaymentMethod;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
-import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.PaymentMethodFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.PaymentMethodMapper;
 import com.threadcity.jacketshopbackend.repository.PaymentMethodRepository;
 import com.threadcity.jacketshopbackend.specification.PaymentMethodSpecification;
+
+import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -95,8 +100,8 @@ public class PaymentMethodService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND,
                         "Payment method not found with Id: " + id));
 
-        // Check for duplicate name if updating name
-        if (!entity.getName().equals(request.getName()) && paymentMethodRepository.existsByName(request.getName())) {
+        // FIX: Kiểm tra trùng name nhưng phải loại trừ chính record đang update
+        if (paymentMethodRepository.existsByNameAndIdNot(request.getName(), id)) {
             throw new ResourceConflictException(ErrorCodes.PAYMENT_METHOD_NAME_DUPLICATE,
                     "Payment method already exists with name: " + request.getName());
         }
@@ -122,5 +127,60 @@ public class PaymentMethodService {
 
         paymentMethodRepository.deleteById(id);
         log.info("PaymentMethodService::deletePaymentMethod - Execution completed. [Id: {}]", id);
+    }
+
+    @Transactional
+    public PaymentMethodResponse updateStatus(UpdateStatusRequest request, Long id) {
+        log.info("PaymentMethodService::updateStatus - Execution started. [id: {}]", id);
+
+        PaymentMethod method = paymentMethodRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND,
+                        "Payment method not found with id: " + id));
+
+        method.setStatus(request.getStatus());
+
+        PaymentMethod saved = paymentMethodRepository.save(method);
+
+        log.info("PaymentMethodService::updateStatus - Execution completed. [id: {}]", id);
+        return paymentMethodMapper.toDto(saved);
+    }
+
+    @Transactional
+    public List<PaymentMethodResponse> bulkUpdatePaymentMethodsStatus(BulkStatusRequest request) {
+        log.info("PaymentMethodService::bulkUpdatePaymentMethodsStatus - Execution started.");
+
+        List<PaymentMethod> methods = paymentMethodRepository.findAllById(request.getIds());
+        if (methods.size() != request.getIds().size()) {
+            Set<Long> foundIds = methods.stream().map(PaymentMethod::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND,
+                    "Payment methods not found: " + missingIds);
+        }
+
+        methods.forEach(m -> m.setStatus(request.getStatus()));
+        List<PaymentMethod> savedMethods = paymentMethodRepository.saveAll(methods);
+
+        log.info("PaymentMethodService::bulkUpdatePaymentMethodsStatus - Execution completed.");
+        return savedMethods.stream().map(paymentMethodMapper::toDto).toList();
+    }
+
+    @Transactional
+    public void bulkDeletePaymentMethods(BulkDeleteRequest request) {
+        log.info("PaymentMethodService::bulkDeletePaymentMethods - Execution started.");
+
+        List<PaymentMethod> methods = paymentMethodRepository.findAllById(request.getIds());
+
+        if (methods.size() != request.getIds().size()) {
+            Set<Long> foundIds = methods.stream().map(PaymentMethod::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND,
+                    "Payment methods not found: " + missingIds);
+        }
+
+        paymentMethodRepository.deleteAllInBatch(methods);
+
+        log.info("PaymentMethodService::bulkDeletePaymentMethods - Execution completed.");
     }
 }

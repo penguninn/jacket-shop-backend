@@ -10,6 +10,6 @@ import java.io.Serializable;
 @Builder
 public class RefreshTokenRequest implements Serializable {
 
-    @NotBlank
-    private String token;   
+    @NotBlank(message = "Token cannot be empty")
+    private String token;
 }

@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
@@ -16,9 +17,12 @@ public class RegisterRequest implements Serializable {
     private String username;
 
     @NotBlank(message = "Fullname is required")
+    @Size(max = 150, message = "Full name must be less than 150 characters")
     private String fullName;
 
     @NotBlank(message = "Phone number is required")
+    @Size(max = 15, message = "Phone number must be at most 15 characters")
+    @Pattern(regexp = "^0\\d{9,14}$", message = "Phone number must start with 0 and contain only digits")
     private String phoneNumber;
 
     @NotBlank(message = "Password is required")

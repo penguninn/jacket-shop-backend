@@ -27,19 +27,27 @@ public class ProductVariantSpecification {
         };
     }
 
-    public static Specification<ProductVariant> hasSize(Long sizeId) {
+    public static Specification<ProductVariant> hasSize(List<Long> sizeIds) {
         return (root, query, cb) -> {
-            if (sizeId == null)
-                return null;
-            return cb.equal(root.get("size").get("id"), sizeId);
+            if (sizeIds == null || sizeIds.isEmpty())
+                return cb.conjunction();
+            return root.get("size").get("id").in(sizeIds);
         };
     }
 
-    public static Specification<ProductVariant> hasColor(Long colorId) {
+    public static Specification<ProductVariant> hasColor(List<Long> colorIds) {
         return (root, query, cb) -> {
-            if (colorId == null)
-                return null;
-            return cb.equal(root.get("color").get("id"), colorId);
+            if (colorIds == null || colorIds.isEmpty())
+                return cb.conjunction();
+            return root.get("color").get("id").in(colorIds);
+        };
+    }
+
+    public static Specification<ProductVariant> hasMaterial(List<Long> materialIds) {
+        return (root, query, cb) -> {
+            if (materialIds == null || materialIds.isEmpty())
+                return cb.conjunction();
+            return root.get("material").get("id").in(materialIds);
         };
     }
 
@@ -72,8 +80,9 @@ public class ProductVariantSpecification {
     }
 
     public static Specification<ProductVariant> buildSpec(ProductVariantFilterRequest request) {
-        return hasColor(request.getColorId())
-                .and(hasSize(request.getSizeId()))
+        return hasColor(request.getColorIds())
+                .and(hasSize(request.getSizeIds()))
+                .and(hasMaterial(request.getMaterialIds()))
                 .and(hasPriceRange(request.getFromPrice(), request.getToPrice()))
                 .and(hasStatuses(request.getStatus()));
     }

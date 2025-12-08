@@ -14,42 +14,37 @@ import java.util.List;
 @Builder
 public class ProductVariantFilterRequest {
 
-    @Size(max = 255, message = "Search term too long")
-    private String search; // search theo SKU
+        @Size(max = 255, message = "Search term too long")
+        private String search;
 
-    private Long productId;
+        private Long productId;
 
-    private Long sizeId;
+        private List<Long> sizeIds;
 
-    private Long colorId;
+        private List<Long> colorIds;
 
-    private BigDecimal fromPrice;
+        private List<Long> materialIds;
 
-    private BigDecimal toPrice;
+        private BigDecimal fromPrice;
 
-    private List<String> status;
+        private BigDecimal toPrice;
 
-    @Builder.Default
-    @Min(value = 0, message = "Page must be >= 0")
-    private int page = 0;
+        private List<String> status;
 
-    @Builder.Default
-    @Min(value = 1, message = "Size must be >= 1")
-    @Max(value = 100, message = "Size must be <= 100")
-    private int size = 10;
+        @Builder.Default
+        @Min(value = 0, message = "Page must be >= 0")
+        private int page = 0;
 
-    @Builder.Default
-    @Pattern(
-            regexp = "^(id|sku|price|createdAt|updatedAt)$",
-            message = "Invalid sort field"
-    )
-    private String sortBy = "createdAt";
+        @Builder.Default
+        @Min(value = 1, message = "Size must be >= 1")
+        @Max(value = 100, message = "Size must be <= 100")
+        private int size = 10;
 
-    @Builder.Default
-    @Pattern(
-            regexp = "^(ASC|DESC)$",
-            message = "Sort direction must be ASC or DESC"
-    )
-    private String sortDir = "DESC";
+        @Builder.Default
+        @Pattern(regexp = "^(id|sku|price|createdAt|updatedAt)$", message = "Invalid sort field")
+        private String sortBy = "createdAt";
+
+        @Builder.Default
+        @Pattern(regexp = "^(ASC|DESC)$", message = "Sort direction must be ASC or DESC")
+        private String sortDir = "DESC";
 }
-

@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface SizeRepository extends JpaRepository<Size, Long>, JpaSpecificationExecutor<Size> {
     boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, Long id);
 }

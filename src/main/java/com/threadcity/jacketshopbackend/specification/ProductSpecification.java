@@ -19,30 +19,12 @@ public class ProductSpecification {
         };
     }
 
-    public static Specification<Product> hasCategories(List<Long> categoryIds) {
-        return (root, query, cb) -> {
-            if (categoryIds == null || categoryIds.isEmpty()) {
-                return cb.conjunction();
-            }
-            return root.get("category").get("id").in(categoryIds);
-        };
-    }
-
     public static Specification<Product> hasBrands(List<Long> brandIds) {
         return (root, query, cb) -> {
             if (brandIds == null || brandIds.isEmpty()) {
                 return cb.conjunction();
             }
             return root.get("brand").get("id").in(brandIds);
-        };
-    }
-
-    public static Specification<Product> hasMaterials(List<Long> materialIds) {
-        return (root, query, cb) -> {
-            if (materialIds == null || materialIds.isEmpty()) {
-                return cb.conjunction();
-            }
-            return root.get("material").get("id").in(materialIds);
         };
     }
 
@@ -70,9 +52,7 @@ public class ProductSpecification {
 
     public static Specification<Product> buildSpec(ProductFilterRequest request) {
         return hasSearch(request.getSearch())
-                .and(hasCategories(request.getCategoryIds()))
                 .and(hasBrands(request.getBrandIds()))
-                .and(hasMaterials(request.getMaterialIds()))
                 .and(hasStyles(request.getStyleIds()))
                 .and(hasStatuses(request.getStatus()));
     }

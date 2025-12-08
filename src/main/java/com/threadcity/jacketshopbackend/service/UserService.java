@@ -123,10 +123,10 @@ public class UserService {
                 .status(request.getStatus())
                 .build();
         user.getRoles().addAll(roles);
-        user = userRepository.save(user); // DataIntegrityViolationException will bubble up if DB constraints fail
+        User saved = userRepository.save(user);
 
         log.info("UserService::createUser - Execution completed.");
-        return userMapper.toUserResponse(user);
+        return userMapper.toUserResponse(saved);
     }
 
     @Transactional

@@ -42,7 +42,7 @@ public class StyleController {
                                 .sortBy(sortBy)
                                 .sortDir(sortDir)
                                 .build();
-                PageResponse<?> pageResponse = styleService.getAllStyle(request);
+                PageResponse<?> pageResponse = styleService.getAllStyles(request);
                 log.info("StyleController::getAllStyles - Execution completed");
                 return ApiResponse.builder()
                                 .code(200)
@@ -108,7 +108,7 @@ public class StyleController {
                         @PathVariable Long id,
                         @RequestBody UpdateStatusRequest request) {
                 log.info("StyleController::updateStatus - Execution started. [id: {}]", id);
-                StyleResponse response = styleService.updateStatus(id, request);
+                StyleResponse response = styleService.updateStatus(request, id);
                 log.info("StyleController::updateStatus - Execution completed. [id: {}]", id);
 
                 return ApiResponse.builder()
@@ -122,12 +122,13 @@ public class StyleController {
         @PostMapping("/bulk/status")
         public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
                 log.info("StyleController::bulkUpdateStatus - Execution started.");
-                styleService.bulkUpdateStatus(request.getIds(), request);
+                List<StyleResponse> response = styleService.bulkUpdateStylesStatus(request);
                 log.info("StyleController::bulkUpdateStatus - Execution completed.");
 
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Bulk update style status successfully.")
+                                .data(response)
                                 .timestamp(Instant.now())
                                 .build();
         }
@@ -135,7 +136,7 @@ public class StyleController {
         @PostMapping("/bulk/delete")
         public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
                 log.info("StyleController::bulkDelete - Execution started.");
-                styleService.bulkDelete(request.getIds());
+                styleService.bulkDeleteStyles(request);
                 log.info("StyleController::bulkDelete - Execution completed.");
 
                 return ApiResponse.builder()

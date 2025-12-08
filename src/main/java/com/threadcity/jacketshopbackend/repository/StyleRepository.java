@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface StyleRepository extends JpaRepository<Style, Long> , JpaSpecificationExecutor<Style> {
+public interface StyleRepository extends JpaRepository<Style, Long>, JpaSpecificationExecutor<Style> {
     boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, Long id);
 }

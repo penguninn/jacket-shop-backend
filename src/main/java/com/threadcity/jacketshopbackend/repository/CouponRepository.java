@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CouponRepository extends JpaRepository<Coupon, Long>, JpaSpecificationExecutor<Coupon> {
     boolean existsByCode(String code);
+
+    boolean existsByCodeAndIdNot(String code, Long id);
 }

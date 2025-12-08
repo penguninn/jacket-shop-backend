@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/product-variants")
@@ -26,6 +28,13 @@ public class ProductVariantController {
 
         @GetMapping
         public ApiResponse<?> getAllProductVariants(
+                        @RequestParam(required = false) String search,
+                        @RequestParam(required = false) List<String> status,
+                        @RequestParam(required = false) List<Long> colorIds,
+                        @RequestParam(required = false) List<Long> sizeIds,
+                        @RequestParam(required = false) List<Long> materialIds,
+                        @RequestParam(required = false) BigDecimal fromPrice,
+                        @RequestParam(required = false) BigDecimal toPrice,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int size,
                         @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -34,10 +43,17 @@ public class ProductVariantController {
                 ProductVariantFilterRequest request = ProductVariantFilterRequest.builder()
                                 .page(page)
                                 .size(size)
+                                .search(search)
+                                .fromPrice(fromPrice)
+                                .toPrice(toPrice)
+                                .colorIds(colorIds)
+                                .sizeIds(sizeIds)
+                                .materialIds(materialIds)
+                                .status(status)
                                 .sortBy(sortBy)
                                 .sortDir(sortDir)
                                 .build();
-                PageResponse<?> pageResponse = productVariantService.getAllProductVariant(request);
+                PageResponse<?> pageResponse = productVariantService.getAllProductVariants(request);
                 log.info("ProductVariantController::getAllProductVariants - Execution completed");
                 return ApiResponse.builder()
                                 .code(200)
@@ -99,11 +115,11 @@ public class ProductVariantController {
                                 .build();
         }
 
-        // UPDATE STATUS
         @PutMapping("/{id}/status")
         public ApiResponse<?> updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
-                log.info("ProductVariantController::updateStatus - id: {}", id);
-                ProductVariantResponse response = productVariantService.updateStatus(id, request.getStatus());
+                log.info("ProductVariantController::updateStatus - Execution started. [id: {}]", id);
+                ProductVariantResponse response = productVariantService.updateStatus(request, id);
+                log.info("ProductVariantController::updateStatus - Execution completed. [id: {}]", id);
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Product variant status updated successfully.")
@@ -112,23 +128,30 @@ public class ProductVariantController {
                                 .build();
         }
 
-        // BULK UPDATE STATUS
         @PostMapping("/bulk/status")
         public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
-                log.info("ProductVariantController::bulkUpdateStatus");
-                productVariantService.bulkUpdateStatus(request.getIds(), request.getStatus());
+                log.info("ProductVariantController::bulkUpdateStatus - Execution started.");
+
+                List<ProductVariantResponse> response = productVariantService.bulkUpdateProductVariantsStatus(request);
+
+                log.info("ProductVariantController::bulkUpdateStatus - Execution completed.");
+
                 return ApiResponse.builder()
                                 .code(200)
-                                .message("Bulk update status successfully.")
+                                .message("Bulk update product variant status successfully.")
+                                .data(response)
                                 .timestamp(Instant.now())
                                 .build();
         }
 
-        // BULK DELETE
         @PostMapping("/bulk/delete")
         public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
-                log.info("ProductVariantController::bulkDelete");
-                productVariantService.bulkDelete(request.getIds());
+                log.info("ProductVariantController::bulkDelete - Execution started.");
+
+                productVariantService.bulkDeleteProductVariants(request);
+
+                log.info("ProductVariantController::bulkDelete - Execution completed.");
+
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Bulk delete product variants successfully.")

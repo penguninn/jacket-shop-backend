@@ -1,8 +1,11 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.common.Enums;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 import com.threadcity.jacketshopbackend.filter.CouponFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CouponRequest;
 import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
@@ -102,6 +105,12 @@ public class CouponService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COUPON_NOT_FOUND,
                         "Coupon not found with id: " + id));
 
+        if (couponRepository.existsByCodeAndIdNot(req.getCode(), id)) {
+            throw new ResourceConflictException(ErrorCodes.COUPON_CODE_DUPLICATE,
+                    "Coupon already exists with code: " + req.getCode());
+        }
+
+        coupon.setCode(req.getCode());
         coupon.setDescription(req.getDescription());
         coupon.setType(req.getType());
         coupon.setValue(req.getValue());
@@ -129,7 +138,7 @@ public class CouponService {
     }
 
     @Transactional
-    public CouponResponse updateStatus(Long id, UpdateStatusRequest request) {
+    public CouponResponse updateStatus(UpdateStatusRequest request, Long id) {
         log.info("CouponService::updateStatus - Execution started. [id: {}]", id);
         Coupon coupon = couponRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COUPON_NOT_FOUND,
@@ -141,24 +150,37 @@ public class CouponService {
     }
 
     @Transactional
-    public void bulkUpdateStatus(List<Long> ids, BulkStatusRequest request) {
-        log.info("CouponService::bulkUpdateStatus - Execution started");
-        List<Coupon> coupons = couponRepository.findAllById(ids);
+    public List<CouponResponse> bulkUpdateCouponsStatus(BulkStatusRequest request) {
+        log.info("CouponService::bulkUpdateCouponsStatus - Execution started");
+
+        List<Coupon> coupons = couponRepository.findAllById(request.getIds());
+        if (coupons.size() != request.getIds().size()) {
+            Set<Long> foundIds = coupons.stream().map(Coupon::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.COUPON_NOT_FOUND, "Coupons not found: " + missingIds);
+        }
+
         coupons.forEach(c -> c.setStatus(request.getStatus()));
-        couponRepository.saveAll(coupons);
-        log.info("CouponService::bulkUpdateStatus - Execution completed");
+        List<Coupon> savedCoupons = couponRepository.saveAll(coupons);
+        log.info("CouponService::bulkUpdateCouponsStatus - Execution completed");
+        return savedCoupons.stream().map(couponMapper::toDto).toList();
     }
 
     @Transactional
-    public void bulkDelete(List<Long> ids) {
-        log.info("CouponService::bulkDelete - Execution started");
-        List<Coupon> coupons = couponRepository.findAllById(ids);
+    public void bulkDeleteCoupons(BulkDeleteRequest request) {
+        log.info("CouponService::bulkDeleteCoupons - Execution started");
 
-        if (coupons.size() != ids.size()) {
-            throw new ResourceNotFoundException(ErrorCodes.COUPON_NOT_FOUND, "One or more coupons do not exist.");
+        List<Coupon> coupons = couponRepository.findAllById(request.getIds());
+
+        if (coupons.size() != request.getIds().size()) {
+            Set<Long> foundIds = coupons.stream().map(Coupon::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.COUPON_NOT_FOUND, "Coupons not found: " + missingIds);
         }
 
         couponRepository.deleteAllInBatch(coupons);
-        log.info("CouponService::bulkDelete - Execution completed");
+        log.info("CouponService::bulkDeleteCoupons - Execution completed");
     }
 }

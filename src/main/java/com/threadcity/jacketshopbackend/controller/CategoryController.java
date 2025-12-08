@@ -1,15 +1,26 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.filter.CategoryFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CategoryRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.CategoryResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.filter.CategoryFilterRequest;
 import com.threadcity.jacketshopbackend.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.util.List;
@@ -84,6 +95,7 @@ public class CategoryController {
                 log.info("CategoryController::updateCategory - Execution started. [id: {}]", id);
                 CategoryResponse response = categoryService.updateCategoryById(categoryRequest, id);
                 log.info("CategoryController::updateCategory - Execution completed. [id: {}]", id);
+
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Category updated successfully.")
@@ -103,4 +115,54 @@ public class CategoryController {
                                 .timestamp(Instant.now())
                                 .build();
         }
+
+        @PutMapping("/{id}/status")
+        public ApiResponse<?> updateCategoryStatus(
+                        @PathVariable Long id,
+                        @RequestBody UpdateStatusRequest request) {
+                log.info("CategoryController::updateStatus - Execution started. [id: {}]", id);
+
+                CategoryResponse response = categoryService.updateStatus(request, id);
+
+                log.info("CategoryController::updateStatus - Execution completed. [id: {}]", id);
+
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Category status updated successfully.")
+                                .data(response)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @PostMapping("/bulk/status")
+        public ApiResponse<?> bulkUpdateStatus(@RequestBody BulkStatusRequest request) {
+                log.info("CategoryController::bulkUpdateStatus - Execution started.");
+
+                List<CategoryResponse> response = categoryService.bulkUpdateCategoriesStatus(request);
+
+                log.info("CategoryController::bulkUpdateStatus - Execution completed.");
+
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Bulk update category status successfully.")
+                                .data(response)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @PostMapping("/bulk/delete")
+        public ApiResponse<?> bulkDelete(@RequestBody BulkDeleteRequest request) {
+                log.info("CategoryController::bulkDelete - Execution started.");
+
+                categoryService.bulkDeleteCategories(request);
+
+                log.info("CategoryController::bulkDelete - Execution completed.");
+
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Bulk delete categories successfully.")
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
 }

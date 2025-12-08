@@ -1,15 +1,22 @@
 package com.threadcity.jacketshopbackend.dto.request;
 
 import com.threadcity.jacketshopbackend.common.Enums;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
 public class SizeRequest {
-    @NotNull(message = "Size cannot be null")
+    @NotBlank(message = "Size cannot be empty")
+    @Size(max = 50, message = "Size name must be less than 50 characters")
     private String name;
+
+    @Size(max = 255, message = "Description too long")
     private String description;
+
+    @NotNull(message = "Status is required")
     private Enums.Status status;
 }
