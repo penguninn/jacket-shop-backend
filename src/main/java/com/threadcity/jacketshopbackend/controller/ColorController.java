@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.ColorFilterRequest;
+import com.threadcity.jacketshopbackend.filter.ColorFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ColorRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.ColorResponse;

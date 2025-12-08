@@ -1,36 +1,22 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import java.time.Instant;
-import java.util.List;
-
-import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
-import com.threadcity.jacketshopbackend.dto.response.UserResponse;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.threadcity.jacketshopbackend.dto.request.UserBulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserBulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserCreateRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserRolesRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserUpdateRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProfileUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.request.*;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
+import com.threadcity.jacketshopbackend.dto.response.UserResponse;
+import com.threadcity.jacketshopbackend.filter.UserFilterRequest;
 import com.threadcity.jacketshopbackend.service.UserService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -137,7 +123,7 @@ public class UserController {
         }
 
         @PutMapping("/{id}/status")
-        public ApiResponse<?> updateStatus(@PathVariable Long id, @Valid @RequestBody UserStatusRequest request) {
+        public ApiResponse<?> updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
                 log.info("UserController::updateStatus - Execution started. [id: {}]", id);
                 UserResponse response = userService.updateUserStatusById(request, id);
                 log.info("UserController::updateStatus - Execution completed. [id: {}]", id);
@@ -150,7 +136,7 @@ public class UserController {
         }
 
         @PutMapping("/{id}/roles")
-        public ApiResponse<?> assignRole(@PathVariable Long id, @Valid @RequestBody UserRolesRequest requset) {
+        public ApiResponse<?> assignRole(@PathVariable Long id, @Valid @RequestBody UserUpdateRolesRequest requset) {
                 log.info("UserController::assignRole - Execution started. [id: {}]", id);
                 UserResponse response = userService.updateUserRolesById(requset, id);
                 log.info("UserController::assignRole - Execution completed. [id: {}]", id);
@@ -175,11 +161,11 @@ public class UserController {
         }
 
         @PostMapping("/bulk/status")
-        public ApiResponse<?> updateUsersStatus(@Valid @RequestBody UserBulkStatusRequest request) {
+        public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
                 int totalUserIds = request.getIds() != null ? request.getIds().size() : 0;
-                log.info("UserController::updateUsersStatus - Execution started. [totalIds: {}]", totalUserIds);
-                userService.updateUsersStatusBulk(request);
-                log.info("UserController::updateUsersStatus - Execution completed. [totalIds: {}]", totalUserIds);
+                log.info("UserController::bulkUpdateStatus - Execution started. [totalIds: {}]", totalUserIds);
+                userService.bulkUpdateUsersStatus(request);
+                log.info("UserController::bulkUpdateStatus - Execution completed. [totalIds: {}]", totalUserIds);
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("User statuses updated successfully.")
@@ -188,11 +174,11 @@ public class UserController {
         }
 
         @PostMapping("/bulk/delete")
-        public ApiResponse<?> deleteUsersBulk(@Valid @RequestBody UserBulkDeleteRequest request) {
+        public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
                 int totalUserIds = request.getIds() != null ? request.getIds().size() : 0;
-                log.info("UserController::deleteUsersBulk - Execution started. [totalIds: {}]", totalUserIds);
-                userService.deleteUsersBulk(request);
-                log.info("UserController::deleteUsersBulk - Execution completed. [totalIds: {}]", totalUserIds);
+                log.info("UserController::bulkDelete - Execution started. [totalIds: {}]", totalUserIds);
+                userService.bulkDeleteUsers(request);
+                log.info("UserController::bulkDelete - Execution completed. [totalIds: {}]", totalUserIds);
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Users deleted successfully.")

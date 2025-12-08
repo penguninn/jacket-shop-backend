@@ -1,13 +1,5 @@
 package com.threadcity.jacketshopbackend.service;
 
-import java.time.Instant;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.threadcity.jacketshopbackend.common.Enums.RefreshTokenStatus;
 import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
 import com.threadcity.jacketshopbackend.entity.RefreshToken;
@@ -19,9 +11,15 @@ import com.threadcity.jacketshopbackend.mapper.UserMapper;
 import com.threadcity.jacketshopbackend.repository.RefreshTokenRepository;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
 import com.threadcity.jacketshopbackend.service.auth.JwtService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -119,7 +117,7 @@ public class TokenService {
         rf.setStatus(RefreshTokenStatus.REVOKED);
 
         UserDetails principal = userRepository.findByUsername(username)
-                .map(u -> userMapper.toUserDetailsImpl(u))
+                .map(userMapper::toUserDetailsImpl)
                 .orElseThrow(
                         () -> new AuthenticationFailedException(ErrorCodes.AUTH_INVALID_CREDENTIALS, "User not found"));
 

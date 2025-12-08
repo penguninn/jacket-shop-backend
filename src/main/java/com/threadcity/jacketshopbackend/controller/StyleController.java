@@ -1,11 +1,14 @@
 package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.request.*;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.StyleResponse;
+import com.threadcity.jacketshopbackend.filter.StyleFilterRequest;
 import com.threadcity.jacketshopbackend.service.StyleService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -105,7 +108,7 @@ public class StyleController {
                         @PathVariable Long id,
                         @RequestBody UpdateStatusRequest request) {
                 log.info("StyleController::updateStatus - Execution started. [id: {}]", id);
-                StyleResponse response = styleService.updateStatus(id, request.getStatus());
+                StyleResponse response = styleService.updateStatus(id, request);
                 log.info("StyleController::updateStatus - Execution completed. [id: {}]", id);
 
                 return ApiResponse.builder()
@@ -116,13 +119,10 @@ public class StyleController {
                                 .build();
         }
 
-        // =============================
-        // BULK UPDATE STATUS
-        // =============================
         @PostMapping("/bulk/status")
         public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
                 log.info("StyleController::bulkUpdateStatus - Execution started.");
-                styleService.bulkUpdateStatus(request.getIds(), request.getStatus());
+                styleService.bulkUpdateStatus(request.getIds(), request);
                 log.info("StyleController::bulkUpdateStatus - Execution completed.");
 
                 return ApiResponse.builder()
@@ -132,9 +132,6 @@ public class StyleController {
                                 .build();
         }
 
-        // =============================
-        // BULK DELETE
-        // =============================
         @PostMapping("/bulk/delete")
         public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
                 log.info("StyleController::bulkDelete - Execution started.");

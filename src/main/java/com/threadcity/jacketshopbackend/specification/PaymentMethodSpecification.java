@@ -1,12 +1,11 @@
 package com.threadcity.jacketshopbackend.specification;
 
-import java.util.List;
-
+import com.threadcity.jacketshopbackend.common.Enums.Status;
+import com.threadcity.jacketshopbackend.filter.PaymentMethodFilterRequest;
+import com.threadcity.jacketshopbackend.entity.PaymentMethod;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.dto.request.PaymentMethodFilterRequest;
-import com.threadcity.jacketshopbackend.entity.PaymentMethod;
+import java.util.List;
 
 public class PaymentMethodSpecification {
 

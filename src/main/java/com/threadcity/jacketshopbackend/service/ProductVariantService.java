@@ -1,11 +1,11 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.ProductVariantFilterRequest;
 import com.threadcity.jacketshopbackend.common.Enums;
+import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductVariantRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
-import com.threadcity.jacketshopbackend.entity.*;
+import com.threadcity.jacketshopbackend.entity.ProductVariant;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;

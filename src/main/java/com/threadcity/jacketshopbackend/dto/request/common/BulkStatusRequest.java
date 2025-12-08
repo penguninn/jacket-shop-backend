@@ -1,5 +1,6 @@
-package com.threadcity.jacketshopbackend.dto.request;
+package com.threadcity.jacketshopbackend.dto.request.common;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,5 +10,5 @@ import java.util.List;
 @Setter
 public class BulkStatusRequest {
     private List<Long> ids;
-    private String status;
+    private Enums.Status status;
 }

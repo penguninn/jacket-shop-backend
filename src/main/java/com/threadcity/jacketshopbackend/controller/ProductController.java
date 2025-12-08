@@ -1,9 +1,13 @@
 package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.request.*;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
+import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
 import com.threadcity.jacketshopbackend.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -112,7 +116,7 @@ public class ProductController {
                         @PathVariable Long id,
                         @RequestBody UpdateStatusRequest request) {
                 log.info("ProductController::updateStatus - Execution started. [id: {}]", id);
-                ProductResponse response = productService.updateStatus(id, request.getStatus());
+                ProductResponse response = productService.updateStatus(id, request);
                 log.info("ProductController::updateStatus - Execution completed. [id: {}]", id);
                 return ApiResponse.builder()
                                 .code(200)
@@ -125,7 +129,7 @@ public class ProductController {
         @PostMapping("/bulk/status")
         public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
                 log.info("ProductController::bulkUpdateStatus - Execution started.");
-                productService.bulkUpdateStatus(request.getIds(), request.getStatus());
+                productService.bulkUpdateStatus(request.getIds(), request);
                 log.info("ProductController::bulkUpdateStatus - Execution completed.");
                 return ApiResponse.builder()
                                 .code(200)

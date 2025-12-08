@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.ShippingMethodsFilterRequest;
+import com.threadcity.jacketshopbackend.filter.ShippingMethodsFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ShippingMethodsRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ShippingMethodsResponse;
@@ -11,7 +11,6 @@ import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.ShippingMethodsMapper;
 import com.threadcity.jacketshopbackend.repository.ShippingMethodsRepository;
 import com.threadcity.jacketshopbackend.specification.ShippingMethodsSpecification;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +94,6 @@ public class ShippingMethodsService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.SHIPPING_METHOD_NOT_FOUND,
                         "ShippingMethod not found with id: " + id));
 
-        // Check duplicate name
         if (!method.getName().equals(request.getName()) && shippingMethodRepository.existsByName(request.getName())) {
             throw new ResourceConflictException(ErrorCodes.SHIPPING_METHOD_NAME_DUPLICATE,
                     "ShippingMethod already exists with name: " + request.getName());

@@ -1,6 +1,8 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.StyleFilterRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.filter.StyleFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.StyleResponse;
@@ -108,14 +110,14 @@ public class StyleService {
     }
 
     @Transactional
-    public StyleResponse updateStatus(Long id, String status) {
+    public StyleResponse updateStatus(Long id, UpdateStatusRequest request) {
         log.info("StyleService::updateStatus - Execution started. [id: {}]", id);
 
         Style style = styleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.STYLE_NOT_FOUND,
                         "Style not found with id: " + id));
 
-        style.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase()));
+        style.setStatus(request.getStatus());
 
         Style saved = styleRepository.save(style);
 
@@ -124,25 +126,18 @@ public class StyleService {
         return styleMapper.toDto(saved);
     }
 
-    // =============================
-    // BULK UPDATE STATUS
-    // =============================
     @Transactional
-    public void bulkUpdateStatus(List<Long> ids, String status) {
+    public void bulkUpdateStatus(List<Long> ids, BulkStatusRequest request) {
         log.info("StyleService::bulkUpdateStatus - Execution started.");
 
         List<Style> styles = styleRepository.findAllById(ids);
-        styles.forEach(s -> s.setStatus(
-                Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase())));
+        styles.forEach(s -> s.setStatus(request.getStatus()));
 
         styleRepository.saveAll(styles);
 
         log.info("StyleService::bulkUpdateStatus - Execution completed.");
     }
 
-    // =============================
-    // BULK DELETE
-    // =============================
     @Transactional
     public void bulkDelete(List<Long> ids) {
         log.info("StyleService::bulkDelete - Execution started.");

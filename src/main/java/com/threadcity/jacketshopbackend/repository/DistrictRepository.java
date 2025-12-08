@@ -1,11 +1,10 @@
 package com.threadcity.jacketshopbackend.repository;
 
-import java.util.List;
-
+import com.threadcity.jacketshopbackend.entity.District;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.threadcity.jacketshopbackend.entity.District;
+import java.util.List;
 
 @Repository
 public interface DistrictRepository extends JpaRepository<District, Long> {

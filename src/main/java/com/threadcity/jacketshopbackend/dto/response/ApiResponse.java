@@ -1,10 +1,10 @@
 package com.threadcity.jacketshopbackend.dto.response;
 
-import java.io.Serializable;
-import java.time.Instant;
-
 import lombok.Builder;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.time.Instant;
 
 @Data
 @Builder

@@ -1,15 +1,11 @@
 package com.threadcity.jacketshopbackend.dto.response;
 
+import com.threadcity.jacketshopbackend.common.Enums.Status;
+import lombok.*;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;
-
-import com.threadcity.jacketshopbackend.common.Enums.Status;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Builder

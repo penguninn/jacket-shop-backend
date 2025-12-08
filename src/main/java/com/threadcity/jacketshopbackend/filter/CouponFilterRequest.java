@@ -1,6 +1,5 @@
-package com.threadcity.jacketshopbackend.dto.request;
+package com.threadcity.jacketshopbackend.filter;
 
-import java.util.List;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -9,17 +8,21 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+import java.util.List;
+
 @Data
 @Builder
-public class ProductFilterRequest {
+public class CouponFilterRequest {
 
     @Size(max = 255, message = "Search term too long")
-    private String search;
-    private List<Long> categoryIds;
-    private List<Long> brandIds;
-    private List<Long> materialIds;
-    private List<Long> styleIds;
+    private String search; // search in code or description
+
     private List<String> status; // ACTIVE, INACTIVE
+    private List<String> type;   // FIXED, PERCENTAGE
+
+    private Instant validFrom; // filter coupons starting from date
+    private Instant validTo;   // filter coupons ending before date
 
     @Builder.Default
     @Min(value = 0, message = "Page must be >= 0")
@@ -32,7 +35,7 @@ public class ProductFilterRequest {
 
     @Builder.Default
     @Pattern(
-            regexp = "^(id|name|category|brand|createdAt|updatedAt)$",
+            regexp = "^(id|code|validFrom|validTo|createdAt|updatedAt)$",
             message = "Invalid sort field"
     )
     private String sortBy = "createdAt";
@@ -44,5 +47,3 @@ public class ProductFilterRequest {
     )
     private String sortDir = "DESC";
 }
-
-

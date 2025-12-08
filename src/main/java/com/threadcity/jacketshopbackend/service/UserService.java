@@ -1,6 +1,9 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.dto.request.*;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
 import com.threadcity.jacketshopbackend.dto.response.UserResponse;
@@ -10,6 +13,7 @@ import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.UserFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.UserMapper;
 import com.threadcity.jacketshopbackend.repository.RefreshTokenRepository;
 import com.threadcity.jacketshopbackend.repository.RoleRepository;
@@ -157,7 +161,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse updateUserStatusById(UserStatusRequest request, Long id) {
+    public UserResponse updateUserStatusById(UpdateStatusRequest request, Long id) {
         log.info("UserService::updateUserStatusById - Execution started.");
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND,
@@ -170,7 +174,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse updateUserRolesById(UserRolesRequest request, Long id) {
+    public UserResponse updateUserRolesById(UserUpdateRolesRequest request, Long id) {
         log.info("UserService::updateUserRolesById - Execution started.");
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND,
@@ -209,30 +213,24 @@ public class UserService {
     }
 
     @Transactional
-    public List<UserResponse> updateUsersStatusBulk(UserBulkStatusRequest request) {
-        log.info("UserService::updateUsersStatusBulk - Execution started.");
+    public List<UserResponse> bulkUpdateUsersStatus(BulkStatusRequest request) {
+        log.info("UserService::bulkUpdateUsersStatus - Execution started.");
         List<User> users = userRepository.findAllById(request.getIds());
         if (users.size() != request.getIds().size()) {
             Set<Long> foundIds = users.stream().map(User::getId).collect(Collectors.toSet());
             Set<Long> missingIds = new HashSet<>(request.getIds());
             missingIds.removeAll(foundIds);
-            throw new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "Users not found: " + missingIds); // Or
-                                                                                                              // partial
-                                                                                                              // failure
-                                                                                                              // handling,
-                                                                                                              // but
-                                                                                                              // this is
-            // simpler
+            throw new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "Users not found: " + missingIds);
         }
 
         users.forEach(user -> user.setStatus(request.getStatus()));
         List<User> savedUsers = userRepository.saveAll(users);
-        log.info("UserService::updateUsersStatusBulk - Execution completed.");
+        log.info("UserService::bulkUpdateUsersStatus - Execution completed.");
         return savedUsers.stream().map(userMapper::toUserResponse).toList();
     }
 
     @Transactional
-    public void deleteUsersBulk(UserBulkDeleteRequest request) {
+    public void bulkDeleteUsers(BulkDeleteRequest request) {
         log.info("UserService::deleteUsersBulk - Execution started.");
         Long currentUserId = getUserId();
         if (request.getIds().contains(currentUserId)) {

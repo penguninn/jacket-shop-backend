@@ -5,8 +5,11 @@ import com.threadcity.jacketshopbackend.entity.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {
+        BrandMapper.class,
+        StyleMapper.class
+})
 public interface ProductMapper {
-    @Mapping(target = "imagesJson", ignore = true)
+
     ProductResponse toDto(Product product);
 }

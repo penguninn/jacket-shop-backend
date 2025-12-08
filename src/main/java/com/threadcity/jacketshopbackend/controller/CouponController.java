@@ -1,13 +1,13 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.*;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.request.CouponRequest;
-import com.threadcity.jacketshopbackend.dto.request.CouponFilterRequest;
+import com.threadcity.jacketshopbackend.filter.CouponFilterRequest;
 import com.threadcity.jacketshopbackend.service.CouponService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -110,7 +110,7 @@ public class CouponController {
     @PutMapping("/{id}/status")
     public ApiResponse<?> updateStatus(@PathVariable Long id, @RequestBody UpdateStatusRequest request) {
         log.info("CouponController::updateStatus - Execution started. [id: {}]", id);
-        CouponResponse response = couponService.updateStatus(id, request.getStatus());
+        CouponResponse response = couponService.updateStatus(id, request);
         log.info("CouponController::updateStatus - Execution completed. [id: {}]", id);
         return ApiResponse.builder()
                 .code(200)
@@ -123,7 +123,7 @@ public class CouponController {
     @PostMapping("/bulk/status")
     public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
         log.info("CouponController::bulkUpdateStatus - Execution started");
-        couponService.bulkUpdateStatus(request.getIds(), request.getStatus());
+        couponService.bulkUpdateStatus(request.getIds(), request);
         log.info("CouponController::bulkUpdateStatus - Execution completed");
         return ApiResponse.builder()
                 .code(200)
