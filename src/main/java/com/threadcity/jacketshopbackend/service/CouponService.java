@@ -1,7 +1,9 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.dto.request.CouponFilterRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.filter.CouponFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CouponRequest;
 import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -127,22 +129,22 @@ public class CouponService {
     }
 
     @Transactional
-    public CouponResponse updateStatus(Long id, String status) {
+    public CouponResponse updateStatus(Long id, UpdateStatusRequest request) {
         log.info("CouponService::updateStatus - Execution started. [id: {}]", id);
         Coupon coupon = couponRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COUPON_NOT_FOUND,
                         "Coupon not found with id: " + id));
-        coupon.setStatus(Enums.Status.valueOf(status.toUpperCase()));
+        coupon.setStatus(request.getStatus());
         Coupon saved = couponRepository.save(coupon);
         log.info("CouponService::updateStatus - Execution completed. [id: {}]", id);
         return couponMapper.toDto(saved);
     }
 
     @Transactional
-    public void bulkUpdateStatus(List<Long> ids, String status) {
+    public void bulkUpdateStatus(List<Long> ids, BulkStatusRequest request) {
         log.info("CouponService::bulkUpdateStatus - Execution started");
         List<Coupon> coupons = couponRepository.findAllById(ids);
-        coupons.forEach(c -> c.setStatus(Enums.Status.valueOf(status.toUpperCase())));
+        coupons.forEach(c -> c.setStatus(request.getStatus()));
         couponRepository.saveAll(coupons);
         log.info("CouponService::bulkUpdateStatus - Execution completed");
     }

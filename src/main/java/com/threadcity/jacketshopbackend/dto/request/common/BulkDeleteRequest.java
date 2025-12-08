@@ -1,4 +1,4 @@
-package com.threadcity.jacketshopbackend.dto.request;
+package com.threadcity.jacketshopbackend.dto.request.common;
 
 import lombok.Getter;
 import lombok.Setter;

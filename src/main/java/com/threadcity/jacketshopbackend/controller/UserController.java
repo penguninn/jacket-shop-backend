@@ -1,10 +1,14 @@
 package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.request.*;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
 import com.threadcity.jacketshopbackend.dto.response.UserResponse;
+import com.threadcity.jacketshopbackend.filter.UserFilterRequest;
 import com.threadcity.jacketshopbackend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -119,7 +123,7 @@ public class UserController {
         }
 
         @PutMapping("/{id}/status")
-        public ApiResponse<?> updateStatus(@PathVariable Long id, @Valid @RequestBody UserStatusRequest request) {
+        public ApiResponse<?> updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
                 log.info("UserController::updateStatus - Execution started. [id: {}]", id);
                 UserResponse response = userService.updateUserStatusById(request, id);
                 log.info("UserController::updateStatus - Execution completed. [id: {}]", id);
@@ -132,7 +136,7 @@ public class UserController {
         }
 
         @PutMapping("/{id}/roles")
-        public ApiResponse<?> assignRole(@PathVariable Long id, @Valid @RequestBody UserRolesRequest requset) {
+        public ApiResponse<?> assignRole(@PathVariable Long id, @Valid @RequestBody UserUpdateRolesRequest requset) {
                 log.info("UserController::assignRole - Execution started. [id: {}]", id);
                 UserResponse response = userService.updateUserRolesById(requset, id);
                 log.info("UserController::assignRole - Execution completed. [id: {}]", id);
@@ -157,11 +161,11 @@ public class UserController {
         }
 
         @PostMapping("/bulk/status")
-        public ApiResponse<?> updateUsersStatus(@Valid @RequestBody UserBulkStatusRequest request) {
+        public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
                 int totalUserIds = request.getIds() != null ? request.getIds().size() : 0;
-                log.info("UserController::updateUsersStatus - Execution started. [totalIds: {}]", totalUserIds);
-                userService.updateUsersStatusBulk(request);
-                log.info("UserController::updateUsersStatus - Execution completed. [totalIds: {}]", totalUserIds);
+                log.info("UserController::bulkUpdateStatus - Execution started. [totalIds: {}]", totalUserIds);
+                userService.bulkUpdateUsersStatus(request);
+                log.info("UserController::bulkUpdateStatus - Execution completed. [totalIds: {}]", totalUserIds);
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("User statuses updated successfully.")
@@ -170,11 +174,11 @@ public class UserController {
         }
 
         @PostMapping("/bulk/delete")
-        public ApiResponse<?> deleteUsersBulk(@Valid @RequestBody UserBulkDeleteRequest request) {
+        public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
                 int totalUserIds = request.getIds() != null ? request.getIds().size() : 0;
-                log.info("UserController::deleteUsersBulk - Execution started. [totalIds: {}]", totalUserIds);
-                userService.deleteUsersBulk(request);
-                log.info("UserController::deleteUsersBulk - Execution completed. [totalIds: {}]", totalUserIds);
+                log.info("UserController::bulkDelete - Execution started. [totalIds: {}]", totalUserIds);
+                userService.bulkDeleteUsers(request);
+                log.info("UserController::bulkDelete - Execution completed. [totalIds: {}]", totalUserIds);
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Users deleted successfully.")

@@ -2,7 +2,7 @@ package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.CouponType;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.dto.request.CouponFilterRequest;
+import com.threadcity.jacketshopbackend.filter.CouponFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Coupon;
 import org.springframework.data.jpa.domain.Specification;
 

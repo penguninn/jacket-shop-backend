@@ -1,7 +1,7 @@
 package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.dto.request.SizeFilterRequest;
+import com.threadcity.jacketshopbackend.filter.SizeFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Size;
 import org.springframework.data.jpa.domain.Specification;
 

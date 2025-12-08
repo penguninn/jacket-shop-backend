@@ -1,7 +1,7 @@
 package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.dto.request.PaymentMethodFilterRequest;
+import com.threadcity.jacketshopbackend.filter.PaymentMethodFilterRequest;
 import com.threadcity.jacketshopbackend.entity.PaymentMethod;
 import org.springframework.data.jpa.domain.Specification;
 

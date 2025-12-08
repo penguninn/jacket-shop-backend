@@ -1,4 +1,4 @@
-package com.threadcity.jacketshopbackend.dto.request;
+package com.threadcity.jacketshopbackend.filter;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -7,27 +7,16 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Data
 @Builder
-public class ProductVariantFilterRequest {
+public class MaterialFilterRequest {
 
     @Size(max = 255, message = "Search term too long")
-    private String search; // search theo SKU
+    private String search;           // tìm theo name hoặc description
 
-    private Long productId;
-
-    private Long sizeId;
-
-    private Long colorId;
-
-    private BigDecimal fromPrice;
-
-    private BigDecimal toPrice;
-
-    private List<String> status;
+    private List<String> status;     // list status
 
     @Builder.Default
     @Min(value = 0, message = "Page must be >= 0")
@@ -40,7 +29,7 @@ public class ProductVariantFilterRequest {
 
     @Builder.Default
     @Pattern(
-            regexp = "^(id|sku|price|createdAt|updatedAt)$",
+            regexp = "^(id|name|createdAt|updatedAt)$",
             message = "Invalid sort field"
     )
     private String sortBy = "createdAt";
@@ -52,4 +41,3 @@ public class ProductVariantFilterRequest {
     )
     private String sortDir = "DESC";
 }
-

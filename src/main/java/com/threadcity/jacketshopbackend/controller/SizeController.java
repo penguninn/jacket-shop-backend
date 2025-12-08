@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.SizeFilterRequest;
+import com.threadcity.jacketshopbackend.filter.SizeFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;

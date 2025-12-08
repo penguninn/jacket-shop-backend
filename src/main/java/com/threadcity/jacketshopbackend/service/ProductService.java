@@ -1,7 +1,9 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.dto.request.ProductFilterRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
@@ -31,8 +33,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
-    private final CategoryRepository categoryRepository;
-    private final MaterialRepository materialRepository;
     private final StyleRepository styleRepository;
     private final ProductMapper productMapper;
 
@@ -77,25 +77,11 @@ public class ProductService {
 
         Product product = new Product();
 
-        if (req.getCategoryId() != null) {
-            Category category = categoryRepository.findById(req.getCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND,
-                            "Category not found with id: " + req.getCategoryId()));
-            product.setCategory(category);
-        }
-
         if (req.getBrandId() != null) {
             Brand brand = brandRepository.findById(req.getBrandId())
                     .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND,
                             "Brand not found with id: " + req.getBrandId()));
             product.setBrand(brand);
-        }
-
-        if (req.getMaterialId() != null) {
-            Material material = materialRepository.findById(req.getMaterialId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.MATERIAL_NOT_FOUND,
-                            "Material not found with id: " + req.getMaterialId()));
-            product.setMaterial(material);
         }
 
         if (req.getStyleId() != null) {
@@ -110,7 +96,6 @@ public class ProductService {
         product.setStatus(req.getStatus());
         product.setThumbnail(req.getThumbnail());
         Product saved = productRepository.save(product);
-
         log.info("ProductService::createProduct - Execution completed.");
         return productMapper.toDto(saved);
     }
@@ -122,26 +107,11 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
                         "Product not found with id: " + id));
 
-        if (req.getCategoryId() != null) {
-            Category category = categoryRepository.findById(req.getCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND,
-                            "Category not found with id: " + req.getCategoryId()));
-            product.setCategory(category);
-        }
-
         if (req.getBrandId() != null) {
             Brand brand = brandRepository.findById(req.getBrandId())
                     .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND,
                             "Brand not found with id: " + req.getBrandId()));
-            System.out.println("bvbskvbdskj" + req.getBrandId());
             product.setBrand(brand);
-        }
-
-        if (req.getMaterialId() != null) {
-            Material material = materialRepository.findById(req.getMaterialId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.MATERIAL_NOT_FOUND,
-                            "Material not found with id: " + req.getMaterialId()));
-            product.setMaterial(material);
         }
 
         if (req.getStyleId() != null) {
@@ -156,7 +126,6 @@ public class ProductService {
         product.setDescription(req.getDescription());
         product.setStatus(req.getStatus());
         Product saved = productRepository.save(product);
-
         log.info("ProductService::updateProductById - Execution completed. [id: {}]", id);
         return productMapper.toDto(saved);
     }
@@ -173,40 +142,31 @@ public class ProductService {
         log.info("ProductService::deleteProduct - Execution completed. [id: {}]", id);
     }
 
-    // =============================
-    // UPDATE STATUS (NEW)
-    // =============================
     @Transactional
-    public ProductResponse updateStatus(Long id, String status) {
+    public ProductResponse updateStatus(Long id, UpdateStatusRequest request) {
         log.info("ProductService::updateStatus - Execution started. [id: {}]", id);
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
                         "Product not found with id: " + id));
-        product.setStatus(Enums.Status.valueOf(status.toUpperCase()));
+        product.setStatus(request.getStatus());
         Product saved = productRepository.save(product);
 
         log.info("ProductService::updateStatus - Execution completed. [id: {}]", id);
         return productMapper.toDto(saved);
     }
 
-    // =============================
-    // BULK UPDATE STATUS (NEW)
-    // =============================
     @Transactional
-    public void bulkUpdateStatus(List<Long> ids, String status) {
+    public void bulkUpdateStatus(List<Long> ids, BulkStatusRequest request) {
         log.info("ProductService::bulkUpdateStatus - Execution started.");
 
         List<Product> products = productRepository.findAllById(ids);
-        products.forEach(p -> p.setStatus(Enums.Status.valueOf(status.toUpperCase())));
+        products.forEach(p -> p.setStatus(request.getStatus()));
         productRepository.saveAll(products);
 
         log.info("ProductService::bulkUpdateStatus - Execution completed.");
     }
 
-    // =============================
-    // BULK DELETE (NEW)
-    // =============================
     @Transactional
     public void bulkDelete(List<Long> ids) {
         log.info("ProductService::bulkDelete - Execution started.");

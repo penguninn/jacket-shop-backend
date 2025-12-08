@@ -1,4 +1,4 @@
-package com.threadcity.jacketshopbackend.dto.request;
+package com.threadcity.jacketshopbackend.filter;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -11,12 +11,15 @@ import java.util.List;
 
 @Data
 @Builder
-public class ShippingMethodsFilterRequest {
+public class ProductFilterRequest {
 
     @Size(max = 255, message = "Search term too long")
     private String search;
-
-    private List<String> status;
+    private List<Long> categoryIds;
+    private List<Long> brandIds;
+    private List<Long> materialIds;
+    private List<Long> styleIds;
+    private List<String> status; // ACTIVE, INACTIVE
 
     @Builder.Default
     @Min(value = 0, message = "Page must be >= 0")
@@ -29,7 +32,7 @@ public class ShippingMethodsFilterRequest {
 
     @Builder.Default
     @Pattern(
-            regexp = "^(id|name|fee|estimatedDays|createdAt|updatedAt)$",
+            regexp = "^(id|name|category|brand|createdAt|updatedAt)$",
             message = "Invalid sort field"
     )
     private String sortBy = "createdAt";
@@ -41,3 +44,5 @@ public class ShippingMethodsFilterRequest {
     )
     private String sortDir = "DESC";
 }
+
+

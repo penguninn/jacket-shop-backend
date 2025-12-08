@@ -16,12 +16,10 @@ import java.time.Instant;
 public class ProductResponse implements Serializable {
     private Long id;
     private String name;
-    private CategoryResponse category;
     private BrandResponse brand;
     private String description;
-    private MaterialResponse material;
     private StyleResponse style;
-    private String imagesJson;
+    private String thumbnail;
     private Enums.Status status;
     private Instant createdAt;
     private Instant updatedAt;

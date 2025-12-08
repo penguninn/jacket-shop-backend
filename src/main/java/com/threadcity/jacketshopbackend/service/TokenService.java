@@ -117,7 +117,7 @@ public class TokenService {
         rf.setStatus(RefreshTokenStatus.REVOKED);
 
         UserDetails principal = userRepository.findByUsername(username)
-                .map(u -> userMapper.toUserDetailsImpl(u))
+                .map(userMapper::toUserDetailsImpl)
                 .orElseThrow(
                         () -> new AuthenticationFailedException(ErrorCodes.AUTH_INVALID_CREDENTIALS, "User not found"));
 

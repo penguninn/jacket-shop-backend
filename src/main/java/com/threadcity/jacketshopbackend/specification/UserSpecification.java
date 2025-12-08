@@ -1,7 +1,7 @@
 package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.dto.request.UserFilterRequest;
+import com.threadcity.jacketshopbackend.filter.UserFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.entity.User;
 import jakarta.persistence.criteria.Join;

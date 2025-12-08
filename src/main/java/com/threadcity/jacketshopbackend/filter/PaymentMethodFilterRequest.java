@@ -1,4 +1,4 @@
-package com.threadcity.jacketshopbackend.dto.request;
+package com.threadcity.jacketshopbackend.filter;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class CategoryFilterRequest {
+public class PaymentMethodFilterRequest {
 
     @Size(max = 255, message = "Search term too long")
     private String search;

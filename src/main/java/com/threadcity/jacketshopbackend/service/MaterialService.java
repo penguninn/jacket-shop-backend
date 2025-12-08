@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.MaterialFilterRequest;
+import com.threadcity.jacketshopbackend.filter.MaterialFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.MaterialRequest;
 import com.threadcity.jacketshopbackend.dto.response.MaterialResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;

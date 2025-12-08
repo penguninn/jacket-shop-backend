@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Data
 @Builder
-public class UserRolesRequest implements Serializable {
+public class UserUpdateRolesRequest implements Serializable {
 
     private Set<Long> roleIds;
 }

@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.ShippingMethodsFilterRequest;
+import com.threadcity.jacketshopbackend.filter.ShippingMethodsFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ShippingMethodsRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;

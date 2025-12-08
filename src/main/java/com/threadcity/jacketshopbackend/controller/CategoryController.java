@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.CategoryFilterRequest;
+import com.threadcity.jacketshopbackend.filter.CategoryFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CategoryRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.CategoryResponse;

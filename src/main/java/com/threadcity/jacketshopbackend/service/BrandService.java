@@ -1,6 +1,8 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.BrandFilterRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.filter.BrandFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
 import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
@@ -110,14 +112,14 @@ public class BrandService {
     }
 
     @Transactional
-    public BrandResponse updateStatus(Long id, String status) {
+    public BrandResponse updateStatus(Long id, UpdateStatusRequest request) {
         log.info("BrandService::updateStatus - Execution started. [id: {}]", id);
 
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.BRAND_NOT_FOUND,
                         "Brand not found with id: " + id));
 
-        brand.setStatus(Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase()));
+        brand.setStatus(request.getStatus());
 
         Brand saved = brandRepository.save(brand);
 
@@ -126,25 +128,18 @@ public class BrandService {
         return brandMapper.toDto(saved);
     }
 
-    // =============================
-    // BULK UPDATE STATUS
-    // =============================
     @Transactional
-    public void bulkUpdateStatus(List<Long> ids, String status) {
+    public void bulkUpdateStatus(List<Long> ids, BulkStatusRequest request) {
         log.info("BrandService::bulkUpdateStatus - Execution started.");
 
         List<Brand> brands = brandRepository.findAllById(ids);
-        brands.forEach(b -> b.setStatus(
-                Enum.valueOf(com.threadcity.jacketshopbackend.common.Enums.Status.class, status.toUpperCase())));
+        brands.forEach(b -> b.setStatus(request.getStatus()));
 
         brandRepository.saveAll(brands);
 
         log.info("BrandService::bulkUpdateStatus - Execution completed.");
     }
 
-    // =============================
-    // BULK DELETE
-    // =============================
     @Transactional
     public void bulkDelete(List<Long> ids) {
         log.info("BrandService::bulkDelete - Execution started.");

@@ -23,28 +23,13 @@ public class Product extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false)
-    private Double price;
-
-    @Column(name = "views_count")
-    @Builder.Default
-    private Integer viewsCount = 0;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "material_id", nullable = false)
-    private Material material;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "style_id", nullable = false)

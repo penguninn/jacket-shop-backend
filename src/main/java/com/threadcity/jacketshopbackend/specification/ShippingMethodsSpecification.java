@@ -1,7 +1,7 @@
 package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.dto.request.ShippingMethodsFilterRequest;
+import com.threadcity.jacketshopbackend.filter.ShippingMethodsFilterRequest;
 import com.threadcity.jacketshopbackend.entity.ShippingMethod;
 import org.springframework.data.jpa.domain.Specification;
 

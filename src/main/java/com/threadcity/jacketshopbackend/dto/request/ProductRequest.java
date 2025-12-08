@@ -10,10 +10,8 @@ import lombok.Data;
 public class ProductRequest {
     @NotNull(message = "Name cannot be null")
     private String name;
-    private Long categoryId;
     private Long brandId;
     private String description;
-    private Long materialId;
     private Long styleId;
     private String thumbnail;
     private Enums.Status status;

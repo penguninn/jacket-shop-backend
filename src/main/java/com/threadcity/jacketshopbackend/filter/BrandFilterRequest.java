@@ -1,4 +1,4 @@
-package com.threadcity.jacketshopbackend.dto.request;
+package com.threadcity.jacketshopbackend.filter;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -11,12 +11,12 @@ import java.util.List;
 
 @Data
 @Builder
-public class MaterialFilterRequest {
+public class BrandFilterRequest {
 
     @Size(max = 255, message = "Search term too long")
-    private String search;           // tìm theo name hoặc description
+    private String search;
 
-    private List<String> status;     // list status
+    private List<String> status; // ACTIVE / INACTIVE
 
     @Builder.Default
     @Min(value = 0, message = "Page must be >= 0")

@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.PaymentMethodFilterRequest;
+import com.threadcity.jacketshopbackend.filter.PaymentMethodFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.PaymentMethodRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.PaymentMethodResponse;

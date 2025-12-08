@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.entity;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,6 +38,10 @@ public class Address extends BaseEntity {
 
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Enums.Status status;
 
     @Column(name = "recipient_name", length = 120)
     private String recipientName;
