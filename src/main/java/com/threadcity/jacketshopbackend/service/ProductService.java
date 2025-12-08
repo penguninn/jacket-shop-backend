@@ -1,7 +1,7 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
@@ -25,6 +25,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +48,8 @@ public class ProductService {
         return productMapper.toDto(product);
     }
 
-    public PageResponse<?> getAllProduct(ProductFilterRequest request) {
-        log.info("ProductService::getAllProduct - Execution started.");
+    public PageResponse<?> getAllProducts(ProductFilterRequest request) {
+        log.info("ProductService::getAllProducts - Execution started.");
 
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
@@ -57,7 +60,7 @@ public class ProductService {
         List<ProductResponse> productResponse = productPage.getContent().stream()
                 .map(productMapper::toDto)
                 .toList();
-        log.info("ProductService::getAllProduct - Execution completed.");
+        log.info("ProductService::getAllProducts - Execution completed.");
         return PageResponse.builder()
                 .contents(productResponse)
                 .size(request.getSize())
@@ -143,7 +146,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse updateStatus(Long id, UpdateStatusRequest request) {
+    public ProductResponse updateStatus(UpdateStatusRequest request, Long id) {
         log.info("ProductService::updateStatus - Execution started. [id: {}]", id);
 
         Product product = productRepository.findById(id)
@@ -157,31 +160,38 @@ public class ProductService {
     }
 
     @Transactional
-    public void bulkUpdateStatus(List<Long> ids, BulkStatusRequest request) {
-        log.info("ProductService::bulkUpdateStatus - Execution started.");
+    public List<ProductResponse> bulkUpdateProductsStatus(BulkStatusRequest request) {
+        log.info("ProductService::bulkUpdateProductsStatus - Execution started.");
 
-        List<Product> products = productRepository.findAllById(ids);
+        List<Product> products = productRepository.findAllById(request.getIds());
+        if (products.size() != request.getIds().size()) {
+            Set<Long> foundIds = products.stream().map(Product::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND, "Products not found: " + missingIds);
+        }
         products.forEach(p -> p.setStatus(request.getStatus()));
-        productRepository.saveAll(products);
+        List<Product> savedProducts = productRepository.saveAll(products);
 
-        log.info("ProductService::bulkUpdateStatus - Execution completed.");
+        log.info("ProductService::bulkUpdateProductsStatus - Execution completed.");
+        return savedProducts.stream().map(productMapper::toDto).toList();
     }
 
     @Transactional
-    public void bulkDelete(List<Long> ids) {
-        log.info("ProductService::bulkDelete - Execution started.");
+    public void bulkDeleteProducts(BulkDeleteRequest request) {
+        log.info("ProductService::bulkDeleteProducts - Execution started.");
 
-        List<Product> products = productRepository.findAllById(ids);
+        List<Product> products = productRepository.findAllById(request.getIds());
 
-        if (products.size() != ids.size()) {
-            // Find missing IDs for better error message
-            List<Long> foundIds = products.stream().map(Product::getId).toList();
-            List<Long> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).toList();
+        if (products.size() != request.getIds().size()) {
+            Set<Long> foundIds = products.stream().map(Product::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
             throw new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND, "Products not found: " + missingIds);
         }
 
         productRepository.deleteAllInBatch(products);
 
-        log.info("ProductService::bulkDelete - Execution completed.");
+        log.info("ProductService::bulkDeleteProducts - Execution completed.");
     }
 }

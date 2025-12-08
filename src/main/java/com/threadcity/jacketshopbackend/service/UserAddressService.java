@@ -37,7 +37,7 @@ public class UserAddressService {
                 .stream()
                 .map(addressMapper::toDto)
                 .toList();
-        log.info("UserAddressService::getAllAddressByUserId - Execution ended");
+        log.info("UserAddressService::getAllAddressByUserId - Execution completed");
         return addressReponses;
     }
 
@@ -49,7 +49,7 @@ public class UserAddressService {
                 .map(addressMapper::toDto)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(ErrorCodes.ADDRESS_NOT_FOUND, "Default address not found"));
-        log.info("UserAddressService::getDefaultAddress - Execution ended");
+        log.info("UserAddressService::getDefaultAddress - Execution completed");
         return addressReponse;
     }
 
@@ -88,13 +88,13 @@ public class UserAddressService {
         address.setRecipientName(request.getRecipientName());
         address.setRecipientPhone(request.getRecipientPhone());
         Address saved = addressRepository.save(address);
-        log.info("UserAddressService::createAddress - Execution ended");
+        log.info("UserAddressService::createAddress - Execution completed");
         return addressMapper.toDto(saved);
     }
 
     @Transactional
-    public AddressResponse updateAddress(Long addressId, AddressRequest request) {
-        log.info("UserAddressService::updateAddress - Execution started");
+    public AddressResponse updateAddress(AddressRequest request, Long addressId) {
+        log.info("UserAddressService::updateAddress - Execution started. [id: {}]", addressId);
         Long userId = getUserId();
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ADDRESS_NOT_FOUND, "Address not found"));
@@ -137,13 +137,13 @@ public class UserAddressService {
         address.setRecipientName(request.getRecipientName());
         address.setRecipientPhone(request.getRecipientPhone());
         Address saved = addressRepository.save(address);
-        log.info("UserAddressService::createAddress - Execution ended");
+        log.info("UserAddressService::updateAddress - Execution completed. [id: {}]", addressId);
         return addressMapper.toDto(saved);
     }
 
     @Transactional
     public AddressResponse setDefaultAddress(Long addressId) {
-        log.info("UserAddressService::setDefaultAddress - Execution started");
+        log.info("UserAddressService::setDefaultAddress - Execution started. [id: {}]", addressId);
         Long userId = getUserId();
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ADDRESS_NOT_FOUND, "Address not found"));
@@ -153,13 +153,13 @@ public class UserAddressService {
         addressRepository.clearDefaultAddressForUser(userId);
         address.setIsDefault(true);
         Address saved = addressRepository.save(address);
-        log.info("UserAddressService::setDefaultAddress - Execution ended");
+        log.info("UserAddressService::setDefaultAddress - Execution completed. [id: {}]", addressId);
         return addressMapper.toDto(saved);
     }
 
     @Transactional
     public void deleteAddress(Long addressId) {
-        log.info("UserAddressService::deleteAddress - Execution started");
+        log.info("UserAddressService::deleteAddress - Execution started. [id: {}]", addressId);
         Long userId = getUserId();
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ADDRESS_NOT_FOUND, "Address not found"));
@@ -176,7 +176,7 @@ public class UserAddressService {
                     "Cannot delete only address default");
         }
         addressRepository.delete(address);
-        log.info("UserAddressService::deleteAddress - Execution ended");
+        log.info("UserAddressService::deleteAddress - Execution completed. [id: {}]", addressId);
     }
 
     private Long getUserId() {

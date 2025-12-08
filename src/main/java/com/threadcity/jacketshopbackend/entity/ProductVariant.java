@@ -35,6 +35,10 @@ public class ProductVariant extends BaseEntity {
     @JoinColumn(name = "color_id")
     private Color color;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "material_id")
+    private Material material;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
 

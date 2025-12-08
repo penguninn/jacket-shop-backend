@@ -1,19 +1,10 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.filter.SizeFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.SizeResponse;
-import com.threadcity.jacketshopbackend.entity.Size;
-import com.threadcity.jacketshopbackend.exception.ErrorCodes;
-import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
-import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
-import com.threadcity.jacketshopbackend.mapper.SizeMapper;
-import com.threadcity.jacketshopbackend.repository.SizeRepository;
-import com.threadcity.jacketshopbackend.specification.SizeSpecification;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +12,24 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.response.SizeResponse;
+import com.threadcity.jacketshopbackend.entity.Size;
+import com.threadcity.jacketshopbackend.exception.ErrorCodes;
+import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
+import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.SizeFilterRequest;
+import com.threadcity.jacketshopbackend.mapper.SizeMapper;
+import com.threadcity.jacketshopbackend.repository.SizeRepository;
+import com.threadcity.jacketshopbackend.specification.SizeSpecification;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -82,12 +90,59 @@ public class SizeService {
         Size size = sizeRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException(ErrorCodes.SIZE_NOT_FOUND, "Size not found with id: " + id));
 
+        if (sizeRepository.existsByNameAndIdNot(sizeRequest.getName(), id)) {
+            throw new ResourceConflictException(ErrorCodes.SIZE_NAME_DUPLICATE,
+                    "Size already exists with name: " + sizeRequest.getName());
+        }
+
         size.setName(sizeRequest.getName());
         size.setDescription(sizeRequest.getDescription());
         size.setStatus(sizeRequest.getStatus());
         Size saveSize = sizeRepository.save(size);
         log.info("SizeService::updateProfile - Execution completed. [SizeId: {}]", id);
         return sizeMapper.toDto(saveSize);
+    }
+
+    @Transactional
+    public SizeResponse updateStatus(UpdateStatusRequest request, Long id) {
+        log.info("SizeService::updateStatus - Execution started. [Id: {}]", id);
+        Size size = sizeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.SIZE_NOT_FOUND,
+                        "Size not found with id: " + id));
+        size.setStatus(request.getStatus());
+        Size savedSize = sizeRepository.save(size);
+        log.info("SizeService::updateStatus - Execution completed. [Id: {}]", id);
+        return sizeMapper.toDto(savedSize);
+    }
+
+    @Transactional
+    public List<SizeResponse> bulkUpdateStatus(BulkStatusRequest request) {
+        log.info("SizeService::bulkUpdateStatus - Execution started.");
+        List<Size> sizes = sizeRepository.findAllById(request.getIds());
+        if (sizes.size() != request.getIds().size()) {
+            Set<Long> foundIds = sizes.stream().map(Size::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.SIZE_NOT_FOUND, "Sizes not found: " + missingIds);
+        }
+        sizes.forEach(size -> size.setStatus(request.getStatus()));
+        List<Size> savedSizes = sizeRepository.saveAll(sizes);
+        log.info("SizeService::bulkUpdateStatus - Execution completed.");
+        return savedSizes.stream().map(sizeMapper::toDto).toList();
+    }
+
+    @Transactional
+    public void bulkDelete(BulkDeleteRequest request) {
+        log.info("SizeService::bulkDelete - Execution started.");
+        List<Size> sizes = sizeRepository.findAllById(request.getIds());
+        if (sizes.size() != request.getIds().size()) {
+            Set<Long> foundIds = sizes.stream().map(Size::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.SIZE_NOT_FOUND, "Sizes not found: " + missingIds);
+        }
+        sizeRepository.deleteAllInBatch(sizes);
+        log.info("SizeService::bulkDelete - Execution completed.");
     }
 
     @Transactional

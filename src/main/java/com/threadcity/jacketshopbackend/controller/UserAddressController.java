@@ -1,0 +1,99 @@
+package com.threadcity.jacketshopbackend.controller;
+
+import com.threadcity.jacketshopbackend.dto.request.AddressRequest;
+import com.threadcity.jacketshopbackend.dto.response.AddressResponse;
+import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
+import com.threadcity.jacketshopbackend.service.UserAddressService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/user-addresses")
+@RequiredArgsConstructor
+@Slf4j
+public class UserAddressController {
+
+    private final UserAddressService userAddressService;
+
+    @GetMapping
+    public ApiResponse<?> getAllAddressByUserId() {
+        log.info("UserAddressController::getAllAddressByUserId - Execution started");
+        List<AddressResponse> response = userAddressService.getAllAddressByUserId();
+        log.info("UserAddressController::getAllAddressByUserId - Execution completed");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Get all addresses by user id successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @GetMapping("/default")
+    public ApiResponse<?> getDefaultAddress() {
+        log.info("UserAddressController::getDefaultAddress - Execution started");
+        AddressResponse response = userAddressService.getDefaultAddress();
+        log.info("UserAddressController::getDefaultAddress - Execution completed");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Get default address successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping
+    public ApiResponse<?> createAddress(@Valid @RequestBody AddressRequest request) {
+        log.info("UserAddressController::createAddress - Execution started");
+        AddressResponse response = userAddressService.createAddress(request);
+        log.info("UserAddressController::createAddress - Execution completed");
+        return ApiResponse.builder()
+                .code(201)
+                .message("Create address successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<?> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressRequest request) {
+        log.info("UserAddressController::updateAddress - Execution started. [id: {}]", id);
+        AddressResponse response = userAddressService.updateAddress(request, id);
+        log.info("UserAddressController::updateAddress - Execution completed. [id: {}]", id);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Update address successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PutMapping("/{id}/default")
+    public ApiResponse<?> setDefaultAddress(@PathVariable Long id) {
+        log.info("UserAddressController::setDefaultAddress - Execution started. [id: {}]", id);
+        AddressResponse response = userAddressService.setDefaultAddress(id);
+        log.info("UserAddressController::setDefaultAddress - Execution completed. [id: {}]", id);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Set default address successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<?> deleteAddress(@PathVariable Long id) {
+        log.info("UserAddressController::deleteAddress - Execution started. [id: {}]", id);
+        userAddressService.deleteAddress(id);
+        log.info("UserAddressController::deleteAddress - Execution completed. [id: {}]", id);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Delete address successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+}

@@ -1,27 +1,32 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.filter.CategoryFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CategoryRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.CategoryResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Category;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.CategoryFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.CategoryMapper;
 import com.threadcity.jacketshopbackend.repository.CategoryRepository;
 import com.threadcity.jacketshopbackend.specification.CategorySpecification;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -93,6 +98,11 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND,
                         "Category not found with id: " + id));
 
+        if (categoryRepository.existsByNameAndIdNot(request.getName(), id)) {
+            throw new ResourceConflictException(ErrorCodes.CATEGORY_NAME_DUPLICATE,
+                    "Category already exists with name: " + request.getName());
+        }
+
         category.setName(request.getName());
         category.setDescription(request.getDescription());
         category.setStatus(request.getStatus());
@@ -113,5 +123,58 @@ public class CategoryService {
 
         categoryRepository.deleteById(id);
         log.info("CategoryService::deleteCategory - Execution completed. [CategoryId: {}]", id);
+    }
+
+    @Transactional
+    public CategoryResponse updateStatus(UpdateStatusRequest request, Long id) {
+        log.info("CategoryService::updateStatus - Execution started. [id: {}]", id);
+
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND,
+                        "Category not found with id: " + id));
+
+        category.setStatus(request.getStatus());
+        Category updated = categoryRepository.save(category);
+
+        log.info("CategoryService::updateStatus - Execution completed. [id: {}]", id);
+        return categoryMapper.toDto(updated);
+    }
+
+    @Transactional
+    public List<CategoryResponse> bulkUpdateCategoriesStatus(BulkStatusRequest request) {
+        log.info("CategoryService::bulkUpdateCategoriesStatus - Execution started.");
+
+        List<Category> categories = categoryRepository.findAllById(request.getIds());
+        if (categories.size() != request.getIds().size()) {
+            Set<Long> foundIds = categories.stream().map(Category::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND, "Categories not found: " + missingIds);
+        }
+
+        categories.forEach(c -> c.setStatus(request.getStatus()));
+
+        List<Category> savedCategories = categoryRepository.saveAll(categories);
+
+        log.info("CategoryService::bulkUpdateCategoriesStatus - Execution completed.");
+        return savedCategories.stream().map(categoryMapper::toDto).toList();
+    }
+
+    @Transactional
+    public void bulkDeleteCategories(BulkDeleteRequest request) {
+        log.info("CategoryService::bulkDeleteCategories - Execution started.");
+
+        List<Category> categories = categoryRepository.findAllById(request.getIds());
+
+        if (categories.size() != request.getIds().size()) {
+            Set<Long> foundIds = categories.stream().map(Category::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.CATEGORY_NOT_FOUND, "Categories not found: " + missingIds);
+        }
+
+        categoryRepository.deleteAllInBatch(categories);
+
+        log.info("CategoryService::bulkDeleteCategories - Execution completed.");
     }
 }

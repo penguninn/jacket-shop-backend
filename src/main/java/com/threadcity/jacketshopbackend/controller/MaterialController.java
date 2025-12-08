@@ -1,14 +1,27 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.filter.MaterialFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.MaterialRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.MaterialResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.service.MaterialService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.util.List;
@@ -78,10 +91,14 @@ public class MaterialController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateMaterial(@PathVariable Long id, @RequestBody MaterialRequest materialRequest) {
+        public ApiResponse<?> updateMaterial(@PathVariable Long id,
+                        @Valid @RequestBody MaterialRequest materialRequest) {
                 log.info("MaterialController::updateMaterial - Execution started. [id: {}]", id);
+
                 MaterialResponse response = materialService.updateMaterialById(materialRequest, id);
+
                 log.info("MaterialController::updateMaterial - Execution completed. [id: {}]", id);
+
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Material updated successfully.")
@@ -98,6 +115,55 @@ public class MaterialController {
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Material deleted successfully.")
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @PutMapping("/{id}/status")
+        public ApiResponse<?> updateMaterialStatus(
+                        @PathVariable Long id,
+                        @RequestBody UpdateStatusRequest request) {
+                log.info("MaterialController::updateStatus - Execution started. [id: {}]", id);
+
+                MaterialResponse response = materialService.updateStatus(request, id);
+
+                log.info("MaterialController::updateStatus - Execution completed. [id: {}]", id);
+
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Material status updated successfully.")
+                                .data(response)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @PostMapping("/bulk/status")
+        public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
+                log.info("MaterialController::bulkUpdateStatus - Execution started.");
+
+                List<MaterialResponse> response = materialService.bulkUpdateMaterialsStatus(request);
+
+                log.info("MaterialController::bulkUpdateStatus - Execution completed.");
+
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Bulk update material status successfully.")
+                                .data(response)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @PostMapping("/bulk/delete")
+        public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
+                log.info("MaterialController::bulkDelete - Execution started.");
+
+                materialService.bulkDeleteMaterials(request);
+
+                log.info("MaterialController::bulkDelete - Execution completed.");
+
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Bulk delete materials successfully.")
                                 .timestamp(Instant.now())
                                 .build();
         }

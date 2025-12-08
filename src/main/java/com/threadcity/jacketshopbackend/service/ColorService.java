@@ -1,7 +1,11 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.filter.ColorFilterRequest;
+
 import com.threadcity.jacketshopbackend.dto.request.ColorRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ColorResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Color;
@@ -21,7 +25,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -82,12 +89,59 @@ public class ColorService {
 
         Color color = colorRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException(ErrorCodes.COLOR_NOT_FOUND, "Color not found with id: " + id));
+        if (colorRepository.existsByNameAndIdNot(colorRequest.getName(), id)) {
+            throw new ResourceConflictException(ErrorCodes.COLOR_NAME_DUPLICATE,
+                    "Color already exists with name: " + colorRequest.getName());
+        }
+
         color.setName(colorRequest.getName());
         color.setDescription(colorRequest.getDescription());
         color.setStatus(colorRequest.getStatus());
         Color savedColor = colorRepository.save(color);
         log.info("ColorService::updateProfile - Execution completed. [ColorId: {}]", id);
         return colorMapper.toDto(savedColor);
+    }
+
+    @Transactional
+    public ColorResponse updateStatus(UpdateStatusRequest request, Long id) {
+        log.info("ColorService::updateStatus - Execution started. [Id: {}]", id);
+        Color color = colorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COLOR_NOT_FOUND,
+                        "Color not found with id: " + id));
+        color.setStatus(request.getStatus());
+        Color savedColor = colorRepository.save(color);
+        log.info("ColorService::updateStatus - Execution completed. [Id: {}]", id);
+        return colorMapper.toDto(savedColor);
+    }
+
+    @Transactional
+    public List<ColorResponse> bulkUpdateStatus(BulkStatusRequest request) {
+        log.info("ColorService::bulkUpdateStatus - Execution started.");
+        List<Color> colors = colorRepository.findAllById(request.getIds());
+        if (colors.size() != request.getIds().size()) {
+            Set<Long> foundIds = colors.stream().map(Color::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.COLOR_NOT_FOUND, "Colors not found: " + missingIds);
+        }
+        colors.forEach(color -> color.setStatus(request.getStatus()));
+        List<Color> savedColors = colorRepository.saveAll(colors);
+        log.info("ColorService::bulkUpdateStatus - Execution completed.");
+        return savedColors.stream().map(colorMapper::toDto).toList();
+    }
+
+    @Transactional
+    public void bulkDelete(BulkDeleteRequest request) {
+        log.info("ColorService::bulkDelete - Execution started.");
+        List<Color> colors = colorRepository.findAllById(request.getIds());
+        if (colors.size() != request.getIds().size()) {
+            Set<Long> foundIds = colors.stream().map(Color::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.COLOR_NOT_FOUND, "Colors not found: " + missingIds);
+        }
+        colorRepository.deleteAllInBatch(colors);
+        log.info("ColorService::bulkDelete - Execution completed.");
     }
 
     @Transactional

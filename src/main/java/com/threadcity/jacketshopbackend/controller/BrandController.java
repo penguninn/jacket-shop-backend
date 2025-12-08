@@ -42,7 +42,7 @@ public class BrandController {
                                 .sortBy(sortBy)
                                 .sortDir(sortDir)
                                 .build();
-                PageResponse<?> pageResponse = brandService.getAllBrand(request);
+                PageResponse<?> pageResponse = brandService.getAllBrands(request);
                 log.info("BrandController::getAllBrands - Execution completed");
                 return ApiResponse.builder()
                                 .code(200)
@@ -108,7 +108,7 @@ public class BrandController {
                         @PathVariable Long id,
                         @RequestBody UpdateStatusRequest request) {
                 log.info("BrandController::updateStatus - Execution started. [id: {}]", id);
-                BrandResponse response = brandService.updateStatus(id, request);
+                BrandResponse response = brandService.updateStatus(request, id);
                 log.info("BrandController::updateStatus - Execution completed. [id: {}]", id);
 
                 return ApiResponse.builder()
@@ -122,12 +122,13 @@ public class BrandController {
         @PostMapping("/bulk/status")
         public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
                 log.info("BrandController::bulkUpdateStatus - Execution started.");
-                brandService.bulkUpdateStatus(request.getIds(), request);
+                List<BrandResponse> response = brandService.bulkUpdateBrandsStatus(request);
                 log.info("BrandController::bulkUpdateStatus - Execution completed.");
 
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Bulk update brand status successfully.")
+                                .data(response)
                                 .timestamp(Instant.now())
                                 .build();
         }
@@ -135,7 +136,7 @@ public class BrandController {
         @PostMapping("/bulk/delete")
         public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
                 log.info("BrandController::bulkDelete - Execution started.");
-                brandService.bulkDelete(request.getIds());
+                brandService.bulkDeleteBrands(request);
                 log.info("BrandController::bulkDelete - Execution completed.");
 
                 return ApiResponse.builder()

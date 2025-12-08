@@ -2,10 +2,14 @@ package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.filter.SizeFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.SizeResponse;
 import com.threadcity.jacketshopbackend.service.SizeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -90,6 +94,19 @@ public class SizeController {
                                 .build();
         }
 
+        @PutMapping("/{id}/status")
+        public ApiResponse<?> updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
+                log.info("SizeController::updateStatus - Execution started. [id: {}]", id);
+                SizeResponse response = sizeService.updateStatus(request, id);
+                log.info("SizeController::updateStatus - Execution completed. [id: {}]", id);
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Size status updated successfully.")
+                                .data(response)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
         @DeleteMapping("/{id}")
         public ApiResponse<?> deleteSize(@PathVariable Long id) {
                 log.info("SizeController::deleteSize - Execution started. [id: {}]", id);
@@ -98,6 +115,31 @@ public class SizeController {
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Size deleted successfully.")
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @PostMapping("/bulk/status")
+        public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
+                log.info("SizeController::bulkUpdateStatus - Execution started.");
+                List<SizeResponse> responses = sizeService.bulkUpdateStatus(request);
+                log.info("SizeController::bulkUpdateStatus - Execution completed.");
+                return ApiResponse.builder()
+                                .code(200)
+                                .data(responses)
+                                .message("Sizes statuses updated successfully.")
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @PostMapping("/bulk/delete")
+        public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
+                log.info("SizeController::bulkDelete - Execution started.");
+                sizeService.bulkDelete(request);
+                log.info("SizeController::bulkDelete - Execution completed.");
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Sizes deleted successfully.")
                                 .timestamp(Instant.now())
                                 .build();
         }

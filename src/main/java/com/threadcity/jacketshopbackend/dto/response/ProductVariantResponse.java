@@ -1,9 +1,6 @@
 package com.threadcity.jacketshopbackend.dto.response;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.entity.Color;
-import com.threadcity.jacketshopbackend.entity.Product;
-import com.threadcity.jacketshopbackend.entity.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,16 +15,17 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductVariantResponse implements Serializable {
+
     private Long id;
-    private Product product;
     private String sku;
-    private Size size;
-    private Color color;
+    private ProductResponse product;
+    private SizeResponse size;
+    private ColorResponse color;
+    private MaterialResponse material;
     private BigDecimal price;
     private BigDecimal costPrice;
     private BigDecimal salePrice;
-    @Builder.Default
-    private Integer quantity = 0;
+    private Integer quantity;
     private Enums.Status status;
     private Instant createdAt;
     private Instant updatedAt;

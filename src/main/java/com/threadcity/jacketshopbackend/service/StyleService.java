@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.filter.StyleFilterRequest;
@@ -23,7 +24,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,8 +45,8 @@ public class StyleService {
         return styleMapper.toDto(style);
     }
 
-    public PageResponse<?> getAllStyle(StyleFilterRequest request) {
-        log.info("StyleService::getAllStyle - Execution started.");
+    public PageResponse<?> getAllStyles(StyleFilterRequest request) {
+        log.info("StyleService::getAllStyles - Execution started.");
 
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
@@ -53,7 +57,7 @@ public class StyleService {
         List<StyleResponse> styleResponse = stylePage.getContent().stream()
                 .map(styleMapper::toDto)
                 .toList();
-        log.info("StyleService::getAllStyle - Execution completed.");
+        log.info("StyleService::getAllStyles - Execution completed.");
         return PageResponse.builder()
                 .contents(styleResponse)
                 .size(request.getSize())
@@ -85,7 +89,7 @@ public class StyleService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.STYLE_NOT_FOUND,
                         "Style not found with id: " + id));
 
-        if (!style.getName().equals(styleRequest.getName()) && styleRepository.existsByName(styleRequest.getName())) {
+        if (styleRepository.existsByNameAndIdNot(styleRequest.getName(), id)) {
             throw new ResourceConflictException(ErrorCodes.STYLE_NAME_DUPLICATE,
                     "Style already exists with name: " + styleRequest.getName());
         }
@@ -110,7 +114,7 @@ public class StyleService {
     }
 
     @Transactional
-    public StyleResponse updateStatus(Long id, UpdateStatusRequest request) {
+    public StyleResponse updateStatus(UpdateStatusRequest request, Long id) {
         log.info("StyleService::updateStatus - Execution started. [id: {}]", id);
 
         Style style = styleRepository.findById(id)
@@ -127,29 +131,40 @@ public class StyleService {
     }
 
     @Transactional
-    public void bulkUpdateStatus(List<Long> ids, BulkStatusRequest request) {
-        log.info("StyleService::bulkUpdateStatus - Execution started.");
+    public List<StyleResponse> bulkUpdateStylesStatus(BulkStatusRequest request) {
+        log.info("StyleService::bulkUpdateStylesStatus - Execution started.");
 
-        List<Style> styles = styleRepository.findAllById(ids);
+        List<Style> styles = styleRepository.findAllById(request.getIds());
+        if (styles.size() != request.getIds().size()) {
+            Set<Long> foundIds = styles.stream().map(Style::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.STYLE_NOT_FOUND, "Styles not found: " + missingIds);
+        }
+
         styles.forEach(s -> s.setStatus(request.getStatus()));
 
-        styleRepository.saveAll(styles);
+        List<Style> savedStyles = styleRepository.saveAll(styles);
 
-        log.info("StyleService::bulkUpdateStatus - Execution completed.");
+        log.info("StyleService::bulkUpdateStylesStatus - Execution completed.");
+        return savedStyles.stream().map(styleMapper::toDto).toList();
     }
 
     @Transactional
-    public void bulkDelete(List<Long> ids) {
-        log.info("StyleService::bulkDelete - Execution started.");
+    public void bulkDeleteStyles(BulkDeleteRequest request) {
+        log.info("StyleService::bulkDeleteStyles - Execution started.");
 
-        List<Style> styles = styleRepository.findAllById(ids);
+        List<Style> styles = styleRepository.findAllById(request.getIds());
 
-        if (styles.size() != ids.size()) {
-            throw new ResourceNotFoundException(ErrorCodes.STYLE_NOT_FOUND, "One or more styles do not exist.");
+        if (styles.size() != request.getIds().size()) {
+            Set<Long> foundIds = styles.stream().map(Style::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.STYLE_NOT_FOUND, "Styles not found: " + missingIds);
         }
 
         styleRepository.deleteAllInBatch(styles);
 
-        log.info("StyleService::bulkDelete - Execution completed.");
+        log.info("StyleService::bulkDeleteStyles - Execution completed.");
     }
 }

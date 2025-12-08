@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface ShippingMethodsRepository extends JpaRepository<ShippingMethod, Long>, JpaSpecificationExecutor<ShippingMethod> {
 
     boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, Long id);
 }

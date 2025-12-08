@@ -1,16 +1,23 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.filter.ShippingMethodsFilterRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+
 import com.threadcity.jacketshopbackend.dto.request.ShippingMethodsRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ShippingMethodsResponse;
 import com.threadcity.jacketshopbackend.entity.ShippingMethod;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
-import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.ShippingMethodsFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.ShippingMethodsMapper;
 import com.threadcity.jacketshopbackend.repository.ShippingMethodsRepository;
 import com.threadcity.jacketshopbackend.specification.ShippingMethodsSpecification;
+import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,10 +100,9 @@ public class ShippingMethodsService {
         ShippingMethod method = shippingMethodRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.SHIPPING_METHOD_NOT_FOUND,
                         "ShippingMethod not found with id: " + id));
-
-        if (!method.getName().equals(request.getName()) && shippingMethodRepository.existsByName(request.getName())) {
+        if (shippingMethodRepository.existsByNameAndIdNot(request.getName(), id)) {
             throw new ResourceConflictException(ErrorCodes.SHIPPING_METHOD_NAME_DUPLICATE,
-                    "ShippingMethod already exists with name: " + request.getName());
+                    "Shipping method already exists with name: " + request.getName());
         }
 
         method.setName(request.getName());
@@ -123,5 +129,61 @@ public class ShippingMethodsService {
         shippingMethodRepository.deleteById(id);
 
         log.info("ShippingMethodService::deleteShippingMethod - Execution completed. [Id: {}]", id);
+    }
+
+    @Transactional
+    public List<ShippingMethodsResponse> bulkUpdateShippingMethodsStatus(BulkStatusRequest request) {
+        log.info("ShippingMethodService::bulkUpdateShippingMethodsStatus - Execution started.");
+
+        List<ShippingMethod> methods = shippingMethodRepository.findAllById(request.getIds());
+        if (methods.size() != request.getIds().size()) {
+            Set<Long> foundIds = methods.stream().map(ShippingMethod::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.SHIPPING_METHOD_NOT_FOUND,
+                    "Shipping methods not found: " + missingIds);
+        }
+
+        methods.forEach(m -> m.setStatus(request.getStatus()));
+        List<ShippingMethod> savedMethods = shippingMethodRepository.saveAll(methods);
+
+        log.info("ShippingMethodService::bulkUpdateShippingMethodsStatus - Execution completed.");
+        return savedMethods.stream().map(shippingMethodMapper::toDto).toList();
+    }
+
+    @Transactional
+    public ShippingMethodsResponse updateStatus(UpdateStatusRequest request, Long id) {
+        log.info("ShippingMethodService::updateStatus - Execution started. [id: {}]", id);
+
+        ShippingMethod method = shippingMethodRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.SHIPPING_METHOD_NOT_FOUND,
+                        "Shipping method not found with id: " + id));
+
+        method.setStatus(request.getStatus());
+
+        ShippingMethod saved = shippingMethodRepository.save(method);
+
+        log.info("ShippingMethodService::updateStatus - Execution completed. [id: {}]", id);
+
+        return shippingMethodMapper.toDto(saved);
+    }
+
+    @Transactional
+    public void bulkDeleteShippingMethods(BulkDeleteRequest request) {
+        log.info("ShippingMethodService::bulkDeleteShippingMethods - Execution started.");
+
+        List<ShippingMethod> methods = shippingMethodRepository.findAllById(request.getIds());
+
+        if (methods.size() != request.getIds().size()) {
+            Set<Long> foundIds = methods.stream().map(ShippingMethod::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(request.getIds());
+            missingIds.removeAll(foundIds);
+            throw new ResourceNotFoundException(ErrorCodes.SHIPPING_METHOD_NOT_FOUND,
+                    "Shipping methods not found: " + missingIds);
+        }
+
+        shippingMethodRepository.deleteAllInBatch(methods);
+
+        log.info("ShippingMethodService::bulkDeleteShippingMethods - Execution completed.");
     }
 }

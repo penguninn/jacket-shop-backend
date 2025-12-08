@@ -29,9 +29,7 @@ public class ProductController {
         public ApiResponse<?> getAllProducts(
                         @RequestParam(required = false) String search,
                         @RequestParam(required = false) List<String> status,
-                        @RequestParam(required = false) List<Long> categoryIds,
                         @RequestParam(required = false) List<Long> brandIds,
-                        @RequestParam(required = false) List<Long> materialIds,
                         @RequestParam(required = false) List<Long> styleIds,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int size,
@@ -41,16 +39,14 @@ public class ProductController {
                 ProductFilterRequest request = ProductFilterRequest.builder()
                                 .search(search)
                                 .status(status)
-                                .categoryIds(categoryIds)
                                 .brandIds(brandIds)
-                                .materialIds(materialIds)
                                 .styleIds(styleIds)
                                 .page(page)
                                 .size(size)
                                 .sortBy(sortBy)
                                 .sortDir(sortDir)
                                 .build();
-                PageResponse<?> pageResponse = productService.getAllProduct(request);
+                PageResponse<?> pageResponse = productService.getAllProducts(request);
                 log.info("ProductController::getAllProducts - Execution completed");
                 return ApiResponse.builder()
                                 .code(200)
@@ -116,7 +112,7 @@ public class ProductController {
                         @PathVariable Long id,
                         @RequestBody UpdateStatusRequest request) {
                 log.info("ProductController::updateStatus - Execution started. [id: {}]", id);
-                ProductResponse response = productService.updateStatus(id, request);
+                ProductResponse response = productService.updateStatus(request, id);
                 log.info("ProductController::updateStatus - Execution completed. [id: {}]", id);
                 return ApiResponse.builder()
                                 .code(200)
@@ -129,11 +125,12 @@ public class ProductController {
         @PostMapping("/bulk/status")
         public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
                 log.info("ProductController::bulkUpdateStatus - Execution started.");
-                productService.bulkUpdateStatus(request.getIds(), request);
+                List<ProductResponse> response = productService.bulkUpdateProductsStatus(request);
                 log.info("ProductController::bulkUpdateStatus - Execution completed.");
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Bulk update status successfully.")
+                                .data(response)
                                 .timestamp(Instant.now())
                                 .build();
         }
@@ -141,7 +138,7 @@ public class ProductController {
         @PostMapping("/bulk/delete")
         public ApiResponse<?> bulkDelete(@Valid @RequestBody BulkDeleteRequest request) {
                 log.info("ProductController::bulkDelete - Execution started.");
-                productService.bulkDelete(request.getIds());
+                productService.bulkDeleteProducts(request);
                 log.info("ProductController::bulkDelete - Execution completed.");
                 return ApiResponse.builder()
                                 .code(200)
