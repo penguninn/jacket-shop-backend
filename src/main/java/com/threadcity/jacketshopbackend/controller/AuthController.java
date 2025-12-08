@@ -1,12 +1,5 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import java.time.Instant;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.threadcity.jacketshopbackend.dto.request.LoginRequest;
 import com.threadcity.jacketshopbackend.dto.request.RefreshTokenRequest;
 import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
@@ -15,10 +8,15 @@ import com.threadcity.jacketshopbackend.dto.response.LoginResponse;
 import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
 import com.threadcity.jacketshopbackend.service.TokenService;
 import com.threadcity.jacketshopbackend.service.auth.AuthService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/auth")

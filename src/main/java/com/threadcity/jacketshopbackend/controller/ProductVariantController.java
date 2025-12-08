@@ -1,15 +1,10 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProductVariantFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProductVariantRequest;
-import com.threadcity.jacketshopbackend.dto.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.*;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
 import com.threadcity.jacketshopbackend.service.ProductVariantService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

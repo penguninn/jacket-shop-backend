@@ -1,9 +1,9 @@
 package com.threadcity.jacketshopbackend.specification;
 
-import com.threadcity.jacketshopbackend.dto.request.BrandFilterRequest;
-import org.springframework.data.jpa.domain.Specification;
-import com.threadcity.jacketshopbackend.entity.Brand;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
+import com.threadcity.jacketshopbackend.dto.request.BrandFilterRequest;
+import com.threadcity.jacketshopbackend.entity.Brand;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 

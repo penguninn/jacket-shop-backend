@@ -1,12 +1,11 @@
 package com.threadcity.jacketshopbackend.specification;
 
-import java.util.List;
-
-import org.springframework.data.jpa.domain.Specification;
-
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.request.CategoryFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Category;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
 
 public class CategorySpecification {
 

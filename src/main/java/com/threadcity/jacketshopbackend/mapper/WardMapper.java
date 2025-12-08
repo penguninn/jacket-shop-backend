@@ -1,12 +1,11 @@
 package com.threadcity.jacketshopbackend.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-
 import com.threadcity.jacketshopbackend.dto.response.WardResponse;
 import com.threadcity.jacketshopbackend.entity.District;
 import com.threadcity.jacketshopbackend.entity.Ward;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring")
 public interface WardMapper {

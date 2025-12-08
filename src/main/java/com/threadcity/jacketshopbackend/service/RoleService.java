@@ -1,16 +1,14 @@
 package com.threadcity.jacketshopbackend.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.threadcity.jacketshopbackend.dto.response.RoleResponse;
 import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.mapper.RoleMapper;
 import com.threadcity.jacketshopbackend.repository.RoleRepository;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor

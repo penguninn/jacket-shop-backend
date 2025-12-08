@@ -1,23 +1,21 @@
 package com.threadcity.jacketshopbackend.mapper;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
 import com.threadcity.jacketshopbackend.dto.response.UserResponse;
-
+import com.threadcity.jacketshopbackend.entity.Role;
+import com.threadcity.jacketshopbackend.entity.User;
+import com.threadcity.jacketshopbackend.service.auth.UserDetailsImpl;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.entity.Role;
-import com.threadcity.jacketshopbackend.entity.User;
-import com.threadcity.jacketshopbackend.service.auth.UserDetailsImpl;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

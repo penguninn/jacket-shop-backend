@@ -9,18 +9,20 @@ import com.threadcity.jacketshopbackend.entity.Coupon;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.mapper.CouponMapper;
+import com.threadcity.jacketshopbackend.repository.CouponRepository;
+import com.threadcity.jacketshopbackend.specification.CouponSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import com.threadcity.jacketshopbackend.repository.CouponRepository;
-import com.threadcity.jacketshopbackend.mapper.CouponMapper;
-import com.threadcity.jacketshopbackend.specification.CouponSpecification;
 
 @Service
 @RequiredArgsConstructor

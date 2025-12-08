@@ -2,8 +2,8 @@ package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.dto.request.BrandFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
+import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Brand;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
@@ -92,6 +92,7 @@ public class BrandService {
         brand.setName(brandRequest.getName());
         brand.setLogoUrl(brandRequest.getLogoUrl());
         brand.setStatus(brandRequest.getStatus());
+        brand.setDescription(brandRequest.getDescription());
         Brand savedBrand = brandRepository.save(brand);
         log.info("BrandService::updateProfile - Execution completed. [BrandId: {}]", id);
         return brandMapper.toDto(savedBrand);

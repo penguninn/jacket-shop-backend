@@ -1,15 +1,10 @@
 package com.threadcity.jacketshopbackend.service.auth;
 
-import java.util.Collection;
-
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.Collection;
 
 @Getter
 @Setter

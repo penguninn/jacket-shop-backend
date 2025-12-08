@@ -1,9 +1,5 @@
 package com.threadcity.jacketshopbackend.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.threadcity.jacketshopbackend.dto.response.DistrictResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProvinceResponse;
 import com.threadcity.jacketshopbackend.dto.response.WardResponse;
@@ -13,9 +9,11 @@ import com.threadcity.jacketshopbackend.mapper.WardMapper;
 import com.threadcity.jacketshopbackend.repository.DistrictRepository;
 import com.threadcity.jacketshopbackend.repository.ProvinceRepository;
 import com.threadcity.jacketshopbackend.repository.WardRepository;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor

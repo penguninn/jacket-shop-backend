@@ -1,10 +1,12 @@
 package com.threadcity.jacketshopbackend.dto.response;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.entity.*;
+import com.threadcity.jacketshopbackend.entity.Color;
+import com.threadcity.jacketshopbackend.entity.Product;
+import com.threadcity.jacketshopbackend.entity.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;

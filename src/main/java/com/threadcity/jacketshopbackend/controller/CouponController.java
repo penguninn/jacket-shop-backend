@@ -1,13 +1,9 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.*;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.request.CouponRequest;
-import com.threadcity.jacketshopbackend.dto.request.CouponFilterRequest;
 import com.threadcity.jacketshopbackend.service.CouponService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,17 +1,12 @@
 package com.threadcity.jacketshopbackend.dto.request;
 
-import java.io.Serializable;
-import java.util.List;
-
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Builder

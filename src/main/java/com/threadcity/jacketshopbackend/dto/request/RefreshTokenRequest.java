@@ -1,10 +1,10 @@
 package com.threadcity.jacketshopbackend.dto.request;
 
-import java.io.Serializable;
-
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 @Builder

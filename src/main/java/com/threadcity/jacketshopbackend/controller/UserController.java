@@ -1,36 +1,18 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import java.time.Instant;
-import java.util.List;
-
-import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
-import com.threadcity.jacketshopbackend.dto.response.UserResponse;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.threadcity.jacketshopbackend.dto.request.UserBulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserBulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserCreateRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserRolesRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.UserUpdateRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProfileUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.request.*;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
+import com.threadcity.jacketshopbackend.dto.response.UserResponse;
 import com.threadcity.jacketshopbackend.service.UserService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")

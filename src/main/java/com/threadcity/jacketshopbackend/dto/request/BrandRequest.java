@@ -12,4 +12,5 @@ public class BrandRequest {
     private String name;
     private String logoUrl;
     private Enums.Status status;
+    private String description;
 }

@@ -1,10 +1,10 @@
 package com.threadcity.jacketshopbackend.dto.request;
 
 import com.threadcity.jacketshopbackend.common.Enums;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
 import lombok.Data;
 
 import java.math.BigDecimal;

@@ -1,77 +1,42 @@
 package com.threadcity.jacketshopbackend.entity;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Set;
+import com.threadcity.jacketshopbackend.common.Enums.Status;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 import java.util.ArrayList;
 import java.util.HashSet;
-
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import com.threadcity.jacketshopbackend.common.Enums.Status;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.EntityListeners;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.List;
+import java.util.Set;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class User {
+@SuperBuilder
+public class User extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "full_name", nullable = false, length = 120)
-    private String fullName;
-
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(nullable = false, unique = true, length = 100)
     private String username;
 
-    @Column(name = "password", nullable = false)
+    @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(length = 20)
+    @Column(name = "full_name", nullable = false, length = 150)
+    private String fullName;
+
+    @Column(length = 15)
     private String phone;
+
+    @Column(length = 255)
+    private String avatar;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status;
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"), uniqueConstraints = @UniqueConstraint(name = "uk_user_role", columnNames = {
@@ -80,7 +45,6 @@ public class User {
     }))
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Address> addresses = new ArrayList<>();

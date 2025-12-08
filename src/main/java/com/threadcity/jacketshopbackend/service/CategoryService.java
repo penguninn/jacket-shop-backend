@@ -11,12 +11,13 @@ import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.CategoryMapper;
 import com.threadcity.jacketshopbackend.repository.CategoryRepository;
 import com.threadcity.jacketshopbackend.specification.CategorySpecification;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -93,6 +94,7 @@ public class CategoryService {
                         "Category not found with id: " + id));
 
         category.setName(request.getName());
+        category.setDescription(request.getDescription());
         category.setStatus(request.getStatus());
 
         Category savedCategory = categoryRepository.save(category);
