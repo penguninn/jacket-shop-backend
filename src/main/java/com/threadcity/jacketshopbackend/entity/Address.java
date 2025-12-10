@@ -24,15 +24,15 @@ public class Address extends BaseEntity {
     private String addressLine;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "ward_code", nullable = false)
+    @JoinColumn(name = "ward_id", nullable = false)
     private Ward ward;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "district_code", nullable = false)
+    @JoinColumn(name = "district_id", nullable = false)
     private District district;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "province_code", nullable = false)
+    @JoinColumn(name = "province_id", nullable = false)
     private Province province;
 
     @Column(name = "is_default", nullable = false)

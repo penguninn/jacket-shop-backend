@@ -14,6 +14,7 @@ import java.time.Instant;
 @Data
 @Builder
 public class CouponRequest {
+
     @NotBlank(message = "Code cannot be empty")
     @Size(max = 50, message = "Code must be less than 50 characters")
     private String code;

@@ -164,11 +164,12 @@ public class UserController {
         public ApiResponse<?> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequest request) {
                 int totalUserIds = request.getIds() != null ? request.getIds().size() : 0;
                 log.info("UserController::bulkUpdateStatus - Execution started. [totalIds: {}]", totalUserIds);
-                userService.bulkUpdateUsersStatus(request);
+                List<UserResponse> responses = userService.bulkUpdateUsersStatus(request);
                 log.info("UserController::bulkUpdateStatus - Execution completed. [totalIds: {}]", totalUserIds);
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("User statuses updated successfully.")
+                                .data(responses)
                                 .timestamp(Instant.now())
                                 .build();
         }

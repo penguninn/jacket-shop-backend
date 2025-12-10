@@ -30,8 +30,6 @@ public class AddressResponse implements Serializable {
 
     private String recipientPhone;
 
-    private String label;
-
     private Instant createdAt;
 
     private Instant updatedAt;

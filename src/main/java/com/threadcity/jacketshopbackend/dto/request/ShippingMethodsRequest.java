@@ -26,5 +26,6 @@ public class ShippingMethodsRequest {
     @Max(value = 60, message = "Estimated days must be <= 60")
     private Integer estimatedDays;
 
+    @NotNull(message = "Status is required")
     private Enums.Status status;
 }
