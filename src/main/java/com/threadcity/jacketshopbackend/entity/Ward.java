@@ -16,8 +16,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Ward extends BaseEntity {
 
-    @Column(name = "code", unique = true, nullable = false)
-    private String code;
+    @Column(name = "goship_id")
+    private Long goshipId;
 
     @Column(name = "name", nullable = false)
     private String name;
