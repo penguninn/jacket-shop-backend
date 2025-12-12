@@ -33,6 +33,10 @@ public class CloudinaryService {
                             "folder", "blog-assets"));
             log.info("CloudinaryService::uploadImages execution ended");
             return ImageUploadResponse.builder()
+                    .width((Integer) uploadResult.get("width"))
+                    .height((Integer) uploadResult.get("height"))
+                    .format(uploadResult.get("format").toString())
+                    .bytes(((Number) uploadResult.get("bytes")).longValue())
                     .url(uploadResult.get("secure_url").toString())
                     .build();
         } catch (IOException e) {

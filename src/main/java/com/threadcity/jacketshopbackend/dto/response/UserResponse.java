@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Builder
@@ -30,5 +30,5 @@ public class UserResponse implements Serializable {
 
     private Instant updatedAt;
 
-    private Set<String> roles;
+    private List<RoleResponse> roles;
 }

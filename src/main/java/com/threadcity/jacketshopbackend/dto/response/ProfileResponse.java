@@ -21,7 +21,7 @@ public class ProfileResponse implements Serializable {
 
     private String phone;
 
-    private Set<String> roles;
+    private Set<RoleResponse> roles;
 
     private Status status;
 

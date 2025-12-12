@@ -17,16 +17,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {
+        RoleMapper.class
+})
 public interface UserMapper {
 
-    @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToRoleNames")
     UserResponse toUserResponse(User user);
 
-    @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToRoleNames")
     ProfileResponse toProfile(User user);
 
-    @Mapping(target = "enabled", source = "status", qualifiedByName = "statusToEnabled")
     @Mapping(target = "authorities", source = "roles", qualifiedByName = "rolesToAuthorities")
     UserDetailsImpl toUserDetailsImpl(User user);
 

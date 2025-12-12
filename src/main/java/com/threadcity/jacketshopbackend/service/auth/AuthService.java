@@ -12,6 +12,7 @@ import com.threadcity.jacketshopbackend.exception.AuthenticationFailedException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.mapper.RoleMapper;
 import com.threadcity.jacketshopbackend.repository.RoleRepository;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
 import com.threadcity.jacketshopbackend.service.TokenService;
@@ -39,6 +40,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final RoleMapper roleMapper;
 
     @Transactional
     public LoginResponse login(LoginRequest request) {
@@ -73,9 +75,7 @@ public class AuthService {
                             .fullName(user.getFullName())
                             .phone(user.getPhone())
                             .status(user.getStatus())
-                            .roles(user.getRoles().stream()
-                                    .map(Role::getName)
-                                    .collect(Collectors.toSet()))
+                            .roles(user.getRoles().stream().map(roleMapper::toDto).toList())
                             .build())
                     .build();
             log.info("AuthService::login execution ended");

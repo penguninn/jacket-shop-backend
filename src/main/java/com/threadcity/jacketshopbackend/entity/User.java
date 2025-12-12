@@ -28,7 +28,7 @@ public class User extends BaseEntity {
     @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
 
-    @Column(length = 15)
+    @Column(length = 15, unique = true)
     private String phone;
 
     @Column(length = 255)
