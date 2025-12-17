@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
@@ -38,12 +39,10 @@ public class DataSyncConfig {
     }
 
     private void initAdminUser() {
-        // Create Roles
         createRoleIfNotFound("ADMIN", "Administrator role");
         createRoleIfNotFound("STAFF", "Staff role");
         createRoleIfNotFound("CUSTOMER", "Customer role");
 
-        // Create Admin User
         if (userRepository.findByUsername("admin").isEmpty()) {
             log.info("Admin user not found. Creating...");
 
@@ -54,7 +53,7 @@ public class DataSyncConfig {
 
             User admin = User.builder()
                     .username("admin")
-                    .password(passwordEncoder.encode("admin")) // Default password
+                    .password(passwordEncoder.encode("admin"))
                     .fullName("Administrator")
                     .phone("0000000000")
                     .status(Enums.Status.ACTIVE)
@@ -71,7 +70,6 @@ public class DataSyncConfig {
             Role role = Role.builder()
                     .name(name)
                     .description(description)
-                    .status(Enums.Status.ACTIVE)
                     .build();
             roleRepository.save(role);
             log.info("Role {} created.", name);

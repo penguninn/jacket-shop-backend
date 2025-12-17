@@ -22,8 +22,4 @@ public class Role extends BaseEntity {
 
     @Column(length = 255)
     private String description;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Status status;
 }
