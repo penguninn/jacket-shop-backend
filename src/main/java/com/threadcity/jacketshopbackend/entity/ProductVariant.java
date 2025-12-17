@@ -6,9 +6,13 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "product_variants")
+@Table(name = "product_variants", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_product_size_color_material", columnNames = { "product_id", "size_id", "color_id",
+                "material_id" })
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,7 +20,7 @@ import java.math.BigDecimal;
 @SuperBuilder
 public class ProductVariant extends BaseEntity {
 
-    @Column(length = 255)
+    @Column(length = 255, unique = true, nullable = false)
     private String sku;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,4 +59,41 @@ public class ProductVariant extends BaseEntity {
     @Lob
     @Column(name = "image", columnDefinition = "NVARCHAR(MAX)")
     private String image;
+
+    @Column(name = "reserved_quantity")
+    @Builder.Default
+    private Integer reservedQuantity = 0;
+
+    @Column(name = "available_quantity")
+    @Builder.Default
+    private Integer availableQuantity = 0;
+
+    @Column(name = "sale_start_date")
+    private LocalDateTime saleStartDate;
+
+    @Column(name = "sale_end_date")
+    private LocalDateTime saleEndDate;
+
+    @Column(name = "discount_percentage", precision = 5, scale = 2)
+    private BigDecimal discountPercentage;
+
+    @Column(precision = 8, scale = 2)
+    private BigDecimal weight;
+
+    @Column(precision = 8, scale = 2)
+    private BigDecimal length;
+
+    @Column(precision = 8, scale = 2)
+    private BigDecimal width;
+
+    @Column(precision = 8, scale = 2)
+    private BigDecimal height;
+
+    @Column(name = "sold_count")
+    @Builder.Default
+    private Integer soldCount = 0;
+
+    @Column(name = "return_count")
+    @Builder.Default
+    private Integer returnCount = 0;
 }

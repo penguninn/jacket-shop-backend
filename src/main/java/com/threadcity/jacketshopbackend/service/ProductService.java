@@ -98,6 +98,10 @@ public class ProductService {
         product.setDescription(req.getDescription());
         product.setStatus(req.getStatus());
         product.setThumbnail(req.getThumbnail());
+
+        if (req.getIsFeatured() != null)
+            product.setIsFeatured(req.getIsFeatured());
+
         Product saved = productRepository.save(product);
         log.info("ProductService::createProduct - Execution completed.");
         return productMapper.toDto(saved);
@@ -128,6 +132,10 @@ public class ProductService {
         product.setThumbnail(req.getThumbnail());
         product.setDescription(req.getDescription());
         product.setStatus(req.getStatus());
+
+        if (req.getIsFeatured() != null)
+            product.setIsFeatured(req.getIsFeatured());
+
         Product saved = productRepository.save(product);
         log.info("ProductService::updateProductById - Execution completed. [id: {}]", id);
         return productMapper.toDto(saved);

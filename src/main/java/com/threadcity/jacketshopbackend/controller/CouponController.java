@@ -70,7 +70,7 @@ public class CouponController {
         }
 
         @PostMapping
-        public ApiResponse<?> createCoupon(@Valid @RequestBody CouponRequest request) {
+        public ApiResponse<?> createCoupon(@Valid @RequestBody CouponCreateRequest request) {
                 log.info("CouponController::createCoupon - Execution started");
                 CouponResponse response = couponService.createCoupon(request);
                 log.info("CouponController::createCoupon - Execution completed");
@@ -83,7 +83,7 @@ public class CouponController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateCoupon(@PathVariable Long id, @Valid @RequestBody CouponRequest request) {
+        public ApiResponse<?> updateCoupon(@PathVariable Long id, @Valid @RequestBody CouponUpdateRequest request) {
                 log.info("CouponController::updateCoupon - Execution started. [id: {}]", id);
                 CouponResponse response = couponService.updateCouponById(id, request);
                 log.info("CouponController::updateCoupon - Execution completed. [id: {}]", id);

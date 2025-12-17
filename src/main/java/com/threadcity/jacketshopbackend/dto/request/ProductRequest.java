@@ -27,4 +27,7 @@ public class ProductRequest {
 
     @NotNull(message = "Status is required")
     private Enums.Status status;
+
+    @Builder.Default
+    private Boolean isFeatured = false;
 }

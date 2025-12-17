@@ -2,7 +2,6 @@ package com.threadcity.jacketshopbackend.dto.request;
 
 import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -13,11 +12,7 @@ import java.time.Instant;
 
 @Data
 @Builder
-public class CouponRequest {
-
-    @NotBlank(message = "Code cannot be empty")
-    @Size(max = 50, message = "Code must be less than 50 characters")
-    private String code;
+public class CouponUpdateRequest {
 
     @Size(max = 255, message = "Description too long")
     private String description;

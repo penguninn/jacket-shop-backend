@@ -7,7 +7,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 import com.threadcity.jacketshopbackend.filter.CouponFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.CouponRequest;
+import com.threadcity.jacketshopbackend.dto.request.CouponCreateRequest;
+import com.threadcity.jacketshopbackend.dto.request.CouponUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Coupon;
@@ -70,7 +71,7 @@ public class CouponService {
     }
 
     @Transactional
-    public CouponResponse createCoupon(CouponRequest req) {
+    public CouponResponse createCoupon(CouponCreateRequest req) {
         log.info("CouponService::createCoupon - Execution started");
 
         if (couponRepository.existsByCode(req.getCode())) {
@@ -98,19 +99,15 @@ public class CouponService {
     }
 
     @Transactional
-    public CouponResponse updateCouponById(Long id, CouponRequest req) {
+    public CouponResponse updateCouponById(Long id, CouponUpdateRequest req) {
         log.info("CouponService::updateCouponById - Execution started. [id: {}]", id);
 
         Coupon coupon = couponRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COUPON_NOT_FOUND,
                         "Coupon not found with id: " + id));
 
-        if (couponRepository.existsByCodeAndIdNot(req.getCode(), id)) {
-            throw new ResourceConflictException(ErrorCodes.COUPON_CODE_DUPLICATE,
-                    "Coupon already exists with code: " + req.getCode());
-        }
+        // Code is immutable, do not update it.
 
-        coupon.setCode(req.getCode());
         coupon.setDescription(req.getDescription());
         coupon.setType(req.getType());
         coupon.setValue(req.getValue());

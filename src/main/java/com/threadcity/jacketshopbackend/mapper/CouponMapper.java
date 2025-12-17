@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.mapper;
 
-import com.threadcity.jacketshopbackend.dto.request.CouponRequest;
+import com.threadcity.jacketshopbackend.dto.request.CouponCreateRequest;
 import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
 import com.threadcity.jacketshopbackend.entity.Coupon;
 import org.mapstruct.Mapper;
@@ -14,5 +14,5 @@ public interface CouponMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "usedCount", ignore = true)
-    Coupon toEntity(CouponRequest request);
+    Coupon toEntity(CouponCreateRequest request);
 }

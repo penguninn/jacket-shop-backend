@@ -24,9 +24,17 @@ public class ProductVariantResponse implements Serializable {
     private MaterialResponse material;
     private BigDecimal price;
     private BigDecimal costPrice;
-    private BigDecimal salePrice;
     private Integer quantity;
     private Enums.Status status;
+    private Integer reservedQuantity;
+    private Integer availableQuantity;
+    private String image;
+    private BigDecimal weight;
+    private BigDecimal length;
+    private BigDecimal width;
+    private BigDecimal height;
+    private Integer soldCount;
+    private Integer returnCount;
     private Instant createdAt;
     private Instant updatedAt;
 }

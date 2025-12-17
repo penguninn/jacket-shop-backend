@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,22 @@ public class Product extends BaseEntity {
     @Lob
     @Column(name = "thumbnail", columnDefinition = "NVARCHAR(MAX)")
     private String thumbnail;
+
+    @Column(name = "is_featured")
+    @Builder.Default
+    private Boolean isFeatured = false;
+
+    @Column(name = "sold_count")
+    @Builder.Default
+    private Long soldCount = 0L;
+
+    @Column(name = "rating_average", precision = 3, scale = 2)
+    @Builder.Default
+    private BigDecimal ratingAverage = BigDecimal.ZERO;
+
+    @Column(name = "rating_count")
+    @Builder.Default
+    private Integer ratingCount = 0;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
