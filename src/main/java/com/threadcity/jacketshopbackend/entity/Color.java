@@ -23,6 +23,9 @@ public class Color extends BaseEntity {
     @Column(length = 255)
     private String description;
 
+    @Column(length = 20)
+    private String hexCode;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status;

@@ -96,6 +96,7 @@ public class ColorService {
 
         color.setName(colorRequest.getName());
         color.setDescription(colorRequest.getDescription());
+        color.setHexCode(colorRequest.getHexCode());
         color.setStatus(colorRequest.getStatus());
         Color savedColor = colorRepository.save(color);
         log.info("ColorService::updateProfile - Execution completed. [ColorId: {}]", id);
