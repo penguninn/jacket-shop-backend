@@ -16,6 +16,10 @@ public class SaleRequest {
     @NotNull(message = "Variant IDs are required")
     private java.util.List<Long> productVariantIds;
 
+    private String name;
+
+    private String description;
+
     private LocalDateTime saleStartDate;
     private LocalDateTime saleEndDate;
 

@@ -6,6 +6,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "sales")
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 public class Sale extends BaseEntity {
 
     @OneToMany(mappedBy = "sale", fetch = FetchType.LAZY)
-    private java.util.List<ProductVariant> productVariants;
+    private List<ProductVariant> productVariants;
 
     @Column(name = "name")
     private String name;
