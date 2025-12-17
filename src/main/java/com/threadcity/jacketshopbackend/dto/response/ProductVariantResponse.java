@@ -35,6 +35,8 @@ public class ProductVariantResponse implements Serializable {
     private BigDecimal height;
     private Integer soldCount;
     private Integer returnCount;
+    private BigDecimal salePrice;
+    private BigDecimal discountPercentage;
     private Instant createdAt;
     private Instant updatedAt;
 }

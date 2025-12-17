@@ -43,14 +43,15 @@ public class ProductVariant extends BaseEntity {
     @JoinColumn(name = "material_id")
     private Material material;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sale_id")
+    private Sale sale;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
 
     @Column(name = "cost_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal costPrice;
-
-    @Column(name = "sale_price", precision = 12, scale = 2)
-    private BigDecimal salePrice;
 
     @Column(nullable = false)
     @Builder.Default
@@ -67,15 +68,6 @@ public class ProductVariant extends BaseEntity {
     @Column(name = "available_quantity")
     @Builder.Default
     private Integer availableQuantity = 0;
-
-    @Column(name = "sale_start_date")
-    private LocalDateTime saleStartDate;
-
-    @Column(name = "sale_end_date")
-    private LocalDateTime saleEndDate;
-
-    @Column(name = "discount_percentage", precision = 5, scale = 2)
-    private BigDecimal discountPercentage;
 
     @Column(precision = 8, scale = 2)
     private BigDecimal weight;

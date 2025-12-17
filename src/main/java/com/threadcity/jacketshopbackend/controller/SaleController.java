@@ -32,6 +32,19 @@ public class SaleController {
                 .build();
     }
 
+    @GetMapping("/{id}")
+    public ApiResponse<?> getSale(@PathVariable Long id) {
+        log.info("SaleController::getSale - Execution started. [id: {}]", id);
+        var response = saleService.getSale(id);
+        log.info("SaleController::getSale - Execution completed.");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Get sale successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
     @GetMapping
     public ApiResponse<?> getAllSales() {
         log.info("SaleController::getAllSales - Execution started.");
@@ -45,10 +58,10 @@ public class SaleController {
                 .build();
     }
 
-    @DeleteMapping("/{variantId}")
-    public ApiResponse<?> removeSale(@PathVariable Long variantId) {
-        log.info("SaleController::removeSale - Execution started. [variantId: {}]", variantId);
-        saleService.removeSale(variantId);
+    @DeleteMapping("/{id}")
+    public ApiResponse<?> removeSale(@PathVariable Long id) {
+        log.info("SaleController::removeSale - Execution started. [id: {}]", id);
+        saleService.removeSale(id);
         log.info("SaleController::removeSale - Execution completed.");
         return ApiResponse.builder()
                 .code(200)

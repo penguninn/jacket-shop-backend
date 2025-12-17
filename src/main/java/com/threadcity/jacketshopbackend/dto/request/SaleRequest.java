@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Builder
 public class SaleRequest {
 
-    @NotNull(message = "Variant ID is required")
-    private Long variantId;
+    @NotNull(message = "Variant IDs are required")
+    private java.util.List<Long> productVariantIds;
 
     private LocalDateTime saleStartDate;
     private LocalDateTime saleEndDate;

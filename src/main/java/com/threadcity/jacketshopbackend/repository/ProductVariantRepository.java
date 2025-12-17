@@ -14,6 +14,4 @@ public interface ProductVariantRepository
     boolean existsBySku(String sku);
 
     List<ProductVariant> findAllByProductId(Long productId);
-
-    List<ProductVariant> findByDiscountPercentageGreaterThan(java.math.BigDecimal value);
 }
