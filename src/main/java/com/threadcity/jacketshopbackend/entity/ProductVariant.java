@@ -7,6 +7,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "product_variants", uniqueConstraints = {
@@ -45,7 +47,7 @@ public class ProductVariant extends BaseEntity {
 
     @ManyToMany(mappedBy = "productVariants", fetch = FetchType.LAZY)
     @Builder.Default
-    private java.util.List<Sale> sales = new java.util.ArrayList<>();
+    private List<Sale> sales = new ArrayList<>();
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
