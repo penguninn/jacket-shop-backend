@@ -8,13 +8,14 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 public class SaleRequest {
 
     @NotNull(message = "Variant IDs are required")
-    private java.util.List<Long> productVariantIds;
+    private List<Long> productVariantIds;
 
     private String name;
 

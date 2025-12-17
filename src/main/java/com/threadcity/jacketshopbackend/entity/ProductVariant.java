@@ -43,9 +43,9 @@ public class ProductVariant extends BaseEntity {
     @JoinColumn(name = "material_id")
     private Material material;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sale_id")
-    private Sale sale;
+    @ManyToMany(mappedBy = "productVariants", fetch = FetchType.LAZY)
+    @Builder.Default
+    private java.util.List<Sale> sales = new java.util.ArrayList<>();
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;

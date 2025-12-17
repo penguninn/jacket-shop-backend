@@ -59,7 +59,7 @@ public class SaleService {
         Sale savedSale = saleRepository.save(sale);
 
         for (ProductVariant variant : variants) {
-            variant.setSale(savedSale);
+            variant.getSales().add(savedSale);
             productVariantRepository.save(variant);
             savedSale.getProductVariants().add(variant);
         }
@@ -87,7 +87,7 @@ public class SaleService {
             // Unlink old variants
             if (sale.getProductVariants() != null) {
                 for (ProductVariant variant : sale.getProductVariants()) {
-                    variant.setSale(null);
+                    variant.getSales().remove(sale);
                     productVariantRepository.save(variant);
                 }
                 sale.getProductVariants().clear();
@@ -100,7 +100,7 @@ public class SaleService {
             }
             
             for (ProductVariant variant : variants) {
-                variant.setSale(sale);
+                variant.getSales().add(sale);
                 productVariantRepository.save(variant);
                 if (sale.getProductVariants() == null) {
                     sale.setProductVariants(new ArrayList<>());
@@ -159,7 +159,7 @@ public class SaleService {
         // Unlink variants
         if (sale.getProductVariants() != null) {
             for (ProductVariant variant : sale.getProductVariants()) {
-                variant.setSale(null);
+                variant.getSales().remove(sale);
                 productVariantRepository.save(variant);
             }
         }
@@ -185,7 +185,7 @@ public class SaleService {
         for (Sale sale : sales) {
              if (sale.getProductVariants() != null) {
                 for (ProductVariant variant : sale.getProductVariants()) {
-                    variant.setSale(null);
+                    variant.getSales().remove(sale);
                     productVariantRepository.save(variant);
                 }
             }

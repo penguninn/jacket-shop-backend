@@ -10,6 +10,8 @@ import org.mapstruct.MappingTarget;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {
         ProductMapper.class,
@@ -23,16 +25,24 @@ public interface ProductVariantMapper {
 
     @AfterMapping
     default void mapSaleDetails(ProductVariant source, @MappingTarget ProductVariantResponse target) {
-        Sale sale = source.getSale();
-        if (sale != null && sale.getDiscountPercentage() != null) {
+        List<Sale> sales = source.getSales();
+        if (sales != null && !sales.isEmpty()) {
             LocalDateTime now = LocalDateTime.now();
-            boolean isActive = (sale.getStartDate() == null || !now.isBefore(sale.getStartDate())) &&
-                               (sale.getEndDate() == null || !now.isAfter(sale.getEndDate()));
             
-            if (isActive) {
-                target.setDiscountPercentage(sale.getDiscountPercentage());
+            Sale bestSale = sales.stream()
+                .filter(sale -> {
+                    if (sale.getDiscountPercentage() == null) return false;
+                    boolean startOk = sale.getStartDate() == null || !now.isBefore(sale.getStartDate());
+                    boolean endOk = sale.getEndDate() == null || !now.isAfter(sale.getEndDate());
+                    return startOk && endOk;
+                })
+                .max(Comparator.comparing(Sale::getDiscountPercentage))
+                .orElse(null);
+
+            if (bestSale != null) {
+                target.setDiscountPercentage(bestSale.getDiscountPercentage());
                 if (source.getPrice() != null) {
-                    BigDecimal discountFactor = sale.getDiscountPercentage().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                    BigDecimal discountFactor = bestSale.getDiscountPercentage().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
                     BigDecimal discountAmount = source.getPrice().multiply(discountFactor);
                     target.setSalePrice(source.getPrice().subtract(discountAmount));
                 }

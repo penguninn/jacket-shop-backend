@@ -17,7 +17,12 @@ import java.util.List;
 @SuperBuilder
 public class Sale extends BaseEntity {
 
-    @OneToMany(mappedBy = "sale", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "sale_product_variants",
+        joinColumns = @JoinColumn(name = "sale_id"),
+        inverseJoinColumns = @JoinColumn(name = "product_variant_id")
+    )
     private List<ProductVariant> productVariants;
 
     @Column(name = "name")
