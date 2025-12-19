@@ -27,7 +27,7 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "customer_name", nullable = false, length = 120)
+    @Column(name = "customer_name", nullable = false, length = 120, columnDefinition = "NVARCHAR(120)")
     private String customerName;
 
     @Column(name = "customer_email", length = 255)
@@ -36,13 +36,13 @@ public class Order extends BaseEntity {
     @Column(name = "customer_phone", length = 20)
     private String customerPhone;
 
-    @Column(name = "shipping_recipient_name", length = 120)
+    @Column(name = "shipping_recipient_name", length = 120, columnDefinition = "NVARCHAR(120)")
     private String shippingRecipientName;
 
     @Column(name = "shipping_recipient_phone", length = 20)
     private String shippingRecipientPhone;
 
-    @Column(name = "shipping_address_line", nullable = false, length = 255)
+    @Column(name = "shipping_address_line", nullable = false, length = 255, columnDefinition = "NVARCHAR(255)")
     private String shippingAddressLine;
 
     @Column(name = "shipping_province_code", length = 20)
@@ -54,20 +54,20 @@ public class Order extends BaseEntity {
     @Column(name = "shipping_ward_code", length = 20)
     private String shippingWardCode;
 
-    @Column(name = "shipping_province_name")
+    @Column(name = "shipping_province_name", columnDefinition = "NVARCHAR(255)")
     private String shippingProvinceName;
 
-    @Column(name = "shipping_district_name")
+    @Column(name = "shipping_district_name", columnDefinition = "NVARCHAR(255)")
     private String shippingDistrictName;
 
-    @Column(name = "shipping_ward_name")
+    @Column(name = "shipping_ward_name", columnDefinition = "NVARCHAR(255)")
     private String shippingWardName;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "payment_method_id", nullable = false)
     private PaymentMethod paymentMethod; // cod, stripe, qr_online, cash, or_pos
 
-    @Column(name = "payment_method_name", length = 80)
+    @Column(name = "payment_method_name", length = 80, columnDefinition = "NVARCHAR(80)")
     private String paymentMethodName;
 
     @Enumerated(EnumType.STRING)
@@ -78,7 +78,7 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "shipping_method_id", nullable = false)
     private ShippingMethod shippingMethod; // VTPOST, EMS, VNPOST, GHTK, GHNV3, SPX
 
-    @Column(name = "shipping_method_name", length = 100)
+    @Column(name = "shipping_method_name", length = 100, columnDefinition = "NVARCHAR(100)")
     private String shippingMethodName;
 
     @Column(nullable = false, precision = 12, scale = 2)
@@ -112,7 +112,7 @@ public class Order extends BaseEntity {
     @Column(nullable = false, length = 20)
     private OrderStatus status;
 
-    @Column(length = 500)
+    @Column(length = 500, columnDefinition = "NVARCHAR(500)")
     private String note;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

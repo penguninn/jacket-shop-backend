@@ -5,10 +5,28 @@ services:
     environment:
       SA_PASSWORD: "Password123!"
       ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
     ports:
       - "1433:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 3s
+
+  sqlserver-init:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: sqlserver-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - ./docker-entrypoint-initdb.d/init.sql:/init.sql
+    entrypoint: /bin/bash
+    command: -c "/opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P 'Password123!' -C -d master -i /init.sql"
 
 volumes:
   sqlserver_data:

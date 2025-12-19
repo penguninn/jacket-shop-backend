@@ -3,12 +3,17 @@ package com.threadcity.jacketshopbackend.service;
 import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProductVariantRequest;
+import com.threadcity.jacketshopbackend.dto.request.ProductVariantCreateRequest;
+import com.threadcity.jacketshopbackend.dto.request.ProductVariantUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
+import com.threadcity.jacketshopbackend.entity.Color;
+import com.threadcity.jacketshopbackend.entity.Material;
+import com.threadcity.jacketshopbackend.entity.Product;
 import com.threadcity.jacketshopbackend.entity.ProductVariant;
+import com.threadcity.jacketshopbackend.entity.Size;
+
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
-import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.ProductVariantMapper;
 import com.threadcity.jacketshopbackend.repository.ColorRepository;
@@ -17,6 +22,8 @@ import com.threadcity.jacketshopbackend.repository.ProductRepository;
 import com.threadcity.jacketshopbackend.repository.ProductVariantRepository;
 import com.threadcity.jacketshopbackend.repository.SizeRepository;
 import com.threadcity.jacketshopbackend.specification.ProductVariantSpecification;
+import com.threadcity.jacketshopbackend.utils.SkuUtils;
+
 import jakarta.transaction.Transactional;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import java.util.Set;
@@ -40,6 +47,7 @@ public class ProductVariantService {
 
     private final ProductVariantRepository productVariantRepository;
     private final ProductRepository productRepository;
+    private final ProductService productService;
     private final ColorRepository colorRepository;
     private final SizeRepository sizeRepository;
     private final ProductVariantMapper productVariantMapper;
@@ -47,7 +55,7 @@ public class ProductVariantService {
 
     public ProductVariantResponse getProductVariantById(Long id) {
         log.info("ProductVariantService::getProductVariantById - Execution started.");
-        ProductVariant variant = productVariantRepository.findById(id)
+        com.threadcity.jacketshopbackend.entity.ProductVariant variant = productVariantRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND,
                         "ProductVariant not found with id: " + id));
         log.info("ProductVariantService::getProductVariantById - Execution completed.");
@@ -79,80 +87,93 @@ public class ProductVariantService {
                 .build();
     }
 
+    public List<ProductVariantResponse> getAllProductVariantsByProductId(Long productId) {
+        log.info("ProductVariantService::getAllProductVariantsByProductId - Execution started.");
+
+        List<ProductVariantResponse> productVariantResponse = productVariantRepository.findAllByProductId(productId)
+                .stream().map(productVariantMapper::toDto).toList();
+
+        log.info("ProductVariantService::getAllProductVariantsByProductId - Execution completed.");
+
+        return productVariantResponse;
+    }
+
     @Transactional
-    public ProductVariantResponse createProductVariant(ProductVariantRequest req) {
+    public ProductVariantResponse createProductVariant(ProductVariantCreateRequest req) {
         log.info("ProductVariantService::createProductVariant - Execution started.");
-        if (productVariantRepository.existsBySku(req.getSku())) {
-            throw new ResourceConflictException(ErrorCodes.PRODUCT_VARIANT_SKU_DUPLICATE,
-                    "ProductVariant already exists with SKU: " + req.getSku());
-        }
+
+        Product product = productRepository.findById(req.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND, "Product not found"));
+
+        Color color = colorRepository.findById(req.getColorId())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COLOR_NOT_FOUND, "Color not found"));
+
+        Size size = sizeRepository.findById(req.getSizeId())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.SIZE_NOT_FOUND, "Size not found"));
+
+        Material material = materialRepository.findById(req.getMaterialId())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.MATERIAL_NOT_FOUND, "Material not found"));
 
         ProductVariant variant = new ProductVariant();
-        variant.setSku(req.getSku());
+
+        String baseSku = SkuUtils.generateBaseSku(
+                product.getName(), size.getName(), color.getName(), material.getName());
+        String uniqueSku = SkuUtils.generateUniqueSku(
+                baseSku, productVariantRepository::existsBySku);
+        variant.setSku(uniqueSku);
+
         variant.setPrice(req.getPrice());
         variant.setCostPrice(req.getCostPrice());
-        variant.setSalePrice(req.getSalePrice());
         variant.setQuantity(req.getQuantity());
         variant.setStatus(req.getStatus());
+        variant.setImage(req.getImage());
+        variant.setAvailableQuantity(req.getQuantity());
 
-        if (req.getProductId() != null) {
-            variant.setProduct(productRepository.findById(req.getProductId())
-                    .orElseThrow(
-                            () -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND, "Product not found")));
-        }
-        if (req.getColorId() != null) {
-            variant.setColor(colorRepository.findById(req.getColorId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COLOR_NOT_FOUND, "Color not found")));
-        }
-        if (req.getSizeId() != null) {
-            variant.setSize(sizeRepository.findById(req.getSizeId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.SIZE_NOT_FOUND, "Size not found")));
-        }
-        if (req.getMaterialId() != null) {
-            variant.setMaterial(materialRepository.findById(req.getMaterialId())
-                    .orElseThrow(
-                            () -> new ResourceNotFoundException(ErrorCodes.MATERIAL_NOT_FOUND, "Material not found")));
-        }
+        if (req.getWeight() != null)
+            variant.setWeight(req.getWeight());
+        if (req.getLength() != null)
+            variant.setLength(req.getLength());
+        if (req.getWidth() != null)
+            variant.setWidth(req.getWidth());
+        if (req.getHeight() != null)
+            variant.setHeight(req.getHeight());
+
+        variant.setProduct(product);
+        variant.setColor(color);
+        variant.setSize(size);
+        variant.setMaterial(material);
 
         ProductVariant saved = productVariantRepository.save(variant);
+        productService.syncProductData(saved.getProduct().getId());
         log.info("ProductVariantService::createProductVariant - Execution completed.");
         return productVariantMapper.toDto(saved);
     }
 
     @Transactional
-    public ProductVariantResponse updateProductVariantById(ProductVariantRequest req, Long id) {
+    public ProductVariantResponse updateProductVariantById(ProductVariantUpdateRequest req, Long id) {
         log.info("ProductVariantService::updateProductVariantById - Execution started.");
         ProductVariant variant = productVariantRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND,
                         "ProductVariant not found with id: " + id));
 
-        variant.setSku(req.getSku());
+        // SKU and Identity Attributes are immutable.
         variant.setPrice(req.getPrice());
         variant.setCostPrice(req.getCostPrice());
-        variant.setSalePrice(req.getSalePrice());
         variant.setQuantity(req.getQuantity());
         variant.setStatus(req.getStatus());
+        variant.setImage(req.getImage());
 
-        if (req.getProductId() != null) {
-            variant.setProduct(productRepository.findById(req.getProductId())
-                    .orElseThrow(
-                            () -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND, "Product not found")));
-        }
-        if (req.getColorId() != null) {
-            variant.setColor(colorRepository.findById(req.getColorId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COLOR_NOT_FOUND, "Color not found")));
-        }
-        if (req.getSizeId() != null) {
-            variant.setSize(sizeRepository.findById(req.getSizeId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.SIZE_NOT_FOUND, "Size not found")));
-        }
-        if (req.getMaterialId() != null) {
-            variant.setMaterial(materialRepository.findById(req.getMaterialId())
-                    .orElseThrow(
-                            () -> new ResourceNotFoundException(ErrorCodes.MATERIAL_NOT_FOUND, "Material not found")));
-        }
+        if (req.getWeight() != null)
+            variant.setWeight(req.getWeight());
+        if (req.getLength() != null)
+            variant.setLength(req.getLength());
+        if (req.getWidth() != null)
+            variant.setWidth(req.getWidth());
+        if (req.getHeight() != null)
+            variant.setHeight(req.getHeight());
 
         ProductVariant saved = productVariantRepository.save(variant);
+        productService.syncProductData(saved.getProduct().getId());
         log.info("ProductVariantService::updateProductVariantById - Execution completed.");
         return productVariantMapper.toDto(saved);
     }
@@ -160,11 +181,14 @@ public class ProductVariantService {
     @Transactional
     public void deleteProductVariant(Long id) {
         log.info("ProductVariantService::deleteProductVariant - Execution started.");
-        if (!productVariantRepository.existsById(id)) {
-            throw new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND,
-                    "ProductVariant not found with id: " + id);
-        }
-        productVariantRepository.deleteById(id);
+        ProductVariant variant = productVariantRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND,
+                        "ProductVariant not found with id: " + id));
+
+        Long productId = variant.getProduct().getId();
+        productVariantRepository.delete(variant);
+
+        productService.syncProductData(productId);
         log.info("ProductVariantService::deleteProductVariant - Execution completed.");
     }
 
@@ -176,6 +200,7 @@ public class ProductVariantService {
                         "ProductVariant not found with id: " + id));
         variant.setStatus(request.getStatus());
         ProductVariant saved = productVariantRepository.save(variant);
+        productService.syncProductData(saved.getProduct().getId());
         log.info("ProductVariantService::updateStatus - Execution completed.");
         return productVariantMapper.toDto(saved);
     }
@@ -196,6 +221,11 @@ public class ProductVariantService {
         variants.forEach(v -> v.setStatus(request.getStatus()));
         List<ProductVariant> savedVariants = productVariantRepository.saveAll(variants);
 
+        Set<Long> productIds = savedVariants.stream()
+                .map(v -> v.getProduct().getId())
+                .collect(Collectors.toSet());
+        productIds.forEach(productService::syncProductData);
+
         log.info("ProductVariantService::bulkUpdateProductVariantsStatus - Execution completed.");
         return savedVariants.stream().map(productVariantMapper::toDto).toList();
     }
@@ -214,7 +244,13 @@ public class ProductVariantService {
                     "ProductVariants not found: " + missingIds);
         }
 
+        Set<Long> productIds = variants.stream()
+                .map(v -> v.getProduct().getId())
+                .collect(Collectors.toSet());
+
         productVariantRepository.deleteAllInBatch(variants);
+
+        productIds.forEach(productService::syncProductData);
 
         log.info("ProductVariantService::bulkDeleteProductVariants - Execution completed.");
     }

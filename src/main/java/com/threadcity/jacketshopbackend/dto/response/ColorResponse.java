@@ -16,6 +16,7 @@ public class ColorResponse {
     private Long id;
     private String name;
     private String description;
+    private String hexCode;
     private Enums.Status status;
     private Instant createdAt;
     private Instant updatedAt;

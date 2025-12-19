@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -31,6 +32,11 @@ public class ProductController {
                         @RequestParam(required = false) List<String> status,
                         @RequestParam(required = false) List<Long> brandIds,
                         @RequestParam(required = false) List<Long> styleIds,
+                        @RequestParam(required = false) BigDecimal minPrice,
+                        @RequestParam(required = false) BigDecimal maxPrice,
+                        @RequestParam(required = false) List<Long> colorIds,
+                        @RequestParam(required = false) List<Long> materialIds,
+                        @RequestParam(required = false) List<Long> sizeIds,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int size,
                         @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -41,6 +47,11 @@ public class ProductController {
                                 .status(status)
                                 .brandIds(brandIds)
                                 .styleIds(styleIds)
+                                .minPrice(minPrice)
+                                .maxPrice(maxPrice)
+                                .colorIds(colorIds)
+                                .materialIds(materialIds)
+                                .sizeIds(sizeIds)
                                 .page(page)
                                 .size(size)
                                 .sortBy(sortBy)

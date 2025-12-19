@@ -80,7 +80,9 @@ public class ProductVariantSpecification {
     }
 
     public static Specification<ProductVariant> buildSpec(ProductVariantFilterRequest request) {
-        return hasColor(request.getColorIds())
+        return hasSearch(request.getSearch())
+                .and(hasProduct(request.getProductId()))
+                .and(hasColor(request.getColorIds()))
                 .and(hasSize(request.getSizeIds()))
                 .and(hasMaterial(request.getMaterialIds()))
                 .and(hasPriceRange(request.getFromPrice(), request.getToPrice()))

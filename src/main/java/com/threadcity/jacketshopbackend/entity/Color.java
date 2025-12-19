@@ -17,11 +17,14 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Color extends BaseEntity {
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, columnDefinition = "NVARCHAR(100)")
     private String name;
 
-    @Column(length = 255)
+    @Column(length = 255, columnDefinition = "NVARCHAR(255)")
     private String description;
+
+    @Column(length = 20)
+    private String hexCode;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

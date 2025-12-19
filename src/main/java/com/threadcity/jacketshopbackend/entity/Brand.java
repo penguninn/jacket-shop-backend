@@ -17,13 +17,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Brand extends BaseEntity {
 
-    @Column(nullable = false, length = 120)
+    @Column(nullable = false, length = 120, columnDefinition = "NVARCHAR(120)")
     private String name;
 
     @Column(name = "logo_url", length = 400)
     private String logoUrl;
 
-    @Column(length = 255)
+    @Column(length = 255, columnDefinition = "NVARCHAR(255)")
     private String description;
 
     @Enumerated(EnumType.STRING)

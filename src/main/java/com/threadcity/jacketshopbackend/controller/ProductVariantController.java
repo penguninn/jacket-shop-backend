@@ -63,6 +63,20 @@ public class ProductVariantController {
                                 .build();
         }
 
+        @GetMapping("/product/{productId}")
+        public ApiResponse<?> getVariantsByProductId(@PathVariable Long productId) {
+                log.info("Getting all variants for product: {}", productId);
+                List<ProductVariantResponse> variants = productVariantService
+                                .getAllProductVariantsByProductId(productId);
+
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Get product variants successfully.")
+                                .data(variants)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
         @GetMapping("/{id}")
         public ApiResponse<?> getProductVariantById(@PathVariable Long id) {
                 log.info("ProductVariantController::getProductVariantById - Execution started. [id: {}]", id);
@@ -77,7 +91,7 @@ public class ProductVariantController {
         }
 
         @PostMapping
-        public ApiResponse<?> createProductVariant(@Valid @RequestBody ProductVariantRequest productRequest) {
+        public ApiResponse<?> createProductVariant(@Valid @RequestBody ProductVariantCreateRequest productRequest) {
                 log.info("ProductVariantController::createProductVariant - Execution started.");
                 ProductVariantResponse response = productVariantService.createProductVariant(productRequest);
                 log.info("ProductVariantController::createProductVariant - Execution completed.");
@@ -91,7 +105,7 @@ public class ProductVariantController {
 
         @PutMapping("/{id}")
         public ApiResponse<?> updateProductVariant(@PathVariable Long id,
-                        @Valid @RequestBody ProductVariantRequest productRequest) {
+                        @Valid @RequestBody ProductVariantUpdateRequest productRequest) {
                 log.info("ProductVariantController::updateProductVariant - Execution started. [id: {}]", id);
                 ProductVariantResponse response = productVariantService.updateProductVariantById(productRequest, id);
                 log.info("ProductVariantController::updateProductVariant - Execution completed. [id: {}]", id);

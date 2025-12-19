@@ -17,6 +17,9 @@ public class ColorRequest {
     @Size(max = 255, message = "Description too long")
     private String description;
 
+    @Size(max = 20, message = "Hex code too long")
+    private String hexCode;
+
     @NotNull(message = "Status is required")
     private Enums.Status status;
 }

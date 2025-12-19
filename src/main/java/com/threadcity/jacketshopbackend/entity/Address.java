@@ -20,7 +20,7 @@ public class Address extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "address_line", nullable = false, length = 255)
+    @Column(name = "address_line", nullable = false, length = 255, columnDefinition = "NVARCHAR(255)")
     private String addressLine;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -38,7 +38,7 @@ public class Address extends BaseEntity {
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault;
 
-    @Column(name = "recipient_name", length = 120)
+    @Column(name = "recipient_name", length = 120, columnDefinition = "NVARCHAR(120)")
     private String recipientName;
 
     @Column(name = "recipient_phone", length = 20)

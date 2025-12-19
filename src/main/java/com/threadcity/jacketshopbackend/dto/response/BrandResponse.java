@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.Instant;
 
-////BrandResponse
 @Data
 @Builder
 @AllArgsConstructor
