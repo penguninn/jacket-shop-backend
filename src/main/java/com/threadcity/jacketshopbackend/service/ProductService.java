@@ -8,6 +8,9 @@ import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
 import com.threadcity.jacketshopbackend.entity.*;
+import com.threadcity.jacketshopbackend.common.Enums;
+import java.math.BigDecimal;
+import java.util.Comparator;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
@@ -35,6 +38,7 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductVariantRepository productVariantRepository;
     private final BrandRepository brandRepository;
     private final StyleRepository styleRepository;
     private final ProductMapper productMapper;
@@ -187,7 +191,7 @@ public class ProductService {
 
     @Transactional
     public void bulkDeleteProducts(BulkDeleteRequest request) {
-        log.info("ProductService::bulkDeleteProducts - Execution started.");
+        log.info("ProductService::bulkDel teProducts - Execution started.");
 
         List<Product> products = productRepository.findAllById(request.getIds());
 
@@ -201,5 +205,45 @@ public class ProductService {
         productRepository.deleteAllInBatch(products);
 
         log.info("ProductService::bulkDeleteProducts - Execution completed.");
+    }
+
+    @Transactional
+    public void syncProductData(Long productId) {
+        log.info("ProductService::syncProductData - Execution started. [productId: {}]", productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
+                        "Product not found with id: " + productId));
+
+        List<ProductVariant> activeVariants = productVariantRepository.findAllByProductId(productId).stream()
+                .filter(v -> v.getStatus() == Enums.Status.ACTIVE)
+                .toList();
+
+        if (activeVariants.isEmpty()) {
+            product.setMinPrice(null);
+            product.setMaxPrice(null);
+            product.setColors(new HashSet<>());
+            product.setMaterials(new HashSet<>());
+            product.setSizes(new HashSet<>());
+        } else {
+            BigDecimal minPrice = activeVariants.stream()
+                    .map(ProductVariant::getPrice)
+                    .min(Comparator.naturalOrder())
+                    .orElse(BigDecimal.ZERO);
+
+            BigDecimal maxPrice = activeVariants.stream()
+                    .map(ProductVariant::getPrice)
+                    .max(Comparator.naturalOrder())
+                    .orElse(BigDecimal.ZERO);
+
+            product.setMinPrice(minPrice);
+            product.setMaxPrice(maxPrice);
+
+            product.setColors(activeVariants.stream().map(ProductVariant::getColor).collect(Collectors.toSet()));
+            product.setMaterials(activeVariants.stream().map(ProductVariant::getMaterial).collect(Collectors.toSet()));
+            product.setSizes(activeVariants.stream().map(ProductVariant::getSize).collect(Collectors.toSet()));
+        }
+
+        productRepository.save(product);
+        log.info("ProductService::syncProductData - Execution completed. [productId: {}]", productId);
     }
 }

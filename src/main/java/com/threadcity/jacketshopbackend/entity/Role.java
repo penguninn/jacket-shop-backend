@@ -20,6 +20,6 @@ public class Role extends BaseEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
-    @Column(length = 255)
+    @Column(length = 255, columnDefinition = "NVARCHAR(255)")
     private String description;
 }

@@ -6,7 +6,10 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = {
         BrandMapper.class,
-        StyleMapper.class
+        StyleMapper.class,
+        ColorMapper.class,
+        MaterialMapper.class,
+        SizeMapper.class
 })
 public interface ProductMapper {
 

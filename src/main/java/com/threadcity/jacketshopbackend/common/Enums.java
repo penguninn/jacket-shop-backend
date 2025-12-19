@@ -25,8 +25,4 @@ public class Enums {
     public enum CouponType {
         PERCENT, AMOUNT
     }
-
-    public enum ReviewStatus {
-        PENDING, APPROVED, REJECTED
-    }
 }

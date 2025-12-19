@@ -21,7 +21,7 @@ public class District extends BaseEntity {
     @Column(name = "goship_id")
     private Long goshipId;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -1,6 +1,5 @@
 package com.threadcity.jacketshopbackend.entity;
 
-import com.threadcity.jacketshopbackend.common.Enums.ReviewStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -18,14 +17,14 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(name = "product_name", nullable = false, length = 200)
+    @Column(name = "product_name", nullable = false, length = 200, columnDefinition = "NVARCHAR(200)")
     private String productName;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "user_name", nullable = false, length = 120)
+    @Column(name = "user_name", nullable = false, length = 120, columnDefinition = "NVARCHAR(120)")
     private String userName;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,11 +34,6 @@ public class Review extends BaseEntity {
     @Column(nullable = false)
     private Integer rating; // 1-5
 
-    @Column(length = 800)
+    @Column(length = 800, columnDefinition = "NVARCHAR(800)")
     private String comment;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    @Builder.Default
-    private ReviewStatus status = ReviewStatus.PENDING;
 }

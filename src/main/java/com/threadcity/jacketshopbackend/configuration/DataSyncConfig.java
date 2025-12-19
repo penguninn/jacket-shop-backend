@@ -43,7 +43,7 @@ public class DataSyncConfig {
         createRoleIfNotFound("STAFF", "Staff role");
         createRoleIfNotFound("CUSTOMER", "Customer role");
 
-        if (userRepository.findByUsername("admin").isEmpty()) {
+        if (userRepository.findByUsername("admin123").isEmpty()) {
             log.info("Admin user not found. Creating...");
 
             Set<Role> roles = new HashSet<>();
@@ -52,10 +52,10 @@ public class DataSyncConfig {
             roleRepository.findByName("CUSTOMER").ifPresent(roles::add);
 
             User admin = User.builder()
-                    .username("admin")
-                    .password(passwordEncoder.encode("admin"))
+                    .username("admin123")
+                    .password(passwordEncoder.encode("12345678"))
                     .fullName("Administrator")
-                    .phone("0000000000")
+                    .phone("0987654321")
                     .status(Enums.Status.ACTIVE)
                     .roles(roles)
                     .build();

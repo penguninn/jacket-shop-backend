@@ -10,4 +10,6 @@ public interface CouponRepository extends JpaRepository<Coupon, Long>, JpaSpecif
     boolean existsByCode(String code);
 
     boolean existsByCodeAndIdNot(String code, Long id);
+
+    java.util.Optional<Coupon> findByCode(String code);
 }

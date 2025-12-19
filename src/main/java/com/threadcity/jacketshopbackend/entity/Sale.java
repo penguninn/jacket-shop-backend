@@ -25,10 +25,10 @@ public class Sale extends BaseEntity {
     )
     private List<ProductVariant> productVariants;
 
-    @Column(name = "name")
+    @Column(name = "name", length = 255, columnDefinition = "NVARCHAR(255)")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 255, columnDefinition = "NVARCHAR(255)")
     private String description;
 
     @Column(name = "start_date")

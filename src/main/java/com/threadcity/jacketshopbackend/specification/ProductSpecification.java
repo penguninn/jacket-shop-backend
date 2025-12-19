@@ -5,9 +5,55 @@ import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Product;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ProductSpecification {
+
+    public static Specification<Product> hasMinPrice(BigDecimal minPrice) {
+        return (root, query, cb) -> {
+            if (minPrice == null) {
+                return null;
+            }
+            return cb.greaterThanOrEqualTo(root.get("maxPrice"), minPrice);
+        };
+    }
+
+    public static Specification<Product> hasMaxPrice(BigDecimal maxPrice) {
+        return (root, query, cb) -> {
+            if (maxPrice == null) {
+                return null;
+            }
+            return cb.lessThanOrEqualTo(root.get("minPrice"), maxPrice);
+        };
+    }
+
+    public static Specification<Product> hasColors(List<Long> colorIds) {
+        return (root, query, cb) -> {
+            if (colorIds == null || colorIds.isEmpty()) {
+                return null;
+            }
+            return root.join("colors").get("id").in(colorIds);
+        };
+    }
+
+    public static Specification<Product> hasMaterials(List<Long> materialIds) {
+        return (root, query, cb) -> {
+            if (materialIds == null || materialIds.isEmpty()) {
+                return null;
+            }
+            return root.join("materials").get("id").in(materialIds);
+        };
+    }
+
+    public static Specification<Product> hasSizes(List<Long> sizeIds) {
+        return (root, query, cb) -> {
+            if (sizeIds == null || sizeIds.isEmpty()) {
+                return null;
+            }
+            return root.join("sizes").get("id").in(sizeIds);
+        };
+    }
 
     public static Specification<Product> hasSearch(String search) {
         return (root, query, cb) -> {
@@ -54,7 +100,12 @@ public class ProductSpecification {
         return hasSearch(request.getSearch())
                 .and(hasBrands(request.getBrandIds()))
                 .and(hasStyles(request.getStyleIds()))
-                .and(hasStatuses(request.getStatus()));
+                .and(hasStatuses(request.getStatus()))
+                .and(hasMinPrice(request.getMinPrice()))
+                .and(hasMaxPrice(request.getMaxPrice()))
+                .and(hasColors(request.getColorIds()))
+                .and(hasMaterials(request.getMaterialIds()))
+                .and(hasSizes(request.getSizeIds()));
     }
 
 }

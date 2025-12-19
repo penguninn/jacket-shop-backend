@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @SuperBuilder
 public class ShippingMethod extends BaseEntity {
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, columnDefinition = "NVARCHAR(100)")
     private String name;
 
     @Column(nullable = false)
@@ -28,7 +28,7 @@ public class ShippingMethod extends BaseEntity {
     @Column(name = "estimated_days", nullable = false)
     private Integer estimatedDays;
 
-    @Column(length = 255)
+    @Column(length = 255, columnDefinition = "NVARCHAR(255)")
     private String description;
 
     @Enumerated(EnumType.STRING)

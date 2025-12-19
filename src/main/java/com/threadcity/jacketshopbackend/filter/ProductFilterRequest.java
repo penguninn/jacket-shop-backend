@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -18,6 +19,11 @@ public class ProductFilterRequest {
         private List<Long> brandIds;
         private List<Long> styleIds;
         private List<String> status;
+        private BigDecimal minPrice;
+        private BigDecimal maxPrice;
+        private List<Long> colorIds;
+        private List<Long> materialIds;
+        private List<Long> sizeIds;
 
         @Builder.Default
         @Min(value = 0, message = "Page must be >= 0")

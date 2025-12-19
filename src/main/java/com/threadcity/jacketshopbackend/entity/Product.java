@@ -7,7 +7,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "products")
@@ -18,10 +20,10 @@ import java.util.List;
 @SuperBuilder
 public class Product extends BaseEntity {
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 200, columnDefinition = "NVARCHAR(200)")
     private String name;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -55,6 +57,27 @@ public class Product extends BaseEntity {
     @Column(name = "rating_count")
     @Builder.Default
     private Integer ratingCount = 0;
+
+    @Column(name = "min_price", precision = 19, scale = 2)
+    private BigDecimal minPrice;
+
+    @Column(name = "max_price", precision = 19, scale = 2)
+    private BigDecimal maxPrice;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "product_colors", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "color_id"))
+    @Builder.Default
+    private Set<Color> colors = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "product_materials", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "material_id"))
+    @Builder.Default
+    private Set<Material> materials = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "product_sizes", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "size_id"))
+    @Builder.Default
+    private Set<Size> sizes = new HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

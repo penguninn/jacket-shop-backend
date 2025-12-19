@@ -107,6 +107,8 @@ public class SaleService {
                 }
                 sale.getProductVariants().add(variant);
             }
+        } else {
+             // If variants are not being updated, we still need to sync because discount/dates might have changed
         }
 
         Sale savedSale = saleRepository.save(sale);
