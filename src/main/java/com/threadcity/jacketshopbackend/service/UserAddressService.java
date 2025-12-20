@@ -57,36 +57,42 @@ public class UserAddressService {
     public AddressResponse createAddress(AddressRequest request) {
         log.info("UserAddressService::createAddress - Execution started");
         Long userId = getUserId();
+        
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "User not found"));
+        
+        Province province = provinceRepository.findById(request.getProvinceId())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "Province not found"));
+        
+        District district = districtRepository.findById(request.getDistrictId())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "District not found"));
+        
+        Ward ward = wardRepository.findById(request.getWardId())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "Ward not found"));
+
+        validateAddressHierarchy(province, district, ward);
+
         Address address = new Address();
-        if (userId != null) {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "User not found"));
-            address.setUser(user);
-        }
-        if (request.getProvinceId() != null) {
-            Province province = provinceRepository.findById(request.getProvinceId())
-                    .orElseThrow(
-                            () -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "Province not found"));
-            address.setProvince(province);
-        }
-        if (request.getDistrictId() != null) {
-            District district = districtRepository.findById(request.getDistrictId())
-                    .orElseThrow(
-                            () -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "District not found"));
-            address.setDistrict(district);
-        }
-        if (request.getWardId() != null) {
-            Ward ward = wardRepository.findById(request.getWardId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "Ward not found"));
-            address.setWard(ward);
-        }
-        if (Boolean.TRUE.equals(request.getIsDefault())) {
-            addressRepository.clearDefaultAddressForUser(userId);
-            address.setIsDefault(true);
-        }
+        address.setUser(user);
+        address.setProvince(province);
+        address.setDistrict(district);
+        address.setWard(ward);
         address.setAddressLine(request.getAddressLine());
         address.setRecipientName(request.getRecipientName());
         address.setRecipientPhone(request.getRecipientPhone());
+
+        long count = addressRepository.countByUserId(userId);
+        if (count == 0) {
+            address.setIsDefault(true);
+        } else {
+            if (Boolean.TRUE.equals(request.getIsDefault())) {
+                addressRepository.clearDefaultAddressForUser(userId);
+                address.setIsDefault(true);
+            } else {
+                address.setIsDefault(false);
+            }
+        }
+        
         Address saved = addressRepository.save(address);
         log.info("UserAddressService::createAddress - Execution completed");
         return addressMapper.toDto(saved);
@@ -98,44 +104,51 @@ public class UserAddressService {
         Long userId = getUserId();
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ADDRESS_NOT_FOUND, "Address not found"));
+        
         if (!address.getUser().getId().equals(userId)) {
             throw new AuthorizationFailedException(ErrorCodes.ACCESS_DENIED, "Not owner of address");
         }
-        if (request.getProvinceId() != null) {
-            Province province = provinceRepository.findById(request.getProvinceId())
-                    .orElseThrow(
-                            () -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "Province not found"));
-            address.setProvince(province);
-        }
-        if (request.getDistrictId() != null) {
-            District district = districtRepository.findById(request.getDistrictId())
-                    .orElseThrow(
-                            () -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "District not found"));
-            address.setDistrict(district);
-        }
-        if (request.getWardId() != null) {
-            Ward ward = wardRepository.findById(request.getWardId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "Ward not found"));
-            address.setWard(ward);
-        }
+
+        Province newProvince = request.getProvinceId() != null
+                ? provinceRepository.findById(request.getProvinceId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "Province not found"))
+                : address.getProvince();
+
+        District newDistrict = request.getDistrictId() != null
+                ? districtRepository.findById(request.getDistrictId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "District not found"))
+                : address.getDistrict();
+
+        Ward newWard = request.getWardId() != null
+                ? wardRepository.findById(request.getWardId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "Ward not found"))
+                : address.getWard();
+
+        validateAddressHierarchy(newProvince, newDistrict, newWard);
+
+        address.setProvince(newProvince);
+        address.setDistrict(newDistrict);
+        address.setWard(newWard);
+
+        if (request.getAddressLine() != null) address.setAddressLine(request.getAddressLine());
+        if (request.getRecipientName() != null) address.setRecipientName(request.getRecipientName());
+        if (request.getRecipientPhone() != null) address.setRecipientPhone(request.getRecipientPhone());
+
         if (Boolean.FALSE.equals(request.getIsDefault()) && Boolean.TRUE.equals(address.getIsDefault())) {
             long count = addressRepository.countByUserId(userId);
-
             if (count == 1) {
                 throw new InvalidRequestException(ErrorCodes.ADDRESS_CANNOT_UNSET_DEFAULT,
                         "Cannot unset default address when there is only address");
             }
-
             throw new InvalidRequestException(ErrorCodes.ADDRESS_SET_ANOTHER_DEFAULT,
                     "Set another default address first");
         }
-        if (Boolean.TRUE.equals(request.getIsDefault())) {
+        
+        if (Boolean.TRUE.equals(request.getIsDefault()) && !Boolean.TRUE.equals(address.getIsDefault())) {
             addressRepository.clearDefaultAddressForUser(userId);
             address.setIsDefault(true);
         }
-        address.setAddressLine(request.getAddressLine());
-        address.setRecipientName(request.getRecipientName());
-        address.setRecipientPhone(request.getRecipientPhone());
+
         Address saved = addressRepository.save(address);
         log.info("UserAddressService::updateAddress - Execution completed. [id: {}]", addressId);
         return addressMapper.toDto(saved);
@@ -177,6 +190,17 @@ public class UserAddressService {
         }
         addressRepository.delete(address);
         log.info("UserAddressService::deleteAddress - Execution completed. [id: {}]", addressId);
+    }
+
+    private void validateAddressHierarchy(Province province, District district, Ward ward) {
+        if (!district.getProvince().getId().equals(province.getId())) {
+            throw new InvalidRequestException(ErrorCodes.ADDRESS_INVALID_HIERARCHY, 
+                String.format("District '%s' does not belong to Province '%s'", district.getName(), province.getName()));
+        }
+        if (!ward.getDistrict().getId().equals(district.getId())) {
+             throw new InvalidRequestException(ErrorCodes.ADDRESS_INVALID_HIERARCHY, 
+                String.format("Ward '%s' does not belong to District '%s'", ward.getName(), district.getName()));
+        }
     }
 
     private Long getUserId() {

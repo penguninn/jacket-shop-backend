@@ -17,8 +17,10 @@ public final class ErrorCodes {
     public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
     public static final String PRODUCT_NAME_DUPLICATE = "PRODUCT_NAME_DUPLICATE";
     public static final String PRODUCT_INVALID_QUANTITY = "PRODUCT_INVALID_QUANTITY";
+    public static final String PRODUCT_OUT_OF_STOCK = "PRODUCT_OUT_OF_STOCK";
     public static final String PRODUCT_VARIANT_NOT_FOUND = "PRODUCT_VARIANT_NOT_FOUND";
     public static final String PRODUCT_VARIANT_SKU_DUPLICATE = "PRODUCT_VARIANT_SKU_DUPLICATE";
+    public static final String PRODUCT_VARIANT_DUPLICATE = "PRODUCT_VARIANT_DUPLICATE";
 
     // Address Domain
     public static final String ADDRESS_NOT_FOUND = "ADDRESS_NOT_FOUND";
@@ -28,6 +30,10 @@ public final class ErrorCodes {
     public static final String ADDRESS_SET_ANOTHER_DEFAULT = "ADDRESS_SET_ANOTHER_DEFAULT";
     public static final String ADDRESS_DELETE_DEFAULT = "ADDRESS_DELETE_DEFAULT";
     public static final String ADDRESS_DELETE_LAST_DEFAULT = "ADDRESS_DELETE_LAST_DEFAULT";
+    public static final String ADDRESS_INVALID_HIERARCHY = "ADDRESS_INVALID_HIERARCHY";
+
+    // Cart Domain
+    public static final String CART_ITEM_NOT_FOUND = "CART_ITEM_NOT_FOUND";
 
     // Auth Domain
     public static final String AUTH_INVALID_CREDENTIALS = "AUTH_INVALID_CREDENTIALS";

@@ -3,6 +3,7 @@ package com.threadcity.jacketshopbackend.controller;
 import com.threadcity.jacketshopbackend.dto.request.CartItemRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.CartResponse;
+import com.threadcity.jacketshopbackend.dto.response.CartValidationResponse;
 import com.threadcity.jacketshopbackend.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/api/me/cart")
 @RequiredArgsConstructor
 @Slf4j
 public class CartController {
@@ -32,7 +33,20 @@ public class CartController {
                 .build();
     }
 
-    @PostMapping
+    @GetMapping("/count")
+    public ApiResponse<?> countMyCartItems() {
+        log.info("CartController::countMyCartItems - Execution started");
+        Integer count = cartService.countMyCartItems();
+        log.info("CartController::countMyCartItems - Execution completed");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Count cart items successfully.")
+                .data(count)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/items")
     public ApiResponse<?> addToCart(@Valid @RequestBody CartItemRequest request) {
         log.info("CartController::addToCart - Execution started");
         CartResponse response = cartService.addToCart(request);
@@ -79,6 +93,19 @@ public class CartController {
         return ApiResponse.builder()
                 .code(200)
                 .message("Cart cleared successfully.")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/validate")
+    public ApiResponse<?> validateCart() {
+        log.info("CartController::validateCart - Execution started");
+        CartValidationResponse response = cartService.validateCartBeforeCheckout();
+        log.info("CartController::validateCart - Execution completed");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Cart validated successfully.")
+                .data(response)
                 .timestamp(Instant.now())
                 .build();
     }

@@ -10,8 +10,9 @@ import lombok.Data;
 @Data
 @Builder
 public class SizeRequest {
+
     @NotBlank(message = "Size cannot be empty")
-    @Size(max = 50, message = "Size name must be less than 50 characters")
+    @Size(max = 120, message = "Size name must be less than 120 characters")
     private String name;
 
     @Size(max = 255, message = "Description too long")

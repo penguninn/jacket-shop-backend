@@ -14,9 +14,9 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BrandResponse implements Serializable {
+    
     private Long id;
     private String name;
-    private String logoUrl;
     private Enums.Status status;
     private String description;
     private Instant createdAt;
