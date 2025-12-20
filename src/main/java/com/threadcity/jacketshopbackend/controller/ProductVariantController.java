@@ -90,6 +90,46 @@ public class ProductVariantController {
                                 .build();
         }
 
+        @GetMapping("/sku/{sku}")
+        public ApiResponse<?> getProductVariantBySku(@PathVariable String sku) {
+                log.info("ProductVariantController::getProductVariantBySku - Execution started. [sku: {}]", sku);
+                ProductVariantResponse response = productVariantService.getProductVariantBySku(sku);
+                log.info("ProductVariantController::getProductVariantBySku - Execution completed. [sku: {}]", sku);
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Get product by SKU successfully.")
+                                .data(response)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @PutMapping("/{id}/stock")
+        public ApiResponse<?> adjustStock(@PathVariable Long id,
+                        @Valid @RequestBody StockAdjustmentRequest request) {
+                log.info("ProductVariantController::adjustStock - Execution started. [id: {}]", id);
+                productVariantService.adjustStock(id, request.getQuantityChange());
+                log.info("ProductVariantController::adjustStock - Execution completed. [id: {}]", id);
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Product variant stock adjusted successfully.")
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
+        @GetMapping("/check-stock")
+        public ApiResponse<?> checkStock(@RequestParam Long variantId, @RequestParam Integer quantity) {
+                log.info("ProductVariantController::checkStock - Execution started. [variantId: {}, quantity: {}]",
+                                variantId, quantity);
+                boolean available = productVariantService.isVariantAvailable(variantId, quantity);
+                log.info("ProductVariantController::checkStock - Execution completed.");
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Stock check completed.")
+                                .data(available)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
         @PostMapping
         public ApiResponse<?> createProductVariant(@Valid @RequestBody ProductVariantCreateRequest productRequest) {
                 log.info("ProductVariantController::createProductVariant - Execution started.");

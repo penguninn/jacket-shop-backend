@@ -17,8 +17,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Material extends BaseEntity {
 
-    @Column(nullable = false, length = 100, columnDefinition = "NVARCHAR(100)")
-    private String name; // da, jean, kaki, du, etc.
+    @Column(nullable = false, unique = true, length = 120, columnDefinition = "NVARCHAR(120)")
+    private String name;
 
     @Column(length = 255, columnDefinition = "NVARCHAR(255)")
     private String description;
