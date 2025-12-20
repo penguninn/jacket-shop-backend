@@ -37,12 +37,14 @@ public class ProductController {
                         @RequestParam(required = false) List<Long> colorIds,
                         @RequestParam(required = false) List<Long> materialIds,
                         @RequestParam(required = false) List<Long> sizeIds,
+                        @RequestParam(required = false) Boolean isFeatured,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int size,
                         @RequestParam(defaultValue = "createdAt") String sortBy,
                         @RequestParam(defaultValue = "DESC") String sortDir) {
                 log.info("ProductController::getAllProducts - Execution started");
                 ProductFilterRequest request = ProductFilterRequest.builder()
+                                .isFeatured(isFeatured)
                                 .search(search)
                                 .status(status)
                                 .brandIds(brandIds)
@@ -158,4 +160,46 @@ public class ProductController {
                                 .build();
         }
 
+        @GetMapping("/new-arrivals")
+        public ApiResponse<?> getNewArrivals() {
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Get new arrivals successfully")
+                        .data(productService.getNewArrivals())
+                        .timestamp(Instant.now())
+                        .build();
+        }
+
+        @GetMapping("/top-selling")
+        public ApiResponse<?> getTopSelling() {
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Get top selling products successfully")
+                        .data(productService.getTopSelling())
+                        .timestamp(Instant.now())
+                        .build();
+        }
+
+        @GetMapping("/featured")
+        public ApiResponse<?> getFeaturedProducts() {
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Get featured products successfully")
+                        .data(productService.getFeaturedProducts())
+                        .timestamp(Instant.now())
+                        .build();
+        }
+
+        @GetMapping("/{id}/related")
+        public ApiResponse<?> getRelatedProducts(@PathVariable Long id) {
+                log.info("ProductController::getRelatedProducts - Execution started. [id: {}]", id);
+                List<ProductResponse> response = productService.getRelatedProducts(id);
+                log.info("ProductController::getRelatedProducts - Execution completed. [id: {}]", id);
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Get related products successfully")
+                        .data(response)
+                        .timestamp(Instant.now())
+                        .build();
+        }
 }
