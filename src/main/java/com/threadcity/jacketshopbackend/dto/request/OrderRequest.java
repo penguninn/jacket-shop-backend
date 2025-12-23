@@ -1,45 +1,49 @@
 package com.threadcity.jacketshopbackend.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
+import java.math.BigDecimal;
+import java.util.List;
+
+import com.threadcity.jacketshopbackend.common.Enums.OrderType;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Builder
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class OrderRequest {
 
-    @NotBlank(message = "Customer name is required")
-    private String customerName;
-
-    private String customerEmail;
-
-    @NotBlank(message = "Customer phone is required")
-    private String customerPhone;
-
-    @NotBlank(message = "Shipping recipient name is required")
-    private String shippingRecipientName;
-
-    @NotBlank(message = "Shipping recipient phone is required")
-    private String shippingRecipientPhone;
-
-    @NotBlank(message = "Shipping address line is required")
-    private String shippingAddressLine;
-
-    private String shippingProvinceCode;
-    private String shippingDistrictCode;
-    private String shippingWardCode;
+    @NotNull(message = "Order Type is required")
+    private OrderType orderType;
 
     @NotNull(message = "Payment method ID is required")
     private Long paymentMethodId;
 
-    @NotNull(message = "Shipping method ID is required")
-    private Long shippingMethodId;
+    private String note;
 
     private String couponCode;
-    private String note;
+
+    @NotEmpty(message = "Order items cannot be empty")
+    private List<OrderItemRequest> items;
+
+    private Long userId;
+    private String customerName;
+    private String customerPhone;
+
+    private Long addressId;
+
+    private String carrierName;
+    private String carrierServiceName;
+    private String carrierRateId;
+    private String deliveryTimeEstimate;
+    private BigDecimal shippingFee;
+
+    private String transactionId;
+
 }

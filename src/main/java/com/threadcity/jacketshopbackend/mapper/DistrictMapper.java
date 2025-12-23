@@ -11,6 +11,7 @@ import org.mapstruct.Named;
 public interface DistrictMapper {
 
     @Mapping(target = "provinceId", source = "province", qualifiedByName = "provinceToProvinceId")
+    @Mapping(target = "goShipId", source = "goshipId")
     DistrictResponse toDto(District district);
     
     @Named("provinceToProvinceId")

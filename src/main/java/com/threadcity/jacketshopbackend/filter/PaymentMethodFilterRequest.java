@@ -18,6 +18,8 @@ public class PaymentMethodFilterRequest {
 
     private List<String> status;
 
+    private List<String> type;
+
     @Builder.Default
     @Min(value = 0, message = "Page must be >= 0")
     private int page = 0;
@@ -29,7 +31,7 @@ public class PaymentMethodFilterRequest {
 
     @Builder.Default
     @Pattern(
-            regexp = "^(id|name|createdAt|updatedAt)$",
+            regexp = "^(id|name|code|createdAt|updatedAt)$",
             message = "Invalid sort field"
     )
     private String sortBy = "createdAt";

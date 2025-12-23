@@ -85,6 +85,11 @@ public class PaymentMethodService {
                     "Payment method already exists with name: " + request.getName());
         }
 
+        if (paymentMethodRepository.existsByCode(request.getCode())) {
+            throw new ResourceConflictException(ErrorCodes.PAYMENT_METHOD_CODE_DUPLICATE,
+                    "Payment method already exists with code: " + request.getCode());
+        }
+
         PaymentMethod entity = paymentMethodMapper.toEntity(request);
         PaymentMethod saved = paymentMethodRepository.save(entity);
 
@@ -100,13 +105,20 @@ public class PaymentMethodService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND,
                         "Payment method not found with Id: " + id));
 
-        // FIX: Kiểm tra trùng name nhưng phải loại trừ chính record đang update
         if (paymentMethodRepository.existsByNameAndIdNot(request.getName(), id)) {
             throw new ResourceConflictException(ErrorCodes.PAYMENT_METHOD_NAME_DUPLICATE,
                     "Payment method already exists with name: " + request.getName());
         }
 
+        if (paymentMethodRepository.existsByCodeAndIdNot(request.getCode(), id)) {
+            throw new ResourceConflictException(ErrorCodes.PAYMENT_METHOD_CODE_DUPLICATE,
+                    "Payment method already exists with code: " + request.getCode());
+        }
+
         entity.setName(request.getName());
+        entity.setCode(request.getCode());
+        entity.setType(request.getType());
+        entity.setConfig(request.getConfig());
         entity.setDescription(request.getDescription());
         entity.setStatus(request.getStatus());
 

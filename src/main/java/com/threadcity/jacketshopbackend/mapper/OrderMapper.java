@@ -13,5 +13,7 @@ public interface OrderMapper {
     @Mapping(source = "productVariant.id", target = "productVariantId")
     OrderDetailResponse toDetailDto(OrderDetail orderDetail);
 
+    @Mapping(source = "staff.id", target = "staffId")
+    @Mapping(source = "staff.fullName", target = "staffName")
     OrderResponse toDto(Order order);
 }

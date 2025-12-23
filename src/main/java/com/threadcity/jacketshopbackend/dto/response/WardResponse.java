@@ -13,5 +13,7 @@ public class WardResponse implements Serializable {
 
     private String name;
 
+    private String goShipId;
+
     private Long districtId;
 }

@@ -22,4 +22,5 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     @Modifying
     @Query("update Address a set a.isDefault = false where a.user.id = :userId and a.isDefault = true")
     void clearDefaultAddressForUser(@Param("userId") Long userId);
+
 }

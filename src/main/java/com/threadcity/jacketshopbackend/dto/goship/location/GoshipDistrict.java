@@ -1,4 +1,4 @@
-package com.threadcity.jacketshopbackend.dto.goship;
+package com.threadcity.jacketshopbackend.dto.goship.location;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
