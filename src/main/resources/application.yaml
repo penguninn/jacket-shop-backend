@@ -10,8 +10,8 @@ spring:
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=JacketShop;encrypt=true;trustServerCertificate=true;
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    username: sasql
-    password: 123456
+    username: sa
+    password: Password123!
 
   jpa:
     hibernate:

@@ -46,9 +46,6 @@ public class OrderServiceTest {
     private PaymentMethodRepository paymentMethodRepository;
 
     @Mock
-    private ShippingMethodsRepository shippingMethodRepository;
-
-    @Mock
     private CouponRepository couponRepository;
 
     @Mock
@@ -128,11 +125,6 @@ public class OrderServiceTest {
         paymentMethod.setName("COD");
         when(paymentMethodRepository.findById(1L)).thenReturn(Optional.of(paymentMethod));
 
-        ShippingMethod shippingMethod = new ShippingMethod();
-        shippingMethod.setId(1L);
-        shippingMethod.setName("GHTK");
-        shippingMethod.setFee(new BigDecimal("10"));
-        when(shippingMethodRepository.findById(1L)).thenReturn(Optional.of(shippingMethod));
 
         Order order = new Order();
         order.setId(1L);
@@ -142,7 +134,6 @@ public class OrderServiceTest {
         // Prepare request
         OrderRequest request = new OrderRequest();
         request.setPaymentMethodId(1L);
-        request.setShippingMethodId(1L);
 
         OrderResponse response = orderService.createOrder(request);
 
@@ -161,7 +152,6 @@ public class OrderServiceTest {
 
         OrderRequest request = new OrderRequest();
         request.setPaymentMethodId(1L);
-        request.setShippingMethodId(1L);
 
         assertThrows(InvalidRequestException.class, () -> orderService.createOrder(request));
     }
