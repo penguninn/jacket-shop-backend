@@ -12,5 +12,5 @@ public interface WardRepository extends JpaRepository<Ward, Long> {
 
     List<Ward> findAllByDistrictId(Long districtId);
 
-    Optional<Ward> findByGoshipId(Long goshipId);
+    Optional<Ward> findByGoshipId(String goshipId);
 }

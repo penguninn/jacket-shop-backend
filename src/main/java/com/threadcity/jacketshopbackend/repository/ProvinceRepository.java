@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProvinceRepository extends JpaRepository<Province, Long> {
 
-    Optional<Province> findByGoshipId(Long goshipId);
+    Optional<Province> findByGoshipId(String goshipId);
 }

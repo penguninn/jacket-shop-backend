@@ -1,7 +1,9 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
 import com.threadcity.jacketshopbackend.dto.request.OrderRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.response.OrderHistoryResponse;
 import com.threadcity.jacketshopbackend.dto.response.OrderResponse;
 import com.threadcity.jacketshopbackend.service.OrderService;
 import jakarta.validation.Valid;
@@ -33,10 +35,10 @@ public class OrderController {
                 .build();
     }
 
-    @GetMapping("/my-orders")
-    public ApiResponse<?> getMyOrders() {
+    @GetMapping("/me")
+    public ApiResponse<?> getMyOrders(@RequestParam(required = false) OrderStatus status) {
         log.info("OrderController::getMyOrders - Execution started.");
-        List<OrderResponse> response = orderService.getMyOrders();
+        List<OrderResponse> response = orderService.getMyOrders(status);
         log.info("OrderController::getMyOrders - Execution completed.");
         return ApiResponse.builder()
                 .code(200)
@@ -55,6 +57,71 @@ public class OrderController {
                 .code(200)
                 .message("Get order by ID successfully.")
                 .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @GetMapping("/{id}/history")
+    public ApiResponse<?> getOrderHistory(@PathVariable Long id) {
+        log.info("OrderController::getOrderHistory - Execution started. [id: {}]", id);
+        List<OrderHistoryResponse> response = orderService.getOrderHistory(id);
+        log.info("OrderController::getOrderHistory - Execution completed. [id: {}]", id);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Get order history successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ApiResponse<?> cancelOrder(@PathVariable Long id) {
+        log.info("OrderController::cancelOrder - Execution started. [id: {}]", id);
+        OrderResponse response = orderService.cancelOrder(id);
+        log.info("OrderController::cancelOrder - Execution completed.");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Order cancelled successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+    
+    @PutMapping("/{id}/receive")
+    public ApiResponse<?> receiveOrder(@PathVariable Long id) {
+        log.info("OrderController::receiveOrder - Execution started. [id: {}]", id);
+        OrderResponse response = orderService.receiveOrder(id);
+        log.info("OrderController::receiveOrder - Execution completed.");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Order received successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+    
+    @PostMapping("/{id}/return")
+    public ApiResponse<?> requestReturn(@PathVariable Long id, @RequestBody(required = false) String reason) {
+        log.info("OrderController::requestReturn - Execution started. [id: {}]", id);
+        OrderResponse response = orderService.requestReturn(id, reason);
+        log.info("OrderController::requestReturn - Execution completed.");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Return requested successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+    
+    @PostMapping("/{id}/reorder")
+    public ApiResponse<?> reorder(@PathVariable Long id) {
+        log.info("OrderController::reorder - Execution started. [id: {}]", id);
+        orderService.reorder(id);
+        log.info("OrderController::reorder - Execution completed.");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Items added to cart successfully.")
+                .data(null)
                 .timestamp(Instant.now())
                 .build();
     }

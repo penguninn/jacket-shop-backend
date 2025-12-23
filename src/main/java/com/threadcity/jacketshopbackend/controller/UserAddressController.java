@@ -3,7 +3,7 @@ package com.threadcity.jacketshopbackend.controller;
 import com.threadcity.jacketshopbackend.dto.request.AddressRequest;
 import com.threadcity.jacketshopbackend.dto.response.AddressResponse;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.service.UserAddressService;
+import com.threadcity.jacketshopbackend.service.AddressService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +18,12 @@ import java.util.List;
 @Slf4j
 public class UserAddressController {
 
-    private final UserAddressService userAddressService;
+    private final AddressService addressService;
 
     @GetMapping
     public ApiResponse<?> getAllAddressByUserId() {
         log.info("UserAddressController::getAllAddressByUserId - Execution started");
-        List<AddressResponse> response = userAddressService.getAllAddressByUserId();
+        List<AddressResponse> response = addressService.getAllAddressByUserId();
         log.info("UserAddressController::getAllAddressByUserId - Execution completed");
         return ApiResponse.builder()
                 .code(200)
@@ -36,7 +36,7 @@ public class UserAddressController {
     @GetMapping("/default")
     public ApiResponse<?> getDefaultAddress() {
         log.info("UserAddressController::getDefaultAddress - Execution started");
-        AddressResponse response = userAddressService.getDefaultAddress();
+        AddressResponse response = addressService.getDefaultAddress();
         log.info("UserAddressController::getDefaultAddress - Execution completed");
         return ApiResponse.builder()
                 .code(200)
@@ -49,7 +49,7 @@ public class UserAddressController {
     @PostMapping
     public ApiResponse<?> createAddress(@Valid @RequestBody AddressRequest request) {
         log.info("UserAddressController::createAddress - Execution started");
-        AddressResponse response = userAddressService.createAddress(request);
+        AddressResponse response = addressService.createAddress(request);
         log.info("UserAddressController::createAddress - Execution completed");
         return ApiResponse.builder()
                 .code(201)
@@ -62,7 +62,7 @@ public class UserAddressController {
     @PutMapping("/{id}")
     public ApiResponse<?> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressRequest request) {
         log.info("UserAddressController::updateAddress - Execution started. [id: {}]", id);
-        AddressResponse response = userAddressService.updateAddress(request, id);
+        AddressResponse response = addressService.updateAddress(request, id);
         log.info("UserAddressController::updateAddress - Execution completed. [id: {}]", id);
         return ApiResponse.builder()
                 .code(200)
@@ -75,7 +75,7 @@ public class UserAddressController {
     @PutMapping("/{id}/default")
     public ApiResponse<?> setDefaultAddress(@PathVariable Long id) {
         log.info("UserAddressController::setDefaultAddress - Execution started. [id: {}]", id);
-        AddressResponse response = userAddressService.setDefaultAddress(id);
+        AddressResponse response = addressService.setDefaultAddress(id);
         log.info("UserAddressController::setDefaultAddress - Execution completed. [id: {}]", id);
         return ApiResponse.builder()
                 .code(200)
@@ -88,7 +88,7 @@ public class UserAddressController {
     @DeleteMapping("/{id}")
     public ApiResponse<?> deleteAddress(@PathVariable Long id) {
         log.info("UserAddressController::deleteAddress - Execution started. [id: {}]", id);
-        userAddressService.deleteAddress(id);
+        addressService.deleteAddress(id);
         log.info("UserAddressController::deleteAddress - Execution completed. [id: {}]", id);
         return ApiResponse.builder()
                 .code(200)

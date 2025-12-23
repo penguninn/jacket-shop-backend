@@ -3,6 +3,7 @@ package com.threadcity.jacketshopbackend.service;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
 import com.threadcity.jacketshopbackend.dto.request.CartItemRequest;
+import com.threadcity.jacketshopbackend.dto.request.OrderItemRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductVariantCreateRequest;
@@ -177,13 +178,15 @@ public class ProductVariantService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND,
                         "ProductVariant not found with id: " + id));
 
-        // SKU and Identity Attributes are immutable.
         variant.setPrice(req.getPrice());
         variant.setCostPrice(req.getCostPrice());
-        
-        // Recalculate available quantity when quantity is updated
-        variant.setQuantity(req.getQuantity());
+
         int reserved = variant.getReservedQuantity() != null ? variant.getReservedQuantity() : 0;
+        if (req.getQuantity() < reserved) {
+            throw new InvalidRequestException(ErrorCodes.PRODUCT_INVALID_QUANTITY,
+                    "New quantity (" + req.getQuantity() + ") cannot be less than reserved quantity (" + reserved + ")");
+        }
+        variant.setQuantity(req.getQuantity());
         variant.setAvailableQuantity(req.getQuantity() - reserved);
 
         variant.setStatus(req.getStatus());
@@ -206,9 +209,10 @@ public class ProductVariantService {
 
     @Transactional
     public void adjustStock(Long variantId, int quantityChange) {
-        log.info("ProductVariantService::adjustStock - Execution started. [id: {}, change: {}]", variantId, quantityChange);
+        log.info("ProductVariantService::adjustStock - Execution started. [id: {}, change: {}]", variantId,
+                quantityChange);
         if (!productVariantRepository.existsById(variantId)) {
-             throw new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND, "ProductVariant not found");
+            throw new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND, "ProductVariant not found");
         }
         productVariantRepository.adjustStock(variantId, quantityChange);
         log.info("ProductVariantService::adjustStock - Execution completed.");
@@ -216,21 +220,19 @@ public class ProductVariantService {
 
     public boolean isVariantAvailable(Long id, int requestedQuantity) {
         return productVariantRepository.findById(id)
-                .map(variant -> variant.getStatus() == Status.ACTIVE 
+                .map(variant -> variant.getStatus() == Status.ACTIVE
                         && variant.getAvailableQuantity() >= requestedQuantity)
                 .orElse(false);
     }
 
     @Transactional
-    public void reserveStock(List<CartItemRequest> items) {
-        log.info("ProductVariantService::reserveStock - Execution started. [items: {}]", items.size());
-        for (CartItemRequest item : items) {
-            int updatedRows = productVariantRepository.reserveStock(item.getProductVariantId(), item.getQuantity());
+    public void reserveStock(Long variantId, int quantity) {
+        log.info("ProductVariantService::reserveStock - Execution started. [items: {}]", variantId);
+            int updatedRows = productVariantRepository.reserveStock(variantId, quantity);
             if (updatedRows == 0) {
-                 throw new InvalidRequestException(ErrorCodes.PRODUCT_OUT_OF_STOCK, 
-                         "Not enough stock for variant ID: " + item.getProductVariantId());
+                throw new InvalidRequestException(ErrorCodes.PRODUCT_OUT_OF_STOCK,
+                        "Not enough stock for variant ID: " + variantId);
             }
-        }
         log.info("ProductVariantService::reserveStock - Execution completed.");
     }
 
@@ -246,22 +248,20 @@ public class ProductVariantService {
     @Transactional
     public void commitReservedStock(List<OrderDetail> details) {
         log.info("ProductVariantService::commitReservedStock - Execution started. [details: {}]", details.size());
-         for (OrderDetail detail : details) {
+        for (OrderDetail detail : details) {
             productVariantRepository.commitReservedStock(detail.getProductVariant().getId(), detail.getQuantity());
         }
         log.info("ProductVariantService::commitReservedStock - Execution completed.");
     }
 
     @Transactional
-    public void directDeductStock(List<CartItemRequest> items) {
-        log.info("ProductVariantService::directDeductStock - Execution started. [items: {}]", items.size());
-        for (CartItemRequest item : items) {
-            int updatedRows = productVariantRepository.directDeductStock(item.getProductVariantId(), item.getQuantity());
-             if (updatedRows == 0) {
-                 throw new InvalidRequestException(ErrorCodes.PRODUCT_OUT_OF_STOCK, 
-                         "Not enough stock for variant ID: " + item.getProductVariantId());
+    public void directDeductStock(Long variantId, int quantity) {
+        log.info("ProductVariantService::directDeductStock - Execution started. [id: {}]", variantId);
+            int updatedRows = productVariantRepository.directDeductStock(variantId, quantity);
+            if (updatedRows == 0) {
+                throw new InvalidRequestException(ErrorCodes.PRODUCT_OUT_OF_STOCK,
+                        "Not enough stock for variant ID: " + variantId);
             }
-        }
         log.info("ProductVariantService::directDeductStock - Execution completed.");
     }
 

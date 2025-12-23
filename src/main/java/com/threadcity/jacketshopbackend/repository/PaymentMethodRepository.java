@@ -10,5 +10,7 @@ public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Lo
 
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, Long id);
+    boolean existsByCode(String code);
+    boolean existsByCodeAndIdNot(String code, Long id);
 
 }

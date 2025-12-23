@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.specification;
 
+import com.threadcity.jacketshopbackend.common.Enums.PaymentMethodType;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.filter.PaymentMethodFilterRequest;
 import com.threadcity.jacketshopbackend.entity.PaymentMethod;
@@ -17,7 +18,9 @@ public class PaymentMethodSpecification {
 
             String pattern = "%" + search.toLowerCase() + "%";
 
-            return cb.like(cb.lower(root.get("name")), pattern);
+            return cb.or(
+                    cb.like(cb.lower(root.get("name")), pattern),
+                    cb.like(cb.lower(root.get("code")), pattern));
         };
     }
 
@@ -45,8 +48,33 @@ public class PaymentMethodSpecification {
         };
     }
 
+    public static Specification<PaymentMethod> hasTypes(List<String> types) {
+        return (root, query, cb) -> {
+            if (types == null || types.isEmpty()) {
+                return null;
+            }
+
+            List<PaymentMethodType> typeEnums = types.stream()
+                    .map(t -> {
+                        try {
+                            return PaymentMethodType.valueOf(t.toUpperCase());
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    })
+                    .filter(x -> x != null)
+                    .toList();
+
+            if (typeEnums.isEmpty())
+                return null;
+
+            return root.get("type").in(typeEnums);
+        };
+    }
+
     public static Specification<PaymentMethod> buildSpec(PaymentMethodFilterRequest request) {
         return hasSearch(request.getSearch())
-                .and(hasStatuses(request.getStatus()));
+                .and(hasStatuses(request.getStatus()))
+                .and(hasTypes(request.getType()));
     }
 }

@@ -1,8 +1,11 @@
 package com.threadcity.jacketshopbackend.entity;
 
 import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
+import com.threadcity.jacketshopbackend.common.Enums.OrderType;
 import com.threadcity.jacketshopbackend.common.Enums.PaymentStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -23,26 +26,31 @@ public class Order extends BaseEntity {
     @Column(name = "order_code", nullable = false, length = 32, unique = true)
     private String orderCode;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_type", nullable = false, length = 20)
+    private OrderType orderType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "staff_id")
+    private User staff;
+
     @Column(name = "customer_name", nullable = false, length = 120, columnDefinition = "NVARCHAR(120)")
     private String customerName;
-
-    @Column(name = "customer_email", length = 255)
-    private String customerEmail;
 
     @Column(name = "customer_phone", length = 20)
     private String customerPhone;
 
-    @Column(name = "shipping_recipient_name", length = 120, columnDefinition = "NVARCHAR(120)")
+    @Column(length = 20)
     private String shippingRecipientName;
 
-    @Column(name = "shipping_recipient_phone", length = 20)
+    @Column(length = 20)
     private String shippingRecipientPhone;
 
-    @Column(name = "shipping_address_line", nullable = false, length = 255, columnDefinition = "NVARCHAR(255)")
+    @Column(name = "shipping_address_line", length = 255, columnDefinition = "NVARCHAR(255)")
     private String shippingAddressLine;
 
     @Column(name = "shipping_province_code", length = 20)
@@ -63,6 +71,22 @@ public class Order extends BaseEntity {
     @Column(name = "shipping_ward_name", columnDefinition = "NVARCHAR(255)")
     private String shippingWardName;
 
+    @Column(name = "carrier_name", length = 100, columnDefinition = "NVARCHAR(100)")
+    private String carrierName;
+
+    @Column(name = "carrier_service_name", length = 100, columnDefinition = "NVARCHAR(100)")
+    private String carrierServiceName;
+
+    @Column(name = "carrier_rate_id", length = 100)
+    private String carrierRateId;
+
+    @Column(name = "delivery_time_estimate", length = 255, columnDefinition = "NVARCHAR(255)")
+    private String deliveryTimeEstimate;
+
+    @Column(precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal shippingFee = BigDecimal.ZERO;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "payment_method_id", nullable = false)
     private PaymentMethod paymentMethod; // cod, stripe, qr_online, cash, or_pos
@@ -73,21 +97,6 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
     private PaymentStatus paymentStatus;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shipping_method_id", nullable = false)
-    private ShippingMethod shippingMethod; // VTPOST, EMS, VNPOST, GHTK, GHNV3, SPX
-
-    @Column(name = "shipping_method_name", length = 100, columnDefinition = "NVARCHAR(100)")
-    private String shippingMethodName;
-
-    @Column(nullable = false, precision = 12, scale = 2)
-    @Builder.Default
-    private BigDecimal shippingFee = BigDecimal.ZERO;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id")
-    private Coupon coupon;
 
     @Column(name = "coupon_code", length = 50)
     private String couponCode;

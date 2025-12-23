@@ -11,6 +11,7 @@ import org.mapstruct.Named;
 public interface WardMapper {
 
     @Mapping(target = "districtId", source = "district", qualifiedByName = "districtToDistrictId")
+    @Mapping(target = "goShipId", source = "goshipId")
     WardResponse toDto(Ward ward);
 
     @Named("districtToDistrictId")

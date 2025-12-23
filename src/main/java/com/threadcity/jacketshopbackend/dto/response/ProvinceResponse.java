@@ -12,4 +12,6 @@ public class ProvinceResponse implements Serializable {
     private Long id;
 
     private String name;
+
+    private String goShipId;
 }

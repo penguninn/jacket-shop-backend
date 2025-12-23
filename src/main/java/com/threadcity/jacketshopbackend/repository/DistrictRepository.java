@@ -12,5 +12,5 @@ public interface DistrictRepository extends JpaRepository<District, Long> {
 
     List<District> findAllByProvinceId(Long provinceId);
 
-    Optional<District> findByGoshipId(Long goshipId);
+    Optional<District> findByGoshipId(String goshipId);
 }

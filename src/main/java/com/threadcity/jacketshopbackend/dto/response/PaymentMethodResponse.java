@@ -19,9 +19,13 @@ public class PaymentMethodResponse implements Serializable {
 
     private String name;
 
+    private String code;
+
+    private Enums.PaymentMethodType type;
+
     private String description;
 
-    private String configJson;
+    private String config;
 
     private Enums.Status status;
 

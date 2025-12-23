@@ -69,6 +69,19 @@ public class CouponController {
                                 .build();
         }
 
+        @GetMapping("/code/{code}")
+        public ApiResponse<?> getCouponByCode(@PathVariable String code) {
+                log.info("CouponController::getCouponByCode - Execution started. [code: {}]", code);
+                CouponResponse response = couponService.getCouponByCode(code);
+                log.info("CouponController::getCouponByCode - Execution completed. [code: {}]", code);
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Get coupon by code successfully.")
+                                .data(response)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
         @PostMapping
         public ApiResponse<?> createCoupon(@Valid @RequestBody CouponCreateRequest request) {
                 log.info("CouponController::createCoupon - Execution started");
