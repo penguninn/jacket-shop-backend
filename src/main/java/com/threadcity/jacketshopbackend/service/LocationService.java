@@ -1,9 +1,9 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.goship.GoshipCity;
-import com.threadcity.jacketshopbackend.dto.goship.GoshipDistrict;
+import com.threadcity.jacketshopbackend.dto.goship.location.GoshipCity;
+import com.threadcity.jacketshopbackend.dto.goship.location.GoshipDistrict;
 import com.threadcity.jacketshopbackend.dto.goship.GoshipResponse;
-import com.threadcity.jacketshopbackend.dto.goship.GoshipWard;
+import com.threadcity.jacketshopbackend.dto.goship.location.GoshipWard;
 import com.threadcity.jacketshopbackend.entity.District;
 import com.threadcity.jacketshopbackend.entity.Province;
 import com.threadcity.jacketshopbackend.entity.Ward;
@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AddressSyncService {
+public class LocationService {
 
     private final ProvinceRepository provinceRepository;
     private final DistrictRepository districtRepository;
@@ -45,7 +44,6 @@ public class AddressSyncService {
                 .build();
     }
 
-    @Transactional
     public void syncAllAddressData() {
         log.info("START SYNCING ADDRESS DATA FROM GOSHIP...");
 
@@ -84,7 +82,7 @@ public class AddressSyncService {
 
             if (response != null && response.getData() != null) {
                 for (GoshipCity c : response.getData()) {
-                    Long goshipId = Long.parseLong(c.getId());
+                    String goshipId = c.getId();
                     Optional<Province> existing = provinceRepository.findByGoshipId(goshipId);
 
                     Province province;
@@ -117,7 +115,7 @@ public class AddressSyncService {
 
             if (response != null && response.getData() != null) {
                 for (GoshipDistrict d : response.getData()) {
-                    Long goshipId = Long.parseLong(d.getId());
+                    String goshipId = d.getId();
                     Optional<District> existing = districtRepository.findByGoshipId(goshipId);
 
                     District district;
@@ -153,7 +151,7 @@ public class AddressSyncService {
 
             if (response != null && response.getData() != null) {
                 for (GoshipWard w : response.getData()) {
-                    Long goshipId = w.getId();
+                    String goshipId = w.getId();
                     Optional<Ward> existing = wardRepository.findByGoshipId(goshipId);
 
                     Ward ward;

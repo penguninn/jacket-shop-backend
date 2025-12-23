@@ -10,8 +10,8 @@ spring:
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=JacketShop;encrypt=true;trustServerCertificate=true;
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    username: sasql
-    password: 123456
+    username: sa
+    password: Password123!
 
   jpa:
     hibernate:
@@ -31,7 +31,6 @@ cloudinary:
 goship:
   url: ${GOSHIP_URL:https://api.goship.io/api/v2/}
   token: ${GOSHIP_TOKEN:eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjdkMzBkYmY0ZmQ4ZTA2MGMzNjRjODZhY2EwNmY2YTBhZmZhYzljNjVlM2VlOWYwYzA3OWFjYjVmYmNhZWJiNzZhNmU1MTBkNmFjY2Y2MGI0In0.eyJhdWQiOiI3NyIsImp0aSI6IjdkMzBkYmY0ZmQ4ZTA2MGMzNjRjODZhY2EwNmY2YTBhZmZhYzljNjVlM2VlOWYwYzA3OWFjYjVmYmNhZWJiNzZhNmU1MTBkNmFjY2Y2MGI0IiwiaWF0IjoxNzY0OTA3NTI5LCJuYmYiOjE3NjQ5MDc1MjksImV4cCI6MjA4MDQ0MDMyOSwic3ViIjoiNDA4MSIsInNjb3BlcyI6W119.Sz0UyMX5Tc0786qI_y2MQr-vNG454xvlNbX-w9fzGko3xLrV8goGPoKDdPaDMfKpxkLAd_-mkcYFM4TNOSruBpvn_yrdYqKx8Mravt1oa5VH0a0rUQxHYFi0pV-T5QhOFoCH0PigqrWOAbX_c2ZyuYyJ2ByjFoinVPr_St1hRH1RsuNTml-7e1N6bq7Xt5aW_QY4xL9gzMEvgyDpNBj2hHVQFYeHChZudZO493OcR_-XgHJRzMMlhCSt6YrzhkXltSvhs0Peg978oaoo8gM9VMAPQ9UiH5iW9H3TJ1cdJyUiw_ApIUqCV4XsLnodMNLtftmWLWwALoQrXhfaGcdPrQXra4vLCnkeO2hmCf2mzi-Jj63OVkZ_r8x74ypRI-Atd-Li21c2MAG309RReriFeCtV5EGAQlCXwrN8VAuWVo64vryMaYgvYqBC98ZUAZtH28vOHyDjSOqB8kJP-obYtsvKuNkOt-kbvTXbkqayHM10ukQ5pXRdnSUNdlPBhM6BSX2PqF-CHlKU1zBWmQkL7qIp2RaljXaP2yoow5UK7ppTGdAQmrAuNlNdfFwl9_yRfR56bmwUkc-EwYxYP1FXZ31od1hLFT5tCUe8Gv7058YYWQcf3Bo1OGeXNR10EpopMd2zR92ZYtOquqE_yEqB6lg4sfhO92BPuFqOPN1YV8M}
-
 
 logging:
   level:

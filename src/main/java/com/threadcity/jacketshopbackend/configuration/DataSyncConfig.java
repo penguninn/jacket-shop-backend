@@ -1,12 +1,14 @@
 package com.threadcity.jacketshopbackend.configuration;
 
 import com.threadcity.jacketshopbackend.common.Enums;
+import com.threadcity.jacketshopbackend.entity.PaymentMethod;
 import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.entity.User;
+import com.threadcity.jacketshopbackend.repository.PaymentMethodRepository;
 import com.threadcity.jacketshopbackend.repository.ProvinceRepository;
 import com.threadcity.jacketshopbackend.repository.RoleRepository;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
-import com.threadcity.jacketshopbackend.service.AddressSyncService;
+import com.threadcity.jacketshopbackend.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -23,19 +25,42 @@ import java.util.Set;
 @Slf4j
 public class DataSyncConfig {
 
-    private final AddressSyncService addressSyncService;
+    private final LocationService locationService;
     private final ProvinceRepository provinceRepository;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final PaymentMethodRepository paymentMethodRepository;
     private final PasswordEncoder passwordEncoder;
 
     @EventListener(ApplicationReadyEvent.class)
     public void initDataOnStartup() {
         if (provinceRepository.count() == 0) {
-            log.info("Database empty. Starting initial address sync...");
-            addressSyncService.syncAllAddressData();
+            locationService.syncAllAddressData();
         }
         initAdminUser();
+        initPaymentMethods();
+    }
+
+    private void initPaymentMethods() {
+        createPaymentMethodIfNotFound("Thanh toán khi nhận hàng", "COD", Enums.PaymentMethodType.ONLINE, null);
+        createPaymentMethodIfNotFound("Thẻ quốc tế (Visa/Master)", "STRIPE", Enums.PaymentMethodType.ONLINE, "{\"publicKey\": \"pk_test_...\"}");
+        createPaymentMethodIfNotFound("Chuyển khoản (VietQR)", "VIETQR_ONLINE", Enums.PaymentMethodType.ONLINE, "{\"bankId\": \"MB\", \"acc\": \"...\"}");
+        createPaymentMethodIfNotFound("Tiền mặt", "CASH", Enums.PaymentMethodType.POS, null);
+        createPaymentMethodIfNotFound("Chuyển khoản tại quầy", "VIETQR_POS", Enums.PaymentMethodType.POS, "{\"bankId\": \"MB\", \"acc\": \"...\"}");
+    }
+
+    private void createPaymentMethodIfNotFound(String name, String code, Enums.PaymentMethodType type, String config) {
+        if (!paymentMethodRepository.existsByCode(code)) {
+            PaymentMethod method = PaymentMethod.builder()
+                    .name(name)
+                    .code(code)
+                    .type(type)
+                    .config(config)
+                    .status(Enums.Status.ACTIVE)
+                    .build();
+            paymentMethodRepository.save(method);
+            log.info("Payment method {} created.", code);
+        }
     }
 
     private void initAdminUser() {

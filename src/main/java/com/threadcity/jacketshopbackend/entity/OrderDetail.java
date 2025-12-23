@@ -35,8 +35,14 @@ public class OrderDetail extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String color;
 
+    @Column(nullable = false, length = 50)
+    private String material;
+
     @Column(length = 64)
     private String sku;
+
+    @Column(length = 500)
+    private String image;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
