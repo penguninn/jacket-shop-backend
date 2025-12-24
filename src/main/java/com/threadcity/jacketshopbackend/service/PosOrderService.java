@@ -100,14 +100,18 @@ public class PosOrderService extends AbstractOrderService {
         handleShippingInfo(order, request);
 
         // Process items WITHOUT stock deduction
-        processOrderItems(order, request.getItems(), false);
+        List<OrderItemRequest> items = request.getItems() != null ? request.getItems() : new ArrayList<>();
+        processOrderItems(order, items, false);
 
         if (order.getDetails().isEmpty()) {
             log.warn("PosOrderService::createPosDraft - Created empty draft [Code: {}]", order.getOrderCode());
         }
 
         calculateFinancials(order, request);
-        configurePaymentAndStatus(order, request); // Will call super, sets method. Status kept PENDING.
+        
+        if (request.getPaymentMethodId() != null) {
+            configurePaymentAndStatus(order, request); // Will call super, sets method. Status kept PENDING.
+        }
 
         Order savedOrder = orderRepository.save(order);
         saveOrderHistory(savedOrder, null, null, "POS draft created");

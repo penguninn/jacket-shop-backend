@@ -36,7 +36,7 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "staff_id")
     private User staff;
 
-    @Column(name = "customer_name", nullable = false, length = 120, columnDefinition = "NVARCHAR(120)")
+    @Column(name = "customer_name", length = 120, columnDefinition = "NVARCHAR(120)")
     private String customerName;
 
     @Column(name = "customer_phone", length = 20)
@@ -85,8 +85,8 @@ public class Order extends BaseEntity {
     @Builder.Default
     private BigDecimal shippingFee = BigDecimal.ZERO;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "payment_method_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod; // cod, stripe, qr_online, cash, or_pos
 
     @Column(name = "payment_method_name", length = 80, columnDefinition = "NVARCHAR(80)")
