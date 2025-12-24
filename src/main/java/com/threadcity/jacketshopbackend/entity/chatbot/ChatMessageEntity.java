@@ -23,7 +23,7 @@ public class ChatMessageEntity {
 
     private String role; // user / ai / system
 
-    @Column(columnDefinition = "NVARCHAR", length = 1000)
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String message;
 
     private LocalDateTime timestamp;
