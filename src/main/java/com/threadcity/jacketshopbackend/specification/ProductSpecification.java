@@ -96,6 +96,15 @@ public class ProductSpecification {
         };
     }
 
+    public static Specification<Product> isFeatured(Boolean isFeatured) {
+        return (root, query, cb) -> {
+            if (isFeatured == null) {
+                return null;
+            }
+            return cb.equal(root.get("isFeatured"), isFeatured);
+        };
+    }
+
     public static Specification<Product> buildSpec(ProductFilterRequest request) {
         return hasSearch(request.getSearch())
                 .and(hasBrands(request.getBrandIds()))
@@ -105,7 +114,8 @@ public class ProductSpecification {
                 .and(hasMaxPrice(request.getMaxPrice()))
                 .and(hasColors(request.getColorIds()))
                 .and(hasMaterials(request.getMaterialIds()))
-                .and(hasSizes(request.getSizeIds()));
+                .and(hasSizes(request.getSizeIds()))
+                .and(isFeatured(request.getIsFeatured()));
     }
 
 }

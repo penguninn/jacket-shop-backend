@@ -37,6 +37,7 @@ public class ProductController {
                         @RequestParam(required = false) List<Long> colorIds,
                         @RequestParam(required = false) List<Long> materialIds,
                         @RequestParam(required = false) List<Long> sizeIds,
+                        @RequestParam(required = false) Boolean isFeatured,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int size,
                         @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -52,6 +53,7 @@ public class ProductController {
                                 .colorIds(colorIds)
                                 .materialIds(materialIds)
                                 .sizeIds(sizeIds)
+                                .isFeatured(isFeatured)
                                 .page(page)
                                 .size(size)
                                 .sortBy(sortBy)
