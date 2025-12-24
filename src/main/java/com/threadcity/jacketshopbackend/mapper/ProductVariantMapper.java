@@ -22,6 +22,7 @@ import java.util.List;
 public interface ProductVariantMapper {
 
     @Mapping(source = "product.id", target = "productId")
+    @Mapping(source = "product.name", target = "productName")
     @Mapping(target = "salePrice", ignore = true)
     @Mapping(target = "discountPercentage", ignore = true)
     ProductVariantResponse toDto(ProductVariant productVariant);

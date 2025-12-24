@@ -19,6 +19,7 @@ public class ProductVariantResponse implements Serializable {
     private Long id;
     private String sku;
     private Long productId;
+    private String productName;
     private SizeResponse size;
     private ColorResponse color;
     private MaterialResponse material;
