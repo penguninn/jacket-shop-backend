@@ -82,6 +82,19 @@ public class CouponController {
                                 .build();
         }
 
+        @PostMapping("/validate")
+        public ApiResponse<?> validateCoupon(@Valid @RequestBody CouponValidateRequest request) {
+                log.info("CouponController::validateCoupon - Execution started. [code: {}]", request.getCode());
+                CouponResponse response = couponService.validateCoupon(request);
+                log.info("CouponController::validateCoupon - Execution completed. [code: {}]", request.getCode());
+                return ApiResponse.builder()
+                                .code(200)
+                                .message("Coupon is valid.")
+                                .data(response)
+                                .timestamp(Instant.now())
+                                .build();
+        }
+
         @PostMapping
         public ApiResponse<?> createCoupon(@Valid @RequestBody CouponCreateRequest request) {
                 log.info("CouponController::createCoupon - Execution started");

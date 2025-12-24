@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.CouponValidateRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
@@ -9,6 +10,7 @@ import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Coupon;
 import com.threadcity.jacketshopbackend.common.Enums;
+import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.CouponMapper;
@@ -239,5 +241,48 @@ public class CouponServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> couponService.bulkDeleteCoupons(request));
     }
 
+    // =======================
+    // Test validateCoupon
+    // =======================
+    @Test
+    void testValidateCoupon_Success() {
+        CouponValidateRequest request = CouponValidateRequest.builder()
+                .code("TESTCODE")
+                .orderAmount(new BigDecimal("200"))
+                .build();
+
+        when(couponRepository.findByCode("TESTCODE")).thenReturn(Optional.of(coupon));
+        when(couponMapper.toDto(coupon)).thenReturn(CouponResponse.builder().id(1L).code("TESTCODE").build());
+
+        CouponResponse response = couponService.validateCoupon(request);
+
+        assertNotNull(response);
+        assertEquals("TESTCODE", response.getCode());
+    }
+
+    @Test
+    void testValidateCoupon_MinOrderValueNotReached() {
+        CouponValidateRequest request = CouponValidateRequest.builder()
+                .code("TESTCODE")
+                .orderAmount(new BigDecimal("50"))
+                .build();
+
+        when(couponRepository.findByCode("TESTCODE")).thenReturn(Optional.of(coupon));
+
+        assertThrows(InvalidRequestException.class, () -> couponService.validateCoupon(request));
+    }
+
+    @Test
+    void testValidateCoupon_Expired() {
+        coupon.setValidTo(Instant.now().minusSeconds(10));
+        CouponValidateRequest request = CouponValidateRequest.builder()
+                .code("TESTCODE")
+                .orderAmount(new BigDecimal("200"))
+                .build();
+
+        when(couponRepository.findByCode("TESTCODE")).thenReturn(Optional.of(coupon));
+
+        assertThrows(InvalidRequestException.class, () -> couponService.validateCoupon(request));
+    }
 
 }

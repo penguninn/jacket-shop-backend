@@ -1,8 +1,10 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.CouponValidateRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
+import java.math.BigDecimal;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -76,6 +78,23 @@ public class CouponService {
                 && coupon.getUsedCount() >= coupon.getUsageLimit()) {
             throw new InvalidRequestException(ErrorCodes.COUPON_USAGE_LIMIT_REACHED, "Coupon usage limit reached");
         }
+    }
+
+    public CouponResponse validateCoupon(CouponValidateRequest request) {
+        log.info("CouponService::validateCoupon - Execution started. [code: {}]", request.getCode());
+        Coupon coupon = couponRepository.findByCode(request.getCode())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COUPON_NOT_FOUND,
+                        "Coupon not found with code: " + request.getCode()));
+
+        validateCoupon(coupon);
+
+        if (coupon.getMinOrderValue() != null && request.getOrderAmount().compareTo(coupon.getMinOrderValue()) < 0) {
+            throw new InvalidRequestException(ErrorCodes.COUPON_MIN_ORDER_VALUE_NOT_REACHED,
+                    "Order amount does not reach the minimum required value: " + coupon.getMinOrderValue());
+        }
+
+        log.info("CouponService::validateCoupon - Execution completed. [code: {}]", request.getCode());
+        return couponMapper.toDto(coupon);
     }
 
     public PageResponse<?> getAllCoupons(CouponFilterRequest request) {
