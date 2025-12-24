@@ -25,6 +25,8 @@ public class OrderResponse implements Serializable {
 
     private OrderType orderType;
 
+    private Long userId;
+
     private String customerName;
 
     private String customerPhone;

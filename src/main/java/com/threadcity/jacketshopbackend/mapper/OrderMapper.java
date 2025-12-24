@@ -17,5 +17,6 @@ public interface OrderMapper {
     @Mapping(source = "staff.id", target = "staffId")
     @Mapping(source = "staff.fullName", target = "staffName")
     @Mapping(source = "paymentMethod.id", target = "paymentMethodId")
+    @Mapping(source = "user.id", target = "userId")
     OrderResponse toDto(Order order);
 }
