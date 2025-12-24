@@ -80,6 +80,16 @@ public class AddressService {
         return addressReponses;
     }
 
+    public List<AddressResponse> getAddressesByUserId(Long userId) {
+        log.info("AddressService::getAddressesByUserId - Execution started. [userId: {}]", userId);
+        List<AddressResponse> addressResponses = addressRepository.findAllByUserId(userId)
+                .stream()
+                .map(addressMapper::toDto)
+                .toList();
+        log.info("AddressService::getAddressesByUserId - Execution completed. [userId: {}]", userId);
+        return addressResponses;
+    }
+
     public AddressResponse getDefaultAddress() {
         log.info("AddressService::getDefaultAddress - Execution started");
         Long userId = getUserId();
@@ -94,8 +104,12 @@ public class AddressService {
 
     @Transactional
     public AddressResponse createAddress(AddressRequest request) {
-        log.info("AddressService::createAddress - Execution started");
-        Long userId = getUserId();
+        return createAddress(getUserId(), request);
+    }
+
+    @Transactional
+    public AddressResponse createAddress(Long userId, AddressRequest request) {
+        log.info("AddressService::createAddress - Execution started. [userId: {}]", userId);
         
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "User not found"));
@@ -133,14 +147,18 @@ public class AddressService {
         }
         
         Address saved = addressRepository.save(address);
-        log.info("AddressService::createAddress - Execution completed");
+        log.info("AddressService::createAddress - Execution completed. [userId: {}]", userId);
         return addressMapper.toDto(saved);
     }
 
     @Transactional
     public AddressResponse updateAddress(AddressRequest request, Long addressId) {
-        log.info("AddressService::updateAddress - Execution started. [id: {}]", addressId);
-        Long userId = getUserId();
+        return updateAddress(getUserId(), addressId, request);
+    }
+
+    @Transactional
+    public AddressResponse updateAddress(Long userId, Long addressId, AddressRequest request) {
+        log.info("AddressService::updateAddress - Execution started. [userId: {}, addressId: {}]", userId, addressId);
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ADDRESS_NOT_FOUND, "Address not found"));
         
@@ -189,7 +207,7 @@ public class AddressService {
         }
 
         Address saved = addressRepository.save(address);
-        log.info("AddressService::updateAddress - Execution completed. [id: {}]", addressId);
+        log.info("AddressService::updateAddress - Execution completed. [userId: {}, addressId: {}]", userId, addressId);
         return addressMapper.toDto(saved);
     }
 

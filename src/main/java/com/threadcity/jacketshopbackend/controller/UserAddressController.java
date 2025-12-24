@@ -33,6 +33,19 @@ public class UserAddressController {
                 .build();
     }
 
+    @GetMapping("/user/{userId}")
+    public ApiResponse<?> getAddressesByUserId(@PathVariable Long userId) {
+        log.info("UserAddressController::getAddressesByUserId - Execution started. [userId: {}]", userId);
+        List<AddressResponse> response = addressService.getAddressesByUserId(userId);
+        log.info("UserAddressController::getAddressesByUserId - Execution completed. [userId: {}]", userId);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Get all addresses by user id successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
     @GetMapping("/default")
     public ApiResponse<?> getDefaultAddress() {
         log.info("UserAddressController::getDefaultAddress - Execution started");
@@ -41,6 +54,32 @@ public class UserAddressController {
         return ApiResponse.builder()
                 .code(200)
                 .message("Get default address successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/user/{userId}")
+    public ApiResponse<?> createAddressForUser(@PathVariable Long userId, @Valid @RequestBody AddressRequest request) {
+        log.info("UserAddressController::createAddressForUser - Execution started. [userId: {}]", userId);
+        AddressResponse response = addressService.createAddress(userId, request);
+        log.info("UserAddressController::createAddressForUser - Execution completed. [userId: {}]", userId);
+        return ApiResponse.builder()
+                .code(201)
+                .message("Create address successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PutMapping("/user/{userId}/{addressId}")
+    public ApiResponse<?> updateAddressForUser(@PathVariable Long userId, @PathVariable Long addressId, @Valid @RequestBody AddressRequest request) {
+        log.info("UserAddressController::updateAddressForUser - Execution started. [userId: {}, addressId: {}]", userId, addressId);
+        AddressResponse response = addressService.updateAddress(userId, addressId, request);
+        log.info("UserAddressController::updateAddressForUser - Execution completed. [userId: {}, addressId: {}]", userId, addressId);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Update address successfully.")
                 .data(response)
                 .timestamp(Instant.now())
                 .build();

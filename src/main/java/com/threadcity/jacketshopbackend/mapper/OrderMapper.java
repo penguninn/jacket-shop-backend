@@ -11,9 +11,11 @@ import org.mapstruct.Mapping;
 public interface OrderMapper {
 
     @Mapping(source = "productVariant.id", target = "productVariantId")
+    @Mapping(source = "productVariant.product.id", target = "productId")
     OrderDetailResponse toDetailDto(OrderDetail orderDetail);
 
     @Mapping(source = "staff.id", target = "staffId")
     @Mapping(source = "staff.fullName", target = "staffName")
+    @Mapping(source = "paymentMethod.id", target = "paymentMethodId")
     OrderResponse toDto(Order order);
 }

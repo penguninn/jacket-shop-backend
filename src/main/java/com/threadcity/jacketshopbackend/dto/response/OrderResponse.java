@@ -39,11 +39,19 @@ public class OrderResponse implements Serializable {
 
     private String shippingAddressLine;
 
+    private String shippingProvinceCode;
+
+    private String shippingDistrictCode;
+
+    private String shippingWardCode;
+
     private String shippingProvinceName;
 
     private String shippingDistrictName;
 
     private String shippingWardName;
+
+    private Long paymentMethodId;
 
     private String paymentMethodName;
 
@@ -51,7 +59,7 @@ public class OrderResponse implements Serializable {
 
     private String carrierName;
 
-    private String carrierServiceCode;
+    private String carrierServiceName;
 
     private BigDecimal shippingFee;
 
@@ -63,11 +71,13 @@ public class OrderResponse implements Serializable {
 
     private BigDecimal total;
 
+    private String transactionId;
+
+    private Instant paymentDate;
+
     private OrderStatus status;
 
     private String note;
-
-    private String cancelReason;
 
     private Instant createdAt;
 

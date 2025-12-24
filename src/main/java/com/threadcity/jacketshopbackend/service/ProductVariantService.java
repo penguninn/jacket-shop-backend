@@ -266,6 +266,15 @@ public class ProductVariantService {
     }
 
     @Transactional
+    public void returnStock(List<OrderDetail> details) {
+        log.info("ProductVariantService::returnStock - Execution started. [details: {}]", details.size());
+        for (OrderDetail detail : details) {
+            productVariantRepository.returnStock(detail.getProductVariant().getId(), detail.getQuantity());
+        }
+        log.info("ProductVariantService::returnStock - Execution completed.");
+    }
+
+    @Transactional
     public void deleteProductVariant(Long id) {
         log.info("ProductVariantService::deleteProductVariant - Execution started.");
         ProductVariant variant = productVariantRepository.findById(id)

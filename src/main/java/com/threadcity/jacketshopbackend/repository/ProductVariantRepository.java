@@ -42,4 +42,8 @@ public interface ProductVariantRepository
     @Modifying
     @Query("UPDATE ProductVariant pv SET pv.quantity = pv.quantity - :quantity, pv.availableQuantity = pv.availableQuantity - :quantity, pv.soldCount = pv.soldCount + :quantity WHERE pv.id = :id AND pv.availableQuantity >= :quantity")
     int directDeductStock(@Param("id") Long id, @Param("quantity") int quantity);
+
+    @Modifying
+    @Query("UPDATE ProductVariant pv SET pv.quantity = pv.quantity + :quantity, pv.availableQuantity = pv.availableQuantity + :quantity, pv.soldCount = pv.soldCount - :quantity WHERE pv.id = :id")
+    void returnStock(@Param("id") Long id, @Param("quantity") int quantity);
 }

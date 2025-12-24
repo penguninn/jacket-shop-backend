@@ -88,6 +88,7 @@ public final class ErrorCodes {
     // Order Domain
     public static final String ORDER_NOT_FOUND = "ORDER_NOT_FOUND";
     public static final String INVALID_ORDER_STATUS = "INVALID_ORDER_STATUS";
+    public static final String INVALID_REQUEST = "INVALID_REQUEST";
 
     // Payment Method Domain
     public static final String PAYMENT_METHOD_NOT_FOUND = "PAYMENT_METHOD_NOT_FOUND";

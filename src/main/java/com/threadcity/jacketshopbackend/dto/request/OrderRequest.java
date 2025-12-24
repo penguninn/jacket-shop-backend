@@ -22,14 +22,12 @@ public class OrderRequest {
     @NotNull(message = "Order Type is required")
     private OrderType orderType;
 
-    @NotNull(message = "Payment method ID is required")
     private Long paymentMethodId;
 
     private String note;
 
     private String couponCode;
 
-    @NotEmpty(message = "Order items cannot be empty")
     private List<OrderItemRequest> items;
 
     private Long userId;

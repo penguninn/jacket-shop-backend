@@ -30,7 +30,7 @@ public class OrderDetailResponse implements Serializable {
 
     private String sku;
     
-    private String thumbnail;
+    private String image;
 
     private BigDecimal price;
 
