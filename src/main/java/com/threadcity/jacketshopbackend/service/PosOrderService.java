@@ -179,7 +179,9 @@ public class PosOrderService extends AbstractOrderService {
         handleShippingInfo(order, request);
 
         // Re-process items (replace list) - without stock deduction
-        processOrderItems(order, request.getItems(), false);
+        if (request.getItems() != null) {
+            processOrderItems(order, request.getItems(), false);
+        }
 
         calculateFinancials(order, request);
         
@@ -190,7 +192,9 @@ public class PosOrderService extends AbstractOrderService {
             validateCoupon(coupon, order.getSubtotal());
         }
         
-        configurePaymentAndStatus(order, request); // Updates payment method
+        if (request.getPaymentMethodId() != null) {
+            configurePaymentAndStatus(order, request); // Updates payment method
+        }
 
         Order saved = orderRepository.save(order);
         // saveOrderHistory(saved, saved.getStatus(), saved.getPaymentStatus(), "Draft updated"); // Optional
