@@ -17,12 +17,59 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 
+import com.threadcity.jacketshopbackend.service.SizeImportService;
+
+import com.threadcity.jacketshopbackend.dto.response.ImportResult;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
+
+
 @RestController
+
 @RequestMapping("/api/sizes")
+
 @RequiredArgsConstructor
+
 @Slf4j
+
 public class SizeController {
+
+
+
         private final SizeService sizeService;
+
+        private final SizeImportService sizeImportService;
+
+
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+
+        public ApiResponse<?> importSizes(@RequestParam("file") MultipartFile file) {
+
+                log.info("SizeController::importSizes - Execution started");
+
+                ImportResult result = sizeImportService.importSizes(file);
+
+                log.info("SizeController::importSizes - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+
+                return ApiResponse.builder()
+
+                        .code(200)
+
+                        .message("Import sizes completed.")
+
+                        .data(result)
+
+                        .timestamp(Instant.now())
+
+                        .build();
+
+        }
+
+
 
         @GetMapping
         public ApiResponse<?> getAllSizes(

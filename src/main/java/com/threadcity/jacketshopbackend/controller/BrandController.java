@@ -17,6 +17,11 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 
+import com.threadcity.jacketshopbackend.service.BrandImportService;
+import com.threadcity.jacketshopbackend.dto.response.ImportResult;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/brands")
 @RequiredArgsConstructor
@@ -24,6 +29,20 @@ import java.util.List;
 public class BrandController {
 
         private final BrandService brandService;
+        private final BrandImportService brandImportService;
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+        public ApiResponse<?> importBrands(@RequestParam("file") MultipartFile file) {
+                log.info("BrandController::importBrands - Execution started");
+                ImportResult result = brandImportService.importBrands(file);
+                log.info("BrandController::importBrands - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Import brands completed.")
+                        .data(result)
+                        .timestamp(Instant.now())
+                        .build();
+        }
 
         @GetMapping
         public ApiResponse<?> getAllBrands(

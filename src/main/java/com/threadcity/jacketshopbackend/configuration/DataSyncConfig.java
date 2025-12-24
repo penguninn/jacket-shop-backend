@@ -63,9 +63,8 @@ public class DataSyncConfig {
 
     private void initPaymentMethods() {
         createPaymentMethodIfNotFound("Thanh toán khi nhận hàng", "COD", Enums.PaymentMethodType.ONLINE, null);
-        createPaymentMethodIfNotFound("Chuyển khoản (VietQR)", "VIETQR_ONLINE", Enums.PaymentMethodType.ONLINE, "{\"bankId\": \"MB\", \"acc\": \"...\"}");
+        createPaymentMethodIfNotFound("Chuyển khoản (QR)", "QR", Enums.PaymentMethodType.ONLINE, "{\"bankId\": \"MB\", \"acc\": \"...\"}");
         createPaymentMethodIfNotFound("Tiền mặt", "CASH", Enums.PaymentMethodType.POS, null);
-        createPaymentMethodIfNotFound("Chuyển khoản tại quầy", "VIETQR_POS", Enums.PaymentMethodType.POS, "{\"bankId\": \"MB\", \"acc\": \"...\"}");
     }
 
     // --- Helper Methods ---

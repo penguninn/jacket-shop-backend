@@ -18,6 +18,11 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+import com.threadcity.jacketshopbackend.service.ProductImportService;
+import com.threadcity.jacketshopbackend.dto.response.ImportResult;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
@@ -25,6 +30,20 @@ import java.util.List;
 public class ProductController {
 
         private final ProductService productService;
+        private final ProductImportService productImportService;
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+        public ApiResponse<?> importProducts(@RequestParam("file") MultipartFile file) {
+                log.info("ProductController::importProducts - Execution started");
+                ImportResult result = productImportService.importProducts(file);
+                log.info("ProductController::importProducts - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Import products completed.")
+                        .data(result)
+                        .timestamp(Instant.now())
+                        .build();
+        }
 
         @GetMapping
         public ApiResponse<?> getAllProducts(

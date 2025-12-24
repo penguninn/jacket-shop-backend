@@ -17,6 +17,11 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 
+import com.threadcity.jacketshopbackend.service.StyleImportService;
+import com.threadcity.jacketshopbackend.dto.response.ImportResult;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/styles")
 @RequiredArgsConstructor
@@ -24,6 +29,20 @@ import java.util.List;
 public class StyleController {
 
         private final StyleService styleService;
+        private final StyleImportService styleImportService;
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+        public ApiResponse<?> importStyles(@RequestParam("file") MultipartFile file) {
+                log.info("StyleController::importStyles - Execution started");
+                ImportResult result = styleImportService.importStyles(file);
+                log.info("StyleController::importStyles - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Import styles completed.")
+                        .data(result)
+                        .timestamp(Instant.now())
+                        .build();
+        }
 
         @GetMapping
         public ApiResponse<?> getAllStyles(

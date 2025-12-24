@@ -27,17 +27,18 @@ import java.time.Instant;
 public class OnlineOrderService extends AbstractOrderService {
 
     public OnlineOrderService(OrderRepository orderRepository,
-                              ProductVariantRepository productVariantRepository,
-                              PaymentMethodRepository paymentMethodRepository,
-                              CouponRepository couponRepository,
-                              UserRepository userRepository,
-                              AddressRepository addressRepository,
-                              OrderHistoryRepository orderHistoryRepository,
-                              CartService cartService,
-                              ProductVariantService productVariantService,
-                              OrderMapper orderMapper) {
+            ProductVariantRepository productVariantRepository,
+            PaymentMethodRepository paymentMethodRepository,
+            CouponRepository couponRepository,
+            UserRepository userRepository,
+            AddressRepository addressRepository,
+            OrderHistoryRepository orderHistoryRepository,
+            CartService cartService,
+            ProductVariantService productVariantService,
+            OrderMapper orderMapper) {
         super(orderRepository, productVariantRepository, paymentMethodRepository, couponRepository,
-              userRepository, addressRepository, orderHistoryRepository, cartService, productVariantService, orderMapper);
+                userRepository, addressRepository, orderHistoryRepository, cartService, productVariantService,
+                orderMapper);
     }
 
     @Override
@@ -63,8 +64,7 @@ public class OnlineOrderService extends AbstractOrderService {
         handleShippingInfo(order, request);
         processOrderItems(order, request.getItems());
         calculateFinancials(order, request);
-        
-        // Online specific payment & status config
+
         configurePaymentAndStatus(order, request);
 
         Order savedOrder = orderRepository.save(order);
@@ -80,15 +80,8 @@ public class OnlineOrderService extends AbstractOrderService {
     @Override
     protected void configurePaymentAndStatus(Order order, OrderRequest request) {
         super.configurePaymentAndStatus(order, request);
-        
         order.setStatus(OrderStatus.PENDING);
-        if (request.getTransactionId() != null && !request.getTransactionId().isBlank()) {
-            order.setPaymentStatus(PaymentStatus.PAID);
-            order.setTransactionId(request.getTransactionId());
-            order.setPaymentDate(Instant.now());
-        } else {
-            order.setPaymentStatus(PaymentStatus.UNPAID);
-        }
+        order.setPaymentStatus(PaymentStatus.UNPAID);
     }
 
     @Transactional
@@ -104,9 +97,9 @@ public class OnlineOrderService extends AbstractOrderService {
         OrderStatus oldStatus = order.getStatus();
         order.setStatus(OrderStatus.CONFIRMED);
         Order saved = orderRepository.save(order);
-        
+
         saveOrderHistory(saved, oldStatus, saved.getPaymentStatus(), "Order confirmed");
-        
+
         log.info("OnlineOrderService::confirmOrder - Execution completed.");
         return orderMapper.toDto(saved);
     }
@@ -125,9 +118,9 @@ public class OnlineOrderService extends AbstractOrderService {
         OrderStatus oldStatus = order.getStatus();
         order.setStatus(OrderStatus.SHIPPING);
         Order saved = orderRepository.save(order);
-        
+
         saveOrderHistory(saved, oldStatus, saved.getPaymentStatus(), "Order shipped");
-        
+
         log.info("OnlineOrderService::shipOrder - Execution completed.");
         return orderMapper.toDto(saved);
     }
@@ -156,9 +149,9 @@ public class OnlineOrderService extends AbstractOrderService {
 
         order.setStatus(OrderStatus.COMPLETED);
         Order saved = orderRepository.save(order);
-        
+
         saveOrderHistory(saved, oldStatus, oldPaymentStatus, "Order completed");
-        
+
         log.info("OnlineOrderService::completeOrder - Execution completed.");
         return orderMapper.toDto(saved);
     }
@@ -186,18 +179,18 @@ public class OnlineOrderService extends AbstractOrderService {
         productVariantService.releaseReservedStock(order.getDetails());
 
         if (order.getPaymentStatus() == PaymentStatus.PAID) {
-            order.setPaymentStatus(PaymentStatus.REFUNDED); 
+            order.setPaymentStatus(PaymentStatus.REFUNDED);
         }
 
         order.setStatus(OrderStatus.CANCELLED);
         Order saved = orderRepository.save(order);
-        
+
         saveOrderHistory(saved, oldStatus, oldPaymentStatus, "Order cancelled");
-        
+
         log.info("OnlineOrderService::cancelOrder - Execution completed.");
         return orderMapper.toDto(saved);
     }
-    
+
     @Transactional
     public OrderResponse receiveOrder(Long id) {
         log.info("OnlineOrderService::receiveOrder - Execution started. [id: {}]", id);
@@ -217,7 +210,7 @@ public class OnlineOrderService extends AbstractOrderService {
 
         return completeOrder(id);
     }
-    
+
     @Transactional
     public void reorder(Long id) {
         log.info("OnlineOrderService::reorder - Execution started. [id: {}]", id);

@@ -21,6 +21,8 @@ import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.CouponMapper;
 import com.threadcity.jacketshopbackend.repository.CouponRepository;
 import com.threadcity.jacketshopbackend.specification.CouponSpecification;
+import com.threadcity.jacketshopbackend.utils.PriceUtils;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +92,7 @@ public class CouponService {
 
         if (coupon.getMinOrderValue() != null && request.getOrderAmount().compareTo(coupon.getMinOrderValue()) < 0) {
             throw new InvalidRequestException(ErrorCodes.COUPON_MIN_ORDER_VALUE_NOT_REACHED,
-                    "Order amount does not reach the minimum required value: " + coupon.getMinOrderValue());
+                    "Order amount does not reach the minimum required value: " + PriceUtils.formatVnd(coupon.getMinOrderValue()));
         }
 
         log.info("CouponService::validateCoupon - Execution completed. [code: {}]", request.getCode());

@@ -231,7 +231,7 @@ public class ProductVariantService {
             int updatedRows = productVariantRepository.reserveStock(variantId, quantity);
             if (updatedRows == 0) {
                 throw new InvalidRequestException(ErrorCodes.PRODUCT_OUT_OF_STOCK,
-                        "Not enough stock for variant ID: " + variantId);
+                        "Not enough stock variant");
             }
         log.info("ProductVariantService::reserveStock - Execution completed.");
     }
@@ -250,6 +250,7 @@ public class ProductVariantService {
         log.info("ProductVariantService::commitReservedStock - Execution started. [details: {}]", details.size());
         for (OrderDetail detail : details) {
             productVariantRepository.commitReservedStock(detail.getProductVariant().getId(), detail.getQuantity());
+            productRepository.increaseSoldCount(detail.getProductVariant().getProduct().getId(), detail.getQuantity());
         }
         log.info("ProductVariantService::commitReservedStock - Execution completed.");
     }

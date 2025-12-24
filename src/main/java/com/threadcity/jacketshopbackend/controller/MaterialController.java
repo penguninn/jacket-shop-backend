@@ -26,12 +26,59 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.util.List;
 
+import com.threadcity.jacketshopbackend.service.MaterialImportService;
+
+import com.threadcity.jacketshopbackend.dto.response.ImportResult;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
+
+
 @RestController
+
 @RequestMapping("/api/materials")
+
 @RequiredArgsConstructor
+
 @Slf4j
+
 public class MaterialController {
+
+
+
         private final MaterialService materialService;
+
+        private final MaterialImportService materialImportService;
+
+
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+
+        public ApiResponse<?> importMaterials(@RequestParam("file") MultipartFile file) {
+
+                log.info("MaterialController::importMaterials - Execution started");
+
+                ImportResult result = materialImportService.importMaterials(file);
+
+                log.info("MaterialController::importMaterials - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+
+                return ApiResponse.builder()
+
+                        .code(200)
+
+                        .message("Import materials completed.")
+
+                        .data(result)
+
+                        .timestamp(Instant.now())
+
+                        .build();
+
+        }
+
+
 
         @GetMapping
         public ApiResponse<?> getAllMaterials(

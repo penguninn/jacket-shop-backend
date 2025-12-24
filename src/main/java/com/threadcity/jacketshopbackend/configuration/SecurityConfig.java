@@ -39,6 +39,7 @@ public class SecurityConfig {
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
 
     private static final String[] PUBLIC_ENDPOINT = {
+            "/api/payos/**",
             "/api/auth/**",
             "/api/token/**",
             "/actuator/health",

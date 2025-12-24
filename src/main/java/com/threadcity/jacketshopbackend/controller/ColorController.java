@@ -17,6 +17,11 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 
+import com.threadcity.jacketshopbackend.service.ColorImportService;
+import com.threadcity.jacketshopbackend.dto.response.ImportResult;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/colors")
 @RequiredArgsConstructor
@@ -24,6 +29,20 @@ import java.util.List;
 public class ColorController {
 
         private final ColorService colorService;
+        private final ColorImportService colorImportService;
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+        public ApiResponse<?> importColors(@RequestParam("file") MultipartFile file) {
+                log.info("ColorController::importColors - Execution started");
+                ImportResult result = colorImportService.importColors(file);
+                log.info("ColorController::importColors - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Import colors completed.")
+                        .data(result)
+                        .timestamp(Instant.now())
+                        .build();
+        }
 
         @GetMapping
         public ApiResponse<?> getAllColors(

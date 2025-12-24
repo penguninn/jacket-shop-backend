@@ -18,6 +18,11 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+import com.threadcity.jacketshopbackend.service.ProductVariantImportService;
+import com.threadcity.jacketshopbackend.dto.response.ImportResult;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/product-variants")
 @RequiredArgsConstructor
@@ -25,6 +30,20 @@ import java.util.List;
 public class ProductVariantController {
 
         private final ProductVariantService productVariantService;
+        private final ProductVariantImportService productVariantImportService;
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+        public ApiResponse<?> importVariants(@RequestParam("file") MultipartFile file) {
+                log.info("ProductVariantController::importVariants - Execution started");
+                ImportResult result = productVariantImportService.importVariants(file);
+                log.info("ProductVariantController::importVariants - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Import variants completed.")
+                        .data(result)
+                        .timestamp(Instant.now())
+                        .build();
+        }
 
         @GetMapping
         public ApiResponse<?> getAllProductVariants(
