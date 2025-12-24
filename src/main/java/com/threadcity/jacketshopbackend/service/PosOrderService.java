@@ -75,18 +75,22 @@ public class PosOrderService extends AbstractOrderService {
         order.setStatus(OrderStatus.PENDING);
         order.setPaymentStatus(PaymentStatus.UNPAID);
 
-        // User/Customer logic
-        if (request.getUserId() == null) {
-            throw new InvalidRequestException(ErrorCodes.VALIDATION_FAILED,
-                    "User (Customer) is required for POS order");
-        }
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "Member not found"));
-        order.setUser(user);
+        // User/Customer logic - Optional for Draft
+        if (request.getUserId() != null) {
+            User user = userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "Member not found"));
+            order.setUser(user);
+            // Default to user info if not explicitly provided
+            if (request.getCustomerName() == null) order.setCustomerName(user.getFullName());
+            else order.setCustomerName(request.getCustomerName());
 
-        // Override info from request
-        order.setCustomerName(request.getCustomerName() != null ? request.getCustomerName() : user.getFullName());
-        order.setCustomerPhone(request.getCustomerPhone() != null ? request.getCustomerPhone() : user.getPhone());
+            if (request.getCustomerPhone() == null) order.setCustomerPhone(user.getPhone());
+            else order.setCustomerPhone(request.getCustomerPhone());
+        } else {
+            // No user, just set explicit name/phone if provided
+            order.setCustomerName(request.getCustomerName());
+            order.setCustomerPhone(request.getCustomerPhone());
+        }
 
         // Staff
         Long staffId = getUserId();
@@ -97,6 +101,10 @@ public class PosOrderService extends AbstractOrderService {
 
         // Process items WITHOUT stock deduction
         processOrderItems(order, request.getItems(), false);
+
+        if (order.getDetails().isEmpty()) {
+            log.warn("PosOrderService::createPosDraft - Created empty draft [Code: {}]", order.getOrderCode());
+        }
 
         calculateFinancials(order, request);
         configurePaymentAndStatus(order, request); // Will call super, sets method. Status kept PENDING.
@@ -116,6 +124,14 @@ public class PosOrderService extends AbstractOrderService {
 
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new InvalidRequestException(ErrorCodes.INVALID_ORDER_STATUS, "Order must be PENDING to complete");
+        }
+
+        // Validate before complete
+        if (order.getDetails().isEmpty()) {
+            throw new InvalidRequestException(ErrorCodes.VALIDATION_FAILED, "Draft must have at least 1 item");
+        }
+        if (order.getCustomerName() == null || order.getCustomerName().trim().isEmpty()) {
+            throw new InvalidRequestException(ErrorCodes.VALIDATION_FAILED, "Customer name required");
         }
 
         // Deduct stock
