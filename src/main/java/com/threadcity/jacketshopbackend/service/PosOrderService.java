@@ -6,6 +6,7 @@ import com.threadcity.jacketshopbackend.common.Enums.PaymentStatus;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.request.OrderItemRequest;
 import com.threadcity.jacketshopbackend.dto.request.OrderRequest;
+import com.threadcity.jacketshopbackend.dto.request.UpdatePaymentRequest;
 import com.threadcity.jacketshopbackend.dto.response.OrderResponse;
 import com.threadcity.jacketshopbackend.entity.Coupon;
 import com.threadcity.jacketshopbackend.entity.Order;
@@ -538,6 +539,37 @@ public class PosOrderService extends AbstractOrderService {
     @Override
     protected void configurePaymentAndStatus(Order order, OrderRequest request) {
         super.configurePaymentAndStatus(order, request);
+    }
+
+    @Transactional
+    public OrderResponse updatePosPayment(Long id, UpdatePaymentRequest request) {
+        log.info("PosOrderService::updatePosPayment - Start [id: {}]", id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found"));
+
+        if (order.getOrderType() == OrderType.ONLINE) {
+            throw new InvalidRequestException(ErrorCodes.INVALID_REQUEST, "Cannot update online order payment via this endpoint");
+        }
+
+        if (request.getPaymentMethodId() != null) {
+            var paymentMethod = paymentMethodRepository.findById(request.getPaymentMethodId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND, "Payment method not found"));
+            order.setPaymentMethod(paymentMethod);
+            order.setPaymentMethodName(paymentMethod.getName());
+        }
+
+        if (request.getPaymentStatus() != null) {
+            order.setPaymentStatus(request.getPaymentStatus());
+            if (request.getPaymentStatus() == PaymentStatus.PAID) {
+                order.setPaymentDate(Instant.now());
+            } else {
+                order.setPaymentDate(null);
+            }
+        }
+
+        Order saved = orderRepository.save(order);
+        log.info("PosOrderService::updatePosPayment - Success");
+        return orderMapper.toDto(saved);
     }
 
     @Transactional

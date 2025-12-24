@@ -138,6 +138,11 @@ public class OrderService {
     }
 
     @Transactional
+    public OrderResponse updatePosPayment(Long id, UpdatePaymentRequest request) {
+        return posOrderService.updatePosPayment(id, request);
+    }
+
+    @Transactional
     public void cancelPosDraft(Long id) {
         posOrderService.cancelPosDraft(id);
     }

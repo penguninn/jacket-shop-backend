@@ -308,6 +308,22 @@ public class AdminOrderController {
                 .build();
     }
 
+    @PutMapping("/pos/{id}/payment")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public ApiResponse<OrderResponse> updatePosPayment(
+            @PathVariable Long id,
+            @RequestBody UpdatePaymentRequest request) {
+        log.info("AdminOrderController::updatePosPayment - Execution started. [id: {}]", id);
+        OrderResponse response = orderService.updatePosPayment(id, request);
+        log.info("AdminOrderController::updatePosPayment - Execution completed.");
+        return ApiResponse.<OrderResponse>builder()
+                .code(200)
+                .message("POS payment updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
     @DeleteMapping("/pos/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
     public ApiResponse<Void> cancelPosDraft(@PathVariable Long id) {
