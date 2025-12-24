@@ -24,6 +24,8 @@ import vn.payos.model.webhooks.WebhookData;
 import java.time.Instant;
 import java.util.Map;
 
+import com.threadcity.jacketshopbackend.service.PayOSService;
+
 @RestController
 @RequestMapping("/api/payos")
 @RequiredArgsConstructor
@@ -31,29 +33,13 @@ import java.util.Map;
 public class PayOSController {
 
     private final PayOS payOS;
+    private final PayOSService payOSService;
 
-    @PostMapping("/payment-link")
-    public ApiResponse<?> createPaymentLink(@RequestBody CreatePaymentLinkRequest request) {
-        log.info("PayOSController::createPaymentLink - Start");
+    @PostMapping("/payment-link/{orderId}")
+    public ApiResponse<?> createPaymentLink(@PathVariable Long orderId) {
+        log.info("PayOSController::createPaymentLink - Start [orderId: {}]", orderId);
         try {
-            long orderCode = System.currentTimeMillis() / 1000;
-            PaymentLinkItem item = PaymentLinkItem.builder()
-                    .name(request.getProductName())
-                    .quantity(1)
-                    .price(Long.valueOf(request.getPrice()))
-                    .build();
-
-            vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest paymentData =
-                    vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest.builder()
-                            .orderCode(orderCode)
-                            .description(request.getDescription())
-                            .amount(Long.valueOf(request.getPrice()))
-                            .item(item)
-                            .returnUrl(request.getReturnUrl())
-                            .cancelUrl(request.getCancelUrl())
-                            .build();
-
-            CreatePaymentLinkResponse data = payOS.paymentRequests().create(paymentData);
+            CreatePaymentLinkResponse data = payOSService.createPaymentLink(orderId);
             log.info("PayOSController::createPaymentLink - Success");
             return ApiResponse.builder()
                     .code(200)
@@ -213,10 +199,11 @@ public class PayOSController {
         log.info("PayOSController::payosTransferHandler - Start");
         try {
             WebhookData data = payOS.webhooks().verify(body);
+            payOSService.handleWebhook(data);
             log.info("PayOSController::payosTransferHandler - Success: {}", data);
             return ApiResponse.builder()
                     .code(200)
-                    .message("Webhook delivered")
+                    .message("Webhook processed")
                     .data(data)
                     .timestamp(Instant.now())
                     .build();
