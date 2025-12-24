@@ -21,7 +21,7 @@ public class PaymentMethodResponse implements Serializable {
 
     private String code;
 
-    private Enums.PaymentMethodType type;
+    private java.util.List<Enums.PaymentMethodType> types;
 
     private String description;
 

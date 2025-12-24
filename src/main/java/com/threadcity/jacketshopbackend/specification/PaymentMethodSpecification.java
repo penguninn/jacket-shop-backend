@@ -68,7 +68,7 @@ public class PaymentMethodSpecification {
             if (typeEnums.isEmpty())
                 return null;
 
-            return root.get("type").in(typeEnums);
+            return root.join("types").in(typeEnums);
         };
     }
 
