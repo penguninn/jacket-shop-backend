@@ -17,12 +17,13 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {
         SizeMapper.class,
         ColorMapper.class,
-        MaterialMapper.class
+        MaterialMapper.class,
+        ProductMapper.class
 })
 public interface ProductVariantMapper {
 
     @Mapping(source = "product.id", target = "productId")
-    @Mapping(source = "product.name", target = "productName")
+    @Mapping(source = "product", target = "product")
     @Mapping(target = "salePrice", ignore = true)
     @Mapping(target = "discountPercentage", ignore = true)
     ProductVariantResponse toDto(ProductVariant productVariant);
