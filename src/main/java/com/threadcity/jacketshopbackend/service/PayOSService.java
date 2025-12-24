@@ -7,6 +7,7 @@ import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.payos.PayOS;
@@ -25,6 +26,9 @@ public class PayOSService {
     private final PayOS payOS;
     private final OrderRepository orderRepository;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     public CreatePaymentLinkResponse createPaymentLink(Long orderId) {
         // 1. Lấy thông tin đơn hàng thật từ Database
         Order order = orderRepository.findById(orderId)
@@ -42,20 +46,25 @@ public class PayOSService {
         long payOsOrderCode = order.getId();
 
         PaymentLinkItem item = PaymentLinkItem.builder()
-                .name("Đơn hàng " + order.getOrderCode())
+                .name("Don hang " + order.getOrderCode())
                 .quantity(1)
                 .price(amount)
                 .build();
 
         // 4. Build Request
-        // In real app, these URLs should be configured or constructed dynamically
-        String returnUrl = "http://localhost:3000/payment-success/" + order.getOrderCode(); 
-        String cancelUrl = "http://localhost:3000/payment-cancel/" + order.getOrderCode();
+        String returnUrl = frontendUrl + "/payment-success/" + order.getOrderCode(); 
+        String cancelUrl = frontendUrl + "/payment-cancel/" + order.getOrderCode();
+
+        // Short description to avoid bank limits (usually max 25-50 chars)
+        String description = "Thanh toan " + order.getOrderCode();
+        if (description.length() > 25) {
+            description = description.substring(0, 25);
+        }
 
         CreatePaymentLinkRequest paymentData = CreatePaymentLinkRequest.builder()
                 .orderCode(payOsOrderCode) 
                 .amount(amount)
-                .description("Thanh toan don " + order.getOrderCode())
+                .description(description)
                 .item(item)
                 .returnUrl(returnUrl)
                 .cancelUrl(cancelUrl)
