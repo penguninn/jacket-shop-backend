@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 public class Ward extends BaseEntity {
 
     @Column(name = "goship_id")
-    private Long goshipId;
+    private String goshipId;
 
     @Column(name = "name", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String name;

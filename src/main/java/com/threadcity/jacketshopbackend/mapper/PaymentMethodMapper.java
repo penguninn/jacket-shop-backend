@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PaymentMethodMapper {
 
-    @Mapping(target = "configJson", ignore = true)
     PaymentMethodResponse toDto(PaymentMethod paymentMethod);
 
     @Mapping(target = "id", ignore = true)

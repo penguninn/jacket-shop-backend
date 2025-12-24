@@ -10,14 +10,15 @@ import lombok.Data;
 @Data
 @Builder
 public class ColorRequest {
+
     @NotBlank(message = "Name cannot be empty")
-    @Size(max = 100, message = "Name must be less than 100 characters")
+    @Size(max = 120, message = "Name must be less than 120 characters")
     private String name;
 
     @Size(max = 255, message = "Description too long")
     private String description;
 
-    @Size(max = 20, message = "Hex code too long")
+    @Size(max = 10, message = "Hex code too long")
     private String hexCode;
 
     @NotNull(message = "Status is required")

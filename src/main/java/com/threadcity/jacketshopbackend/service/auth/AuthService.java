@@ -1,11 +1,14 @@
 package com.threadcity.jacketshopbackend.service.auth;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
+import com.threadcity.jacketshopbackend.dto.request.ForgotPasswordRequest;
 import com.threadcity.jacketshopbackend.dto.request.LoginRequest;
 import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
+import com.threadcity.jacketshopbackend.dto.request.UpdatePasswordRequest;
 import com.threadcity.jacketshopbackend.dto.response.LoginResponse;
 import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
 import com.threadcity.jacketshopbackend.dto.response.UserResponse;
+import com.threadcity.jacketshopbackend.entity.PasswordResetToken;
 import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.AuthenticationFailedException;
@@ -13,6 +16,7 @@ import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.RoleMapper;
+import com.threadcity.jacketshopbackend.repository.PasswordResetTokenRepository;
 import com.threadcity.jacketshopbackend.repository.RoleRepository;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
 import com.threadcity.jacketshopbackend.service.TokenService;
@@ -39,6 +43,7 @@ public class AuthService {
         private final AuthenticationManager authenticationManager;
         private final TokenService tokenService;
         private final RoleMapper roleMapper;
+        private final PasswordResetTokenRepository passwordResetTokenRepository;
 
         @Transactional
         public LoginResponse login(LoginRequest request) {
@@ -113,6 +118,46 @@ public class AuthService {
                 // userDetailsService.loadUserByUsername(user.getUsername());
 
                 log.info("AuthService::register execution ended");
+        }
+
+        @Transactional
+        public void forgotPassword(ForgotPasswordRequest request) {
+                log.info("AuthService::forgotPassword execution started for user: {}", request.getUsername());
+                User user = userRepository.findByUsername(request.getUsername())
+                                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND,
+                                                "User not found"));
+
+                passwordResetTokenRepository.deleteByUser(user);
+
+                String token = java.util.UUID.randomUUID().toString();
+                PasswordResetToken resetToken = PasswordResetToken.builder()
+                                .token(token)
+                                .user(user)
+                                .expiryDate(java.time.Instant.now().plus(1, java.time.temporal.ChronoUnit.HOURS))
+                                .build();
+
+                passwordResetTokenRepository.save(resetToken);
+                log.info("Reset password token for user {}: {}", user.getUsername(), token);
+                log.info("AuthService::forgotPassword execution ended");
+        }
+
+        @Transactional
+        public void updatePassword(UpdatePasswordRequest request) {
+                log.info("AuthService::updatePassword execution started");
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                User user = userRepository.findById(userDetails.getId())
+                                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND,
+                                                "User not found"));
+
+                if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+                        throw new AuthenticationFailedException(ErrorCodes.AUTH_INVALID_CREDENTIALS,
+                                        "Old password does not match");
+                }
+
+                user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+                userRepository.save(user);
+                log.info("AuthService::updatePassword execution ended");
         }
 
 }

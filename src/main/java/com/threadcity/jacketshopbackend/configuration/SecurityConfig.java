@@ -56,8 +56,10 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(configurationSource()));
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/api/auth/update-password").authenticated()
                 .requestMatchers(PUBLIC_ENDPOINT).permitAll()
-                .requestMatchers("/api/cart/**").authenticated()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/me/cart/**").authenticated()
                 .requestMatchers("/api/orders/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated()

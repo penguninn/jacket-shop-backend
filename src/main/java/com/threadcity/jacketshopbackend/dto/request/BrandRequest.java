@@ -10,12 +10,10 @@ import lombok.Data;
 @Data
 @Builder
 public class BrandRequest {
+
     @NotBlank(message = "Name cannot be empty")
     @Size(max = 120, message = "Name must be less than 120 characters")
     private String name;
-
-    @Size(max = 400, message = "Logo URL too long")
-    private String logoUrl;
 
     @NotNull(message = "Status is required")
     private Enums.Status status;

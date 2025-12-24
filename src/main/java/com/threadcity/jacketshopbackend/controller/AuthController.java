@@ -1,8 +1,10 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.request.ForgotPasswordRequest;
 import com.threadcity.jacketshopbackend.dto.request.LoginRequest;
 import com.threadcity.jacketshopbackend.dto.request.RefreshTokenRequest;
 import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
+import com.threadcity.jacketshopbackend.dto.request.UpdatePasswordRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.response.LoginResponse;
 import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
@@ -74,6 +76,30 @@ public class AuthController {
                 .code(200)
                 .data(tokenResponse)
                 .message("Rotate successfully")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ApiResponse<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        log.info("AuthController::forgotPassword execution started");
+        authService.forgotPassword(request);
+        log.info("AuthController::forgotPassword execution ended");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Reset password token generated successfully")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/update-password")
+    public ApiResponse<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest request) {
+        log.info("AuthController::updatePassword execution started");
+        authService.updatePassword(request);
+        log.info("AuthController::updatePassword execution ended");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Password updated successfully")
                 .timestamp(Instant.now())
                 .build();
     }

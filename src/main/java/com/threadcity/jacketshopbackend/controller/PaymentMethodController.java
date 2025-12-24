@@ -31,6 +31,7 @@ public class PaymentMethodController {
         public ApiResponse<?> getAllPaymentMethods(
                         @RequestParam(required = false) String search,
                         @RequestParam(required = false) List<String> status,
+                        @RequestParam(required = false) List<String> type,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int size,
                         @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -40,6 +41,7 @@ public class PaymentMethodController {
                 PaymentMethodFilterRequest request = PaymentMethodFilterRequest.builder()
                                 .search(search)
                                 .status(status)
+                                .type(type)
                                 .page(page)
                                 .size(size)
                                 .sortBy(sortBy)

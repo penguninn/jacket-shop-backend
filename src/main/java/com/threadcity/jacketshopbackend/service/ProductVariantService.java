@@ -1,19 +1,26 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
+import com.threadcity.jacketshopbackend.dto.request.CartItemRequest;
+import com.threadcity.jacketshopbackend.dto.request.OrderItemRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductVariantCreateRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductVariantUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
 import com.threadcity.jacketshopbackend.entity.Color;
 import com.threadcity.jacketshopbackend.entity.Material;
+import com.threadcity.jacketshopbackend.entity.OrderDetail;
 import com.threadcity.jacketshopbackend.entity.Product;
 import com.threadcity.jacketshopbackend.entity.ProductVariant;
 import com.threadcity.jacketshopbackend.entity.Size;
 
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
+import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
+import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.ProductVariantMapper;
 import com.threadcity.jacketshopbackend.repository.ColorRepository;
@@ -25,7 +32,6 @@ import com.threadcity.jacketshopbackend.specification.ProductVariantSpecificatio
 import com.threadcity.jacketshopbackend.utils.SkuUtils;
 
 import jakarta.transaction.Transactional;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -55,7 +61,7 @@ public class ProductVariantService {
 
     public ProductVariantResponse getProductVariantById(Long id) {
         log.info("ProductVariantService::getProductVariantById - Execution started.");
-        com.threadcity.jacketshopbackend.entity.ProductVariant variant = productVariantRepository.findById(id)
+        ProductVariant variant = productVariantRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND,
                         "ProductVariant not found with id: " + id));
         log.info("ProductVariantService::getProductVariantById - Execution completed.");
@@ -98,9 +104,25 @@ public class ProductVariantService {
         return productVariantResponse;
     }
 
+    public ProductVariantResponse getProductVariantBySku(String sku) {
+        log.info("ProductVariantService::getProductVariantBySku - Execution started. [sku: {}]", sku);
+        ProductVariantResponse response = productVariantRepository.findBySku(sku)
+                .map(productVariantMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND,
+                        "ProductVariant not found with sku: " + sku));
+        log.info("ProductVariantService::getProductVariantBySku - Execution completed. [sku: {}]", sku);
+        return response;
+    }
+
     @Transactional
     public ProductVariantResponse createProductVariant(ProductVariantCreateRequest req) {
         log.info("ProductVariantService::createProductVariant - Execution started.");
+
+        if (productVariantRepository.existsByProductIdAndColorIdAndSizeIdAndMaterialId(
+                req.getProductId(), req.getColorId(), req.getSizeId(), req.getMaterialId())) {
+            throw new ResourceConflictException(ErrorCodes.PRODUCT_VARIANT_DUPLICATE,
+                    "ProductVariant already exists with this configuration");
+        }
 
         Product product = productRepository.findById(req.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND, "Product not found"));
@@ -156,10 +178,17 @@ public class ProductVariantService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND,
                         "ProductVariant not found with id: " + id));
 
-        // SKU and Identity Attributes are immutable.
         variant.setPrice(req.getPrice());
         variant.setCostPrice(req.getCostPrice());
+
+        int reserved = variant.getReservedQuantity() != null ? variant.getReservedQuantity() : 0;
+        if (req.getQuantity() < reserved) {
+            throw new InvalidRequestException(ErrorCodes.PRODUCT_INVALID_QUANTITY,
+                    "New quantity (" + req.getQuantity() + ") cannot be less than reserved quantity (" + reserved + ")");
+        }
         variant.setQuantity(req.getQuantity());
+        variant.setAvailableQuantity(req.getQuantity() - reserved);
+
         variant.setStatus(req.getStatus());
         variant.setImage(req.getImage());
 
@@ -176,6 +205,64 @@ public class ProductVariantService {
         productService.syncProductData(saved.getProduct().getId());
         log.info("ProductVariantService::updateProductVariantById - Execution completed.");
         return productVariantMapper.toDto(saved);
+    }
+
+    @Transactional
+    public void adjustStock(Long variantId, int quantityChange) {
+        log.info("ProductVariantService::adjustStock - Execution started. [id: {}, change: {}]", variantId,
+                quantityChange);
+        if (!productVariantRepository.existsById(variantId)) {
+            throw new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND, "ProductVariant not found");
+        }
+        productVariantRepository.adjustStock(variantId, quantityChange);
+        log.info("ProductVariantService::adjustStock - Execution completed.");
+    }
+
+    public boolean isVariantAvailable(Long id, int requestedQuantity) {
+        return productVariantRepository.findById(id)
+                .map(variant -> variant.getStatus() == Status.ACTIVE
+                        && variant.getAvailableQuantity() >= requestedQuantity)
+                .orElse(false);
+    }
+
+    @Transactional
+    public void reserveStock(Long variantId, int quantity) {
+        log.info("ProductVariantService::reserveStock - Execution started. [items: {}]", variantId);
+            int updatedRows = productVariantRepository.reserveStock(variantId, quantity);
+            if (updatedRows == 0) {
+                throw new InvalidRequestException(ErrorCodes.PRODUCT_OUT_OF_STOCK,
+                        "Not enough stock for variant ID: " + variantId);
+            }
+        log.info("ProductVariantService::reserveStock - Execution completed.");
+    }
+
+    @Transactional
+    public void releaseReservedStock(List<OrderDetail> details) {
+        log.info("ProductVariantService::releaseReservedStock - Execution started. [details: {}]", details.size());
+        for (OrderDetail detail : details) {
+            productVariantRepository.releaseReservedStock(detail.getProductVariant().getId(), detail.getQuantity());
+        }
+        log.info("ProductVariantService::releaseReservedStock - Execution completed.");
+    }
+
+    @Transactional
+    public void commitReservedStock(List<OrderDetail> details) {
+        log.info("ProductVariantService::commitReservedStock - Execution started. [details: {}]", details.size());
+        for (OrderDetail detail : details) {
+            productVariantRepository.commitReservedStock(detail.getProductVariant().getId(), detail.getQuantity());
+        }
+        log.info("ProductVariantService::commitReservedStock - Execution completed.");
+    }
+
+    @Transactional
+    public void directDeductStock(Long variantId, int quantity) {
+        log.info("ProductVariantService::directDeductStock - Execution started. [id: {}]", variantId);
+            int updatedRows = productVariantRepository.directDeductStock(variantId, quantity);
+            if (updatedRows == 0) {
+                throw new InvalidRequestException(ErrorCodes.PRODUCT_OUT_OF_STOCK,
+                        "Not enough stock for variant ID: " + variantId);
+            }
+        log.info("ProductVariantService::directDeductStock - Execution completed.");
     }
 
     @Transactional

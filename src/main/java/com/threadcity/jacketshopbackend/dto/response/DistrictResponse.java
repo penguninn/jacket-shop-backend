@@ -13,6 +13,8 @@ public class DistrictResponse implements Serializable {
 
     private String name;
 
+    private String goShipId;
+
     private Long provinceId;
 
 }

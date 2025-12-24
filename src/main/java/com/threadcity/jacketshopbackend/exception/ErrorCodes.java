@@ -17,8 +17,10 @@ public final class ErrorCodes {
     public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
     public static final String PRODUCT_NAME_DUPLICATE = "PRODUCT_NAME_DUPLICATE";
     public static final String PRODUCT_INVALID_QUANTITY = "PRODUCT_INVALID_QUANTITY";
+    public static final String PRODUCT_OUT_OF_STOCK = "PRODUCT_OUT_OF_STOCK";
     public static final String PRODUCT_VARIANT_NOT_FOUND = "PRODUCT_VARIANT_NOT_FOUND";
     public static final String PRODUCT_VARIANT_SKU_DUPLICATE = "PRODUCT_VARIANT_SKU_DUPLICATE";
+    public static final String PRODUCT_VARIANT_DUPLICATE = "PRODUCT_VARIANT_DUPLICATE";
 
     // Address Domain
     public static final String ADDRESS_NOT_FOUND = "ADDRESS_NOT_FOUND";
@@ -28,6 +30,10 @@ public final class ErrorCodes {
     public static final String ADDRESS_SET_ANOTHER_DEFAULT = "ADDRESS_SET_ANOTHER_DEFAULT";
     public static final String ADDRESS_DELETE_DEFAULT = "ADDRESS_DELETE_DEFAULT";
     public static final String ADDRESS_DELETE_LAST_DEFAULT = "ADDRESS_DELETE_LAST_DEFAULT";
+    public static final String ADDRESS_INVALID_HIERARCHY = "ADDRESS_INVALID_HIERARCHY";
+
+    // Cart Domain
+    public static final String CART_ITEM_NOT_FOUND = "CART_ITEM_NOT_FOUND";
 
     // Auth Domain
     public static final String AUTH_INVALID_CREDENTIALS = "AUTH_INVALID_CREDENTIALS";
@@ -43,6 +49,7 @@ public final class ErrorCodes {
     public static final String CLOUDINARY_UPLOAD_FAILED = "CLOUDINARY_UPLOAD_FAILED";
     public static final String CLOUDINARY_DELETE_FAILED = "CLOUDINARY_DELETE_FAILED";
     public static final String CLOUDINARY_INVALID_FILE = "CLOUDINARY_INVALID_FILE";
+    public static final String GOSHIP_API_ERROR = "GOSHIP_API_ERROR";
 
     // Brand Domain
     public static final String BRAND_NOT_FOUND = "BRAND_NOT_FOUND";
@@ -72,14 +79,20 @@ public final class ErrorCodes {
     // Coupon Domain
     public static final String COUPON_NOT_FOUND = "COUPON_NOT_FOUND";
     public static final String COUPON_CODE_DUPLICATE = "COUPON_CODE_DUPLICATE";
+    public static final String COUPON_INVALID = "COUPON_INVALID";
+    public static final String COUPON_EXPIRED = "COUPON_EXPIRED";
+    public static final String COUPON_NOT_STARTED = "COUPON_NOT_STARTED";
+    public static final String COUPON_USAGE_LIMIT_REACHED = "COUPON_USAGE_LIMIT_REACHED";
+    public static final String COUPON_NOT_ACTIVE = "COUPON_NOT_ACTIVE";
+
+    // Order Domain
+    public static final String ORDER_NOT_FOUND = "ORDER_NOT_FOUND";
+    public static final String INVALID_ORDER_STATUS = "INVALID_ORDER_STATUS";
 
     // Payment Method Domain
     public static final String PAYMENT_METHOD_NOT_FOUND = "PAYMENT_METHOD_NOT_FOUND";
     public static final String PAYMENT_METHOD_NAME_DUPLICATE = "PAYMENT_METHOD_NAME_DUPLICATE";
-
-    // Shipping Method Domain
-    public static final String SHIPPING_METHOD_NOT_FOUND = "SHIPPING_METHOD_NOT_FOUND";
-    public static final String SHIPPING_METHOD_NAME_DUPLICATE = "SHIPPING_METHOD_NAME_DUPLICATE";
+    public static final String PAYMENT_METHOD_CODE_DUPLICATE = "PAYMENT_METHOD_CODE_DUPLICATE";
 
     // System / Common
     public static final String RESOURCE_NOT_FOUND = "RESOURCE_NOT_FOUND";

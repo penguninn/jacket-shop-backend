@@ -13,6 +13,7 @@ import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Coupon;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
+import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.CouponMapper;
@@ -28,6 +29,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -45,6 +47,35 @@ public class CouponService {
                         "Coupon not found with id: " + id));
         log.info("CouponService::getCouponById - Execution completed. [id: {}]", id);
         return couponMapper.toDto(coupon);
+    }
+
+    public CouponResponse getCouponByCode(String code) {
+        log.info("CouponService::getCouponByCode - Execution started. [code: {}]", code);
+        Coupon coupon = couponRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COUPON_NOT_FOUND,
+                        "Coupon not found with code: " + code));
+
+        validateCoupon(coupon);
+
+        log.info("CouponService::getCouponByCode - Execution completed. [code: {}]", code);
+        return couponMapper.toDto(coupon);
+    }
+
+    private void validateCoupon(Coupon coupon) {
+        if (coupon.getStatus() != com.threadcity.jacketshopbackend.common.Enums.Status.ACTIVE) {
+            throw new InvalidRequestException(ErrorCodes.COUPON_NOT_ACTIVE, "Coupon is not active");
+        }
+        Instant now = Instant.now();
+        if (coupon.getValidFrom() != null && now.isBefore(coupon.getValidFrom())) {
+            throw new InvalidRequestException(ErrorCodes.COUPON_NOT_STARTED, "Coupon is not yet valid");
+        }
+        if (coupon.getValidTo() != null && now.isAfter(coupon.getValidTo())) {
+            throw new InvalidRequestException(ErrorCodes.COUPON_EXPIRED, "Coupon has expired");
+        }
+        if (coupon.getUsageLimit() != null && coupon.getUsageLimit() > 0
+                && coupon.getUsedCount() >= coupon.getUsageLimit()) {
+            throw new InvalidRequestException(ErrorCodes.COUPON_USAGE_LIMIT_REACHED, "Coupon usage limit reached");
+        }
     }
 
     public PageResponse<?> getAllCoupons(CouponFilterRequest request) {

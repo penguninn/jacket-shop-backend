@@ -10,9 +10,10 @@ import lombok.Data;
 @Data
 @Builder
 public class StyleRequest {
+
     @NotBlank(message = "Name cannot be empty")
-    @Size(max = 100, message = "Name must be less than 100 characters")
-    private String name; // bomber, biker, hoodie, blazer, etc.
+    @Size(max = 120, message = "Name must be less than 120 characters")
+    private String name;
 
     @Size(max = 255, message = "Description too long")
     private String description;

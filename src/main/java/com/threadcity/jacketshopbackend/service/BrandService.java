@@ -96,7 +96,6 @@ public class BrandService {
         }
 
         brand.setName(brandRequest.getName());
-        brand.setLogoUrl(brandRequest.getLogoUrl());
         brand.setStatus(brandRequest.getStatus());
         brand.setDescription(brandRequest.getDescription());
         Brand savedBrand = brandRepository.save(brand);

@@ -10,7 +10,8 @@ import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
 import com.threadcity.jacketshopbackend.entity.*;
 import com.threadcity.jacketshopbackend.common.Enums;
 import java.math.BigDecimal;
-import java.util.Comparator;
+import java.util.*;
+
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
@@ -27,9 +28,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @Service
@@ -245,5 +243,63 @@ public class ProductService {
 
         productRepository.save(product);
         log.info("ProductService::syncProductData - Execution completed. [productId: {}]", productId);
+    }
+
+    public List<ProductResponse> getNewArrivals() {
+        return productRepository
+                .findTop4ByStatusOrderByIdDesc(Enums.Status.ACTIVE)
+                .stream()
+                .map(productMapper::toDto)
+                .toList();
+    }
+
+    public List<ProductResponse> getTopSelling() {
+        return productRepository
+                .findTop4ByStatusOrderBySoldCountDesc(Enums.Status.ACTIVE)
+                .stream()
+                .map(productMapper::toDto)
+                .toList();
+    }
+
+    public List<ProductResponse> getFeaturedProducts() {
+        return productRepository
+                .findTop4ByIsFeaturedTrueAndStatus(Enums.Status.ACTIVE)
+                .stream()
+                .map(productMapper::toDto)
+                .toList();
+    }
+    public List<ProductResponse> getRelatedProducts(Long currentProductId) {
+        log.info("ProductService::getRelatedProducts - Execution started. [id: {}]", currentProductId);
+
+        // 1. Lấy thông tin sản phẩm hiện tại để biết Brand và Style
+        Product currentProduct = productRepository.findById(currentProductId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
+                        "Product not found with id: " + currentProductId));
+
+        // 2. Lấy 2 sản phẩm cùng Brand (loại trừ sản phẩm hiện tại)
+        List<Product> relatedByBrand = productRepository.findTop2ByBrandIdAndIdNotAndStatusOrderByIdDesc(
+                currentProduct.getBrand().getId(),
+                currentProductId,
+                Enums.Status.ACTIVE
+        );
+
+        // 3. Lấy 2 sản phẩm cùng Style (loại trừ sản phẩm hiện tại)
+        List<Product> relatedByStyle = productRepository.findTop2ByStyleIdAndIdNotAndStatusOrderByIdDesc(
+                currentProduct.getStyle().getId(),
+                currentProductId,
+                Enums.Status.ACTIVE
+        );
+
+        // 4. Gộp danh sách (Dùng Set để loại bỏ trùng lặp nếu sản phẩm vừa cùng Brand vừa cùng Style)
+        Set<Product> uniqueRelatedProducts = new LinkedHashSet<>();
+        uniqueRelatedProducts.addAll(relatedByBrand);
+        uniqueRelatedProducts.addAll(relatedByStyle);
+
+        log.info("ProductService::getRelatedProducts - Found {} related products", uniqueRelatedProducts.size());
+
+        // 5. Convert sang DTO
+        return uniqueRelatedProducts.stream()
+                .map(productMapper::toDto)
+                .toList();
     }
 }
