@@ -111,9 +111,30 @@ public class OrderService {
         return posOrderService.completePosOrder(id);
     }
 
+    @Deprecated
     @Transactional
     public OrderResponse updatePosDraft(Long id, OrderRequest request) {
         return posOrderService.updatePosDraft(id, request);
+    }
+    
+    @Transactional
+    public OrderResponse updatePosDraftInfo(Long id, OrderRequest request) {
+        return posOrderService.updatePosDraftInfo(id, request);
+    }
+
+    @Transactional
+    public OrderResponse updatePosDraftCustomer(Long id, OrderRequest request) {
+        return posOrderService.updatePosDraftCustomer(id, request);
+    }
+
+    @Transactional
+    public OrderResponse updatePosDraftShipping(Long id, OrderRequest request) {
+        return posOrderService.updatePosDraftShipping(id, request);
+    }
+
+    @Transactional
+    public OrderResponse updatePosDraftCoupon(Long id, String couponCode) {
+        return posOrderService.updatePosDraftCoupon(id, couponCode);
     }
 
     @Transactional

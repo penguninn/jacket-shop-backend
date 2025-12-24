@@ -160,14 +160,102 @@ public class PosOrderService extends AbstractOrderService {
     }
 
     @Transactional
-    public OrderResponse updatePosDraft(Long id, OrderRequest request) {
-        log.info("PosOrderService::updatePosDraft - Start [id: {}]", id);
+    public OrderResponse updatePosDraftInfo(Long id, OrderRequest request) {
+        log.info("PosOrderService::updatePosDraftInfo - Start [id: {}]", id);
+        Order order = getDraftOrder(id);
+        
+        order.setNote(request.getNote());
+        
+        Order saved = orderRepository.save(order);
+        log.info("PosOrderService::updatePosDraftInfo - Success");
+        return orderMapper.toDto(saved);
+    }
+
+    @Transactional
+    public OrderResponse updatePosDraftCustomer(Long id, OrderRequest request) {
+        log.info("PosOrderService::updatePosDraftCustomer - Start [id: {}]", id);
+        Order order = getDraftOrder(id);
+
+        if (request.getUserId() != null) {
+            if (order.getUser() == null || !request.getUserId().equals(order.getUser().getId())) {
+                User user = userRepository.findById(request.getUserId())
+                        .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "Member not found"));
+                order.setUser(user);
+            }
+        }
+        
+        // Update name/phone if provided, otherwise keep existing
+        if (request.getCustomerName() != null) order.setCustomerName(request.getCustomerName());
+        if (request.getCustomerPhone() != null) order.setCustomerPhone(request.getCustomerPhone());
+
+        Order saved = orderRepository.save(order);
+        log.info("PosOrderService::updatePosDraftCustomer - Success");
+        return orderMapper.toDto(saved);
+    }
+
+    @Transactional
+    public OrderResponse updatePosDraftShipping(Long id, OrderRequest request) {
+        log.info("PosOrderService::updatePosDraftShipping - Start [id: {}]", id);
+        Order order = getDraftOrder(id);
+
+        if (request.getOrderType() != null) {
+            order.setOrderType(request.getOrderType());
+        }
+
+        if (order.getOrderType() == OrderType.POS_INSTORE) {
+            order.setShippingFee(BigDecimal.ZERO);
+            order.setShippingAddressLine(null);
+            order.setShippingProvinceCode(null);
+            order.setShippingDistrictCode(null);
+            order.setShippingWardCode(null);
+            order.setShippingProvinceName(null);
+            order.setShippingDistrictName(null);
+            order.setShippingWardName(null);
+            order.setShippingRecipientName(null);
+            order.setShippingRecipientPhone(null);
+            order.setCarrierName(null);
+            order.setCarrierServiceName(null);
+            order.setCarrierRateId(null);
+            order.setDeliveryTimeEstimate(null);
+        } else {
+            handleShippingInfo(order, request);
+        }
+
+        recalculateDraftFinancials(order);
+
+        Order saved = orderRepository.save(order);
+        log.info("PosOrderService::updatePosDraftShipping - Success");
+        return orderMapper.toDto(saved);
+    }
+
+    @Transactional
+    public OrderResponse updatePosDraftCoupon(Long id, String couponCode) {
+        log.info("PosOrderService::updatePosDraftCoupon - Start [id: {}]", id);
+        Order order = getDraftOrder(id);
+
+        order.setCouponCode(couponCode);
+        recalculateDraftFinancials(order);
+
+        Order saved = orderRepository.save(order);
+        log.info("PosOrderService::updatePosDraftCoupon - Success");
+        return orderMapper.toDto(saved);
+    }
+
+    private Order getDraftOrder(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found"));
-
+        
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new InvalidRequestException(ErrorCodes.INVALID_ORDER_STATUS, "Order must be PENDING to update");
         }
+        return order;
+    }
+
+    @Deprecated
+    @Transactional
+    public OrderResponse updatePosDraft(Long id, OrderRequest request) {
+        log.info("PosOrderService::updatePosDraft - Start [id: {}]", id);
+        Order order = getDraftOrder(id);
 
         order.setNote(request.getNote());
 

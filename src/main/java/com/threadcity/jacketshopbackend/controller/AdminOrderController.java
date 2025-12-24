@@ -227,6 +227,7 @@ public class AdminOrderController {
                 .build();
     }
 
+    @Deprecated
     @PutMapping("/pos/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
     public ApiResponse<OrderResponse> updatePosDraft(
@@ -238,6 +239,70 @@ public class AdminOrderController {
         return ApiResponse.<OrderResponse>builder()
                 .code(200)
                 .message("POS draft updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+    
+    @PutMapping("/pos/{id}/info")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public ApiResponse<OrderResponse> updatePosDraftInfo(
+            @PathVariable Long id,
+            @RequestBody OrderRequest request) {
+        log.info("AdminOrderController::updatePosDraftInfo - Execution started. [id: {}]", id);
+        OrderResponse response = orderService.updatePosDraftInfo(id, request);
+        log.info("AdminOrderController::updatePosDraftInfo - Execution completed.");
+        return ApiResponse.<OrderResponse>builder()
+                .code(200)
+                .message("POS draft info updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PutMapping("/pos/{id}/customer")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public ApiResponse<OrderResponse> updatePosDraftCustomer(
+            @PathVariable Long id,
+            @RequestBody OrderRequest request) {
+        log.info("AdminOrderController::updatePosDraftCustomer - Execution started. [id: {}]", id);
+        OrderResponse response = orderService.updatePosDraftCustomer(id, request);
+        log.info("AdminOrderController::updatePosDraftCustomer - Execution completed.");
+        return ApiResponse.<OrderResponse>builder()
+                .code(200)
+                .message("POS draft customer updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PutMapping("/pos/{id}/shipping")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public ApiResponse<OrderResponse> updatePosDraftShipping(
+            @PathVariable Long id,
+            @RequestBody OrderRequest request) {
+        log.info("AdminOrderController::updatePosDraftShipping - Execution started. [id: {}]", id);
+        OrderResponse response = orderService.updatePosDraftShipping(id, request);
+        log.info("AdminOrderController::updatePosDraftShipping - Execution completed.");
+        return ApiResponse.<OrderResponse>builder()
+                .code(200)
+                .message("POS draft shipping updated successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PutMapping("/pos/{id}/coupon")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public ApiResponse<OrderResponse> updatePosDraftCoupon(
+            @PathVariable Long id,
+            @RequestParam(required = false) String couponCode) {
+        log.info("AdminOrderController::updatePosDraftCoupon - Execution started. [id: {}]", id);
+        OrderResponse response = orderService.updatePosDraftCoupon(id, couponCode);
+        log.info("AdminOrderController::updatePosDraftCoupon - Execution completed.");
+        return ApiResponse.<OrderResponse>builder()
+                .code(200)
+                .message("POS draft coupon updated successfully.")
                 .data(response)
                 .timestamp(Instant.now())
                 .build();
