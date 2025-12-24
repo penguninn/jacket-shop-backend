@@ -32,7 +32,6 @@ public class PayOSService {
     private String frontendUrl;
 
     public CreatePaymentLinkResponse createPaymentLink(Long orderId) {
-        // 1. Lấy thông tin đơn hàng thật từ Database
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found"));
 
@@ -40,58 +39,49 @@ public class PayOSService {
             throw new RuntimeException("This order has been cancelled. Please create a new order.");
         }
 
-        // 2. Kiểm tra xem đơn đã thanh toán chưa
         if (order.getPaymentStatus() == PaymentStatus.PAID) {
             throw new RuntimeException("Order already paid");
         }
-        
-        long amount = order.getTotal().longValue(); 
+
+        long amount = order.getTotal().longValue();
         long payOsOrderCode = order.getId();
 
-        // 3. Logic check link cũ
+        // --- ĐOẠN CODE SỬA LỖI ---
         try {
             PaymentLink existingPayment = payOS.paymentRequests().get(payOsOrderCode);
             if (existingPayment != null) {
-                // Try access via getters first (if they existed), but since they don't seem to,
-                // we'll try to find what method works or if fields are public.
-                // Actually, if status is PENDING, we want to reuse. 
-                // Since I can't compile with missing symbols, I will try to inspect the object using reflection or just skip reuse if I can't compile.
-                // BUT, to satisfy the requirement, I'll try to assume typical getters: getStatus(), getCheckoutUrl(). 
-                // The error logs said they don't exist.
-                
-                // Let's assume standard PayOS structure. Maybe it's `checkoutUrl` (public field).
-                // I'll try just casting to String for status? No.
-                
-                // I will try to use the JSON properties directly if I could.
-                
-                // Fallback: If I can't reuse, I will cancel the old one (if pending) and create new?
-                // But canceling requires reason.
-                
-                // Let's try to assume the getters ARE there and I made a mistake? 
-                // No, compiler is strict.
-                
-                // I will Comment out the reuse logic to pass compilation, but add a TODO.
-                // OR better, I will try `existingPayment.checkoutUrl`.
-                
-                /*
-                if ("PENDING".equals(existingPayment.status)) {
-                     return CreatePaymentLinkResponse.builder()
-                        .checkoutUrl(existingPayment.checkoutUrl)
-                        .status(existingPayment.status)
-                        .build();
+                // Nếu đơn đã hủy -> Báo lỗi
+                if ("CANCELLED".equals(existingPayment.getStatus())) {
+                    throw new RuntimeException("Payment link has been cancelled. Please create a new order.");
                 }
-                */
-                // Since I cannot verify fields, I will skip the REUSE logic to ensure the project builds,
-                // but I will keep the check for CANCELLED/PAID on local Order.
-                
-                // NOTE: PayOS blocks duplicate orderCode. So if I don't reuse, create will fail.
-                // So I MUST reuse or cancel old.
-                
-                // I'll try `existingPayment.checkoutUrl` (public field).
+                // Nếu đơn đã thanh toán -> Báo lỗi
+                if ("PAID".equals(existingPayment.getStatus())) {
+                    throw new RuntimeException("Order has been paid.");
+                }
+                // Nếu đang PENDING -> Trả về thông tin cũ (Convert từ PaymentLink -> Response)
+                if ("PENDING".equals(existingPayment.getStatus())) {
+                    log.info("Found existing payment link for order {}, returning it.", payOsOrderCode);
+                    return CreatePaymentLinkResponse.builder()
+                            .bin(existingPayment.getBin())
+                            .accountNumber(existingPayment.getAccountNumber())
+                            .accountName(existingPayment.getAccountName())
+                            .amount(existingPayment.getAmount())
+                            .description(existingPayment.getDescription())
+                            .orderCode(existingPayment.getOrderCode())
+                            .currency(existingPayment.getCurrency())
+                            .paymentLinkId(existingPayment.getId())
+                            .status(existingPayment.getStatus())
+                            .checkoutUrl(existingPayment.getCheckoutUrl())
+                            .qrCode(existingPayment.getQrCode())
+                            .build();
+                }
             }
         } catch (Exception e) {
-            log.info("Creating new payment link as existing one not found or check failed: {}", e.getMessage());
+            // Log nhẹ nhàng thôi vì lỗi "Not Found" ở đây là bình thường (chưa có thì tạo
+            // mới)
+            log.info("Existing payment link check: {}", e.getMessage());
         }
+        // -------------------------
 
         PaymentLinkItem item = PaymentLinkItem.builder()
                 .name("Don hang " + order.getOrderCode())
@@ -99,7 +89,7 @@ public class PayOSService {
                 .price(amount)
                 .build();
 
-        String returnUrl = frontendUrl + "/payment-success/" + order.getOrderCode(); 
+        String returnUrl = frontendUrl + "/payment-success/" + order.getOrderCode();
         String cancelUrl = frontendUrl + "/payment-cancel/" + order.getOrderCode();
 
         String description = "Thanh toan " + order.getOrderCode();
@@ -108,7 +98,7 @@ public class PayOSService {
         }
 
         CreatePaymentLinkRequest paymentData = CreatePaymentLinkRequest.builder()
-                .orderCode(payOsOrderCode) 
+                .orderCode(payOsOrderCode)
                 .amount(amount)
                 .description(description)
                 .item(item)
@@ -123,12 +113,25 @@ public class PayOSService {
         }
     }
 
-    @Transactional
-    public void handleWebhook(WebhookData webhookData) {
-        Long orderId = webhookData.getOrderCode();
+        @Transactional
 
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found via Webhook"));
+        public void handleWebhook(WebhookData webhookData) {
+
+            Long orderId = webhookData.getOrderCode();
+
+            log.info("PayOSService::handleWebhook - Received webhook for OrderCode: {}", orderId);
+
+    
+
+            Order order = orderRepository.findById(orderId)
+
+                    .orElseThrow(() -> {
+
+                        log.error("PayOSService::handleWebhook - Order not found for ID: {}", orderId);
+
+                        return new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found via Webhook");
+
+                    });
 
         long amountPaid = webhookData.getAmount();
         long orderAmount = order.getTotal().longValue();
@@ -141,8 +144,7 @@ public class PayOSService {
         if (order.getPaymentStatus() != PaymentStatus.PAID) {
             order.setPaymentStatus(PaymentStatus.PAID);
             order.setPaymentDate(Instant.now());
-            
-            
+
             orderRepository.save(order);
             log.info("Order {} updated to PAID via Webhook", order.getOrderCode());
         }
