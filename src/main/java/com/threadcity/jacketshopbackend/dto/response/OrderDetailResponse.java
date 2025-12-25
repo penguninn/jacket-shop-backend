@@ -34,6 +34,10 @@ public class OrderDetailResponse implements Serializable {
 
     private BigDecimal price;
 
+    private BigDecimal originalPrice;
+
+    private BigDecimal discountPercentage;
+
     private Integer quantity;
 
     private BigDecimal subtotal;
