@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.domain.Pageable;
-import java.util.List;
 import java.util.Set;
+import java.util.List;
 
 @Repository
 public interface ProductRepository
@@ -36,7 +36,6 @@ public interface ProductRepository
     List<Product> findTop2ByBrandIdAndIdNotAndStatusOrderByIdDesc(Long brandId, Long excludeId, Enums.Status status);
 
     List<Product> findTop2ByStyleIdAndIdNotAndStatusOrderByIdDesc(Long styleId, Long excludeId, Enums.Status status);
-
 }
 
 
