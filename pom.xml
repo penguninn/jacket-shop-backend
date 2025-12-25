@@ -32,7 +32,6 @@
     <mapstruct.version>1.6.3</mapstruct.version>
   </properties>
   <dependencies>
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
@@ -99,7 +98,6 @@
       <version>2.8.12</version>
     </dependency>
 
-
     <!-- Test -->
     <dependency>
       <groupId>org.springframework.security</groupId>
@@ -124,6 +122,26 @@
       <version>2.3.2</version>
     </dependency>
 
+    <dependency>
+      <groupId>dev.langchain4j</groupId>
+      <artifactId>langchain4j</artifactId>
+      <version>0.34.0</version>
+    </dependency>
+
+    <!-- Kết nối với OpenAI / ChatGPT -->
+    <dependency>
+      <groupId>dev.langchain4j</groupId>
+      <artifactId>langchain4j-open-ai</artifactId>
+      <version>0.34.0</version>
+    </dependency>
+
+    <!-- Spring Boot auto config cho LangChain4j -->
+    <dependency>
+      <groupId>dev.langchain4j</groupId>
+      <artifactId>langchain4j-spring-boot-starter</artifactId>
+      <version>0.34.0</version>
+    </dependency>
+
     <!-- JUnit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -141,7 +159,6 @@
     </dependency>
 
   </dependencies>
-
 
   <build>
     <plugins>
