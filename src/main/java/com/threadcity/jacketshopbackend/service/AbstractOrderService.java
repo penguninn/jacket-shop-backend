@@ -406,7 +406,7 @@ public abstract class AbstractOrderService {
         order.setSubtotal(subtotal);
     }
 
-    private Sale getBestSale(ProductVariant variant) {
+    protected Sale getBestSale(ProductVariant variant) {
         List<Sale> sales = variant.getSales();
         if (sales == null || sales.isEmpty()) return null;
 

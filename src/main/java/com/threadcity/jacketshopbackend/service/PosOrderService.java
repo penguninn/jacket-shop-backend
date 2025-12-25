@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -334,12 +335,28 @@ public class PosOrderService extends AbstractOrderService {
                 .filter(d -> d.getProductVariant().getId().equals(variant.getId()))
                 .findFirst();
 
+        // Calculate current pricing/discount
+        BigDecimal originalPrice = variant.getPrice();
+        BigDecimal effectivePrice = originalPrice;
+        BigDecimal discountPercentage = BigDecimal.ZERO;
+
+        var bestSale = getBestSale(variant);
+        if (bestSale != null) {
+            discountPercentage = bestSale.getDiscountPercentage();
+            BigDecimal discountFactor = discountPercentage.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+            BigDecimal discountAmount = originalPrice.multiply(discountFactor);
+            effectivePrice = originalPrice.subtract(discountAmount);
+        }
+
         if (existingDetail.isPresent()) {
-            // Item already in draft -> increase quantity
+            // Item already in draft -> increase quantity and REFRESH pricing
             OrderDetail detail = existingDetail.get();
             int newQuantity = detail.getQuantity() + itemRequest.getQuantity();
             detail.setQuantity(newQuantity);
-            log.info("PosOrderService::addItemToDraft - Item already exists, increased quantity to {}", newQuantity);
+            detail.setPrice(effectivePrice);
+            detail.setOriginalPrice(originalPrice);
+            detail.setDiscountPercentage(discountPercentage);
+            log.info("PosOrderService::addItemToDraft - Item exists, increased quantity to {} and refreshed price", newQuantity);
         } else {
             // New item -> create and add to list
             OrderDetail newDetail = OrderDetail.builder()
@@ -351,7 +368,9 @@ public class PosOrderService extends AbstractOrderService {
                     .color(variant.getColor().getName())
                     .material(variant.getMaterial().getName())
                     .image(variant.getImage())
-                    .price(variant.getPrice())
+                    .price(effectivePrice)
+                    .originalPrice(originalPrice)
+                    .discountPercentage(discountPercentage)
                     .quantity(itemRequest.getQuantity())
                     .build();
             order.getDetails().add(newDetail);
@@ -396,9 +415,26 @@ public class PosOrderService extends AbstractOrderService {
                         "Draft cancelled: no items remaining");
             }
         } else {
-            // Update quantity
+            // Update quantity and refresh pricing in case of active sales
             item.setQuantity(quantity);
-            log.info("PosOrderService::updateDraftItemQuantity - Quantity updated to {}", quantity);
+            
+            BigDecimal originalPrice = item.getProductVariant().getPrice();
+            BigDecimal effectivePrice = originalPrice;
+            BigDecimal discountPercentage = BigDecimal.ZERO;
+
+            var bestSale = getBestSale(item.getProductVariant());
+            if (bestSale != null) {
+                discountPercentage = bestSale.getDiscountPercentage();
+                BigDecimal discountFactor = discountPercentage.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+                BigDecimal discountAmount = originalPrice.multiply(discountFactor);
+                effectivePrice = originalPrice.subtract(discountAmount);
+            }
+            
+            item.setPrice(effectivePrice);
+            item.setOriginalPrice(originalPrice);
+            item.setDiscountPercentage(discountPercentage);
+            
+            log.info("PosOrderService::updateDraftItemQuantity - Quantity updated to {} and price refreshed", quantity);
         }
 
         recalculateDraftFinancials(order);
