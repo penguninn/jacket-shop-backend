@@ -64,6 +64,7 @@ public class DataSyncConfig {
     private void initPaymentMethods() {
         createPaymentMethodIfNotFound("Thanh toán khi nhận hàng", "COD", Enums.PaymentMethodType.ONLINE, null);
         createPaymentMethodIfNotFound("Chuyển khoản (QR)", "QR", Enums.PaymentMethodType.ONLINE, "{\"bankId\": \"MB\", \"acc\": \"...\"}");
+        createPaymentMethodIfNotFound("Chuyển khoản (QR)", "QR_INSTORE", Enums.PaymentMethodType.POS, "{\"bankId\": \"MB\", \"acc\": \"...\"}");
         createPaymentMethodIfNotFound("Tiền mặt", "CASH", Enums.PaymentMethodType.POS, null);
     }
 
