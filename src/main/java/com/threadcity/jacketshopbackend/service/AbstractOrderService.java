@@ -31,10 +31,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -366,6 +369,19 @@ public abstract class AbstractOrderService {
                 handleStockForCreate(variant.getId(), itemReq.getQuantity());
             }
 
+            // Calculate Effective Price (Applying variant sales)
+            BigDecimal originalPrice = variant.getPrice();
+            BigDecimal effectivePrice = originalPrice;
+            BigDecimal discountPercentage = BigDecimal.ZERO;
+
+            Sale bestSale = getBestSale(variant);
+            if (bestSale != null) {
+                discountPercentage = bestSale.getDiscountPercentage();
+                BigDecimal discountFactor = discountPercentage.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+                BigDecimal discountAmount = originalPrice.multiply(discountFactor);
+                effectivePrice = originalPrice.subtract(discountAmount);
+            }
+
             OrderDetail detail = OrderDetail.builder()
                     .order(order)
                     .productVariant(variant)
@@ -375,7 +391,9 @@ public abstract class AbstractOrderService {
                     .color(variant.getColor().getName())
                     .material(variant.getMaterial().getName())
                     .image(variant.getImage())
-                    .price(variant.getPrice())
+                    .price(effectivePrice) // Price paid
+                    .originalPrice(originalPrice)
+                    .discountPercentage(discountPercentage)
                     .quantity(itemReq.getQuantity())
                     .build();
             details.add(detail);
@@ -386,6 +404,22 @@ public abstract class AbstractOrderService {
 
         order.setDetails(details);
         order.setSubtotal(subtotal);
+    }
+
+    private Sale getBestSale(ProductVariant variant) {
+        List<Sale> sales = variant.getSales();
+        if (sales == null || sales.isEmpty()) return null;
+
+        LocalDateTime now = LocalDateTime.now();
+        return sales.stream()
+            .filter(sale -> {
+                if (sale.getDiscountPercentage() == null) return false;
+                boolean startOk = sale.getStartDate() == null || !now.isBefore(sale.getStartDate());
+                boolean endOk = sale.getEndDate() == null || !now.isAfter(sale.getEndDate());
+                return startOk && endOk;
+            })
+            .max(Comparator.comparing(Sale::getDiscountPercentage))
+            .orElse(null);
     }
 
     protected void calculateFinancials(Order order, OrderRequest request) {
