@@ -9,5 +9,9 @@ import org.mapstruct.Mapping;
 public interface ReviewMapper {
 
     @Mapping(source = "product.id", target = "productId")
+    @Mapping(source = "productName", target = "productName")
+    @Mapping(source = "userName", target = "userName")
+    @Mapping(source = "createdAt", target = "createdAt")
     ReviewResponse toDto(Review review);
 }
+
