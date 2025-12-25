@@ -19,7 +19,8 @@ public interface OrderMapper {
 
     @Mapping(source = "productVariant.id", target = "productVariantId")
     @Mapping(source = "productVariant.product.id", target = "productId")
-    @Mapping(source = "productVariant.price", target = "originalPrice")
+    @Mapping(source = "productVariant.price", target = "price")
+    @Mapping(source = "price", target = "salePrice")
     @Mapping(target = "discountPercentage", ignore = true)
     OrderDetailResponse toDetailDto(OrderDetail orderDetail);
 
