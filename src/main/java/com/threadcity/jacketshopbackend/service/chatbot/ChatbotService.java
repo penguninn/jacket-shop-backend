@@ -65,8 +65,13 @@ public class ChatbotService {
             return listAvailableBrands();
         }
 
-        // 2️⃣ đang chờ user CHỌN style
         if (context().getLastIntent() == ChatbotContext.ChatIntent.STYLE_SELECTION) {
+
+            // user gõ lại "style" → hiểu là muốn xem danh sách
+            if (isListStyleRequest(msg)) {
+                return listAvailableStyles();
+            }
+
             context().setLastIntent(ChatbotContext.ChatIntent.FREE_CHAT);
 
             if (isMeaninglessReply(msg)) {
@@ -76,8 +81,12 @@ public class ChatbotService {
             return filterByStyle(msg);
         }
 
-        // 3️⃣ đang chờ user CHỌN brand
         if (context().getLastIntent() == ChatbotContext.ChatIntent.BRAND_SELECTION) {
+
+            if (isListBrandRequest(msg)) {
+                return listAvailableBrands();
+            }
+
             context().setLastIntent(ChatbotContext.ChatIntent.FREE_CHAT);
 
             if (isMeaninglessReply(msg)) {
@@ -86,6 +95,7 @@ public class ChatbotService {
 
             return filterByBrand(msg);
         }
+
 
         // 4️⃣ more products
         if (isMoreRequest(msg)) {
@@ -126,7 +136,7 @@ public class ChatbotService {
     }
 
     private boolean isMoreRequest(String msg) {
-        return containsAny(msg, "mẫu khác", "thêm mẫu", "còn không", "khác không");
+        return containsAny(msg, "mẫu khác", "thêm mẫu", "còn không", "khác không", "xem ");
     }
 
     private boolean isStyleRequest(String msg) {
@@ -149,7 +159,7 @@ public class ChatbotService {
         return """
                 Chào bạn 👋  
                 Mình là tư vấn viên của ThreadCity.  
-                Bạn đang tìm áo khoác theo **style**, **hãng**, hay **mức giá** nào để mình hỗ trợ tốt nhất ạ?
+                Bạn đang tìm áo khoác theo **style**, **hãng** nào để mình hỗ trợ tốt nhất ạ?
                 """;
     }
 
@@ -211,7 +221,7 @@ public class ChatbotService {
 
     private String detectBrandKeyword(String msg) {
         msg = msg.replaceAll(
-                "(xem|thử|cho|tôi|cái|đi|phát|check|loại|mẫu|anh|chị|mình|em)",
+                "(xem|thử|cho|tôi|cái|đi|phát|check|loại|mẫu|anh|chị|mình|em|thì|sao)",
                 "").trim();
 
         String k = extractKeyword(msg, "hãng", "brand", "hiệu");
@@ -223,7 +233,7 @@ public class ChatbotService {
 
     private String detectStyleKeyword(String msg) {
         msg = msg.replaceAll(
-                "(xem|thử|cho|tôi|cái|đi|phát|check|loại|mẫu|anh|chị|mình|em)",
+                "(xem|thử|cho|tôi|cái|đi|phát|check|loại|mẫu|anh|chị|mình|em|thì|sao)",
                 "").trim();
 
         String k = extractKeyword(msg, "style", "kiểu", "dáng");
@@ -260,7 +270,7 @@ public class ChatbotService {
                     .append("  - Giá: ").append(formatPrice(p)).append("\n\n");
         }
 
-        sb.append("👉 Bạn thích mẫu nào không? Mình có thể tìm **mẫu tương tự** cho bạn nhé!");
+        sb.append("👉 Bạn thích mẫu nào không? Mình có thể tìm **mẫu theo hãng khác** cho bạn nhé!");
         return sb.toString();
     }
 
@@ -330,7 +340,8 @@ public class ChatbotService {
         boolean match(Product p);
     }
     private boolean isListStyleRequest(String msg) {
-        return containsAny(msg,
+        return msg.equals("style")
+                || containsAny(msg,
                 "có những style nào",
                 "có những style gì",
                 "có những loại nào",
@@ -338,22 +349,29 @@ public class ChatbotService {
                 "có các loại gì",
                 "có các loại nào",
                 "có các style nào",
+                "tìm áo khoác theo style",
+                "tìm sản phẩm theo style",
                 "các style",
                 "style nào",
                 "những style nào");
     }
 
     private boolean isListBrandRequest(String msg) {
-        return containsAny(msg,
+        return msg.equals("hãng")
+                || msg.equals("brand")
+                || containsAny(msg,
                 "có những hãng nào",
                 "có những hãng gì",
                 "có các hãng nào",
                 "có các hãng gì",
+                "tìm áo khoác theo hãng",
+                "tìm áo khoác theo brand",
+                "tìm sản phẩm theo hãng",
+                "tìm sản phẩm theo brand",
                 "hãng gì",
                 "các hãng",
                 "hãng nào",
                 "những hãng gì",
-                "tìm sản phẩm theo hãng",
                 "những hãng nào");
     }
     private String listAvailableStyles() {
