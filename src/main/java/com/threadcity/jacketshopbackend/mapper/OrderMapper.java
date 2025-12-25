@@ -39,8 +39,10 @@ public interface OrderMapper {
                 
                 BigDecimal diff = target.getPrice().subtract(target.getSalePrice());
                 if (diff.compareTo(BigDecimal.ZERO) > 0) {
+                    // Calculate percentage with higher precision first, then round for display
                     BigDecimal percentage = diff.multiply(BigDecimal.valueOf(100))
-                            .divide(target.getPrice(), 2, java.math.RoundingMode.HALF_UP);
+                            .divide(target.getPrice(), 4, java.math.RoundingMode.HALF_UP)
+                            .setScale(2, java.math.RoundingMode.HALF_UP); // Round for display
                     target.setDiscountPercentage(percentage);
                 } else {
                     target.setDiscountPercentage(BigDecimal.ZERO);
