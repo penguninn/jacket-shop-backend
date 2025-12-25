@@ -73,10 +73,29 @@ public class ReviewService {
         return reviewMapper.toDto(savedReview);
     }
 
+    // --- MỚI THÊM: Logic lấy tất cả review ---
+    public PageResponse<?> getAllReviews(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Review> reviewPage = reviewRepository.findAll(pageable);
+
+        List<ReviewResponse> contents = reviewPage.getContent().stream()
+                .map(reviewMapper::toDto)
+                .toList();
+
+        return PageResponse.builder()
+                .contents(contents)
+                .page(page)
+                .size(size)
+                .totalElements(reviewPage.getTotalElements())
+                .totalPages(reviewPage.getTotalPages())
+                .build();
+    }
+    // ----------------------------------------
+
     public PageResponse<?> getReviewsByProductId(Long productId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Review> reviewPage = reviewRepository.findByProductId(productId, pageable);
-        
+
         List<ReviewResponse> contents = reviewPage.getContent().stream()
                 .map(reviewMapper::toDto)
                 .toList();
@@ -94,17 +113,16 @@ public class ReviewService {
     public void deleteReview(Long id) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND, "Review not found"));
-        
+
         Product product = review.getProduct();
         reviewRepository.delete(review);
         updateProductRating(product);
     }
 
     private void updateProductRating(Product product) {
-        // This is a naive implementation, ideally use a native query or aggregate
         Page<Review> reviews = reviewRepository.findByProductId(product.getId(), Pageable.unpaged());
         List<Review> allReviews = reviews.getContent();
-        
+
         if (allReviews.isEmpty()) {
             product.setRatingAverage(BigDecimal.ZERO);
             product.setRatingCount(0);
@@ -122,4 +140,99 @@ public class ReviewService {
     private Long getUserId() {
         return ((UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
     }
+    public PageResponse<?> searchReviews(
+            String keyword,
+            Integer rating,
+            int page,
+            int size
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("createdAt").descending()
+        );
+
+        // Nếu keyword rỗng → null
+        if (keyword != null && keyword.trim().isEmpty()) {
+            keyword = null;
+        }
+
+        Page<Review> reviewPage =
+                reviewRepository.searchReviews(keyword, rating, pageable);
+
+        List<ReviewResponse> contents = reviewPage.getContent()
+                .stream()
+                .map(reviewMapper::toDto)
+                .toList();
+
+        return PageResponse.builder()
+                .contents(contents)
+                .page(page)
+                .size(size)
+                .totalElements(reviewPage.getTotalElements())
+                .totalPages(reviewPage.getTotalPages())
+                .build();
+    }
+    public PageResponse<?> getReviewsByProductId(
+            Long productId,
+            int page,
+            int size,
+            String sort
+    ) {
+        Sort sortBy = sort.equalsIgnoreCase("oldest")
+                ? Sort.by("createdAt").ascending()
+                : Sort.by("createdAt").descending(); // default latest
+
+        Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        Page<Review> reviewPage =
+                reviewRepository.findByProductId(productId, pageable);
+
+        List<ReviewResponse> contents = reviewPage.getContent()
+                .stream()
+                .map(reviewMapper::toDto)
+                .toList();
+
+        return PageResponse.builder()
+                .contents(contents)
+                .page(page)
+                .size(size)
+                .totalElements(reviewPage.getTotalElements())
+                .totalPages(reviewPage.getTotalPages())
+                .build();
+    }
+    public PageResponse<?> searchReviews(
+            String keyword,
+            Integer rating,
+            int page,
+            int size,
+            String sort
+    ) {
+        Sort sortBy = sort.equalsIgnoreCase("oldest")
+                ? Sort.by("createdAt").ascending()
+                : Sort.by("createdAt").descending();
+
+        Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        if (keyword != null && keyword.trim().isEmpty()) {
+            keyword = null;
+        }
+
+        Page<Review> reviewPage =
+                reviewRepository.searchReviews(keyword, rating, pageable);
+
+        List<ReviewResponse> contents = reviewPage.getContent()
+                .stream()
+                .map(reviewMapper::toDto)
+                .toList();
+
+        return PageResponse.builder()
+                .contents(contents)
+                .page(page)
+                .size(size)
+                .totalElements(reviewPage.getTotalElements())
+                .totalPages(reviewPage.getTotalPages())
+                .build();
+    }
+
 }
