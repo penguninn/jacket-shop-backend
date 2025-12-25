@@ -203,8 +203,8 @@ public class OrderService {
     public List<OrderResponse> getPosDrafts() {
         List<OrderResponse> allDrafts = new ArrayList<>();
         
-        // Get both INSTORE and DELIVERY drafts for current staff
-        for (OrderType type : Arrays.asList(OrderType.POS_INSTORE, OrderType.POS_DELIVERY)) {
+        // Get INSTORE drafts for current staff
+        for (OrderType type : Arrays.asList(OrderType.POS_INSTORE)) {
             OrderFilterRequest filter = new OrderFilterRequest();
             filter.setOrderType(type);
             filter.setStatus(OrderStatus.PENDING);

@@ -12,7 +12,7 @@ public class Enums {
 
     public enum OrderType {
         ONLINE,
-        POS_INSTORE, POS_DELIVERY
+        POS_INSTORE
     }
 
     public enum PaymentStatus {

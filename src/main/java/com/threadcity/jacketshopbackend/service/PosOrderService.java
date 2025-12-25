@@ -57,10 +57,8 @@ public class PosOrderService extends AbstractOrderService {
     public OrderResponse createPosDraft(OrderRequest request) {
         log.info("PosOrderService::createPosDraft - Start");
 
-        // Count BOTH POS_INSTORE and POS_DELIVERY pending orders (store-wide, not per staff)
-        long countInstore = orderRepository.countByOrderTypeAndStatus(OrderType.POS_INSTORE, OrderStatus.PENDING);
-        long countDelivery = orderRepository.countByOrderTypeAndStatus(OrderType.POS_DELIVERY, OrderStatus.PENDING);
-        long totalPosPending = countInstore + countDelivery;
+        // Count POS_INSTORE pending orders (store-wide, not per staff)
+        long totalPosPending = orderRepository.countByOrderTypeAndStatus(OrderType.POS_INSTORE, OrderStatus.PENDING);
 
         if (totalPosPending >= 5) {
             throw new InvalidRequestException(ErrorCodes.VALIDATION_FAILED,
@@ -556,15 +554,6 @@ public class PosOrderService extends AbstractOrderService {
                     .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND, "Payment method not found"));
             order.setPaymentMethod(paymentMethod);
             order.setPaymentMethodName(paymentMethod.getName());
-        }
-
-        if (request.getPaymentStatus() != null) {
-            order.setPaymentStatus(request.getPaymentStatus());
-            if (request.getPaymentStatus() == PaymentStatus.PAID) {
-                order.setPaymentDate(Instant.now());
-            } else {
-                order.setPaymentDate(null);
-            }
         }
 
         Order saved = orderRepository.save(order);

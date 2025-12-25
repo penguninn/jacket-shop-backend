@@ -28,10 +28,8 @@ public class PaymentMethod extends BaseEntity {
     @Column(nullable = false, length = 50, unique = true)
     private String code;
 
-    @ElementCollection(targetClass = PaymentMethodType.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "payment_method_types", joinColumns = @JoinColumn(name = "payment_method_id"))
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 20)
+    @Column(name = "type", nullable = false, length = 100)
     @Builder.Default
     private List<PaymentMethodType> types = new ArrayList<>();
 
