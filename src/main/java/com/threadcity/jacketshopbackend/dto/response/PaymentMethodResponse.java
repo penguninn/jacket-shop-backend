@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 
 @Data
 @Builder
@@ -22,7 +21,7 @@ public class PaymentMethodResponse implements Serializable {
 
     private String code;
 
-    private List<Enums.PaymentMethodType> types;
+    private Enums.PaymentMethodType type;
 
     private String description;
 

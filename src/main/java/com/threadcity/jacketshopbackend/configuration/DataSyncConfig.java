@@ -1,7 +1,6 @@
 package com.threadcity.jacketshopbackend.configuration;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.common.Enums.PaymentMethodType;
 import com.threadcity.jacketshopbackend.entity.PaymentMethod;
 import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.entity.User;
@@ -19,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Configuration
@@ -64,10 +62,9 @@ public class DataSyncConfig {
     }
 
     private void initPaymentMethods() {
-        createPaymentMethodIfNotFound("Thanh toán khi nhận hàng", "COD", List.of(PaymentMethodType.ONLINE), null);
-        createPaymentMethodIfNotFound("Chuyển khoản (QR)", "QR",
-                List.of(PaymentMethodType.ONLINE, PaymentMethodType.POS), "{\"bankId\": \"MB\", \"acc\": \"...\"}");
-        createPaymentMethodIfNotFound("Tiền mặt", "CASH", List.of(PaymentMethodType.POS), null);
+        createPaymentMethodIfNotFound("Thanh toán khi nhận hàng", "COD", Enums.PaymentMethodType.ONLINE, null);
+        createPaymentMethodIfNotFound("Chuyển khoản (QR)", "QR", Enums.PaymentMethodType.ONLINE, "{\"bankId\": \"MB\", \"acc\": \"...\"}");
+        createPaymentMethodIfNotFound("Tiền mặt", "CASH", Enums.PaymentMethodType.POS, null);
     }
 
     // --- Helper Methods ---
@@ -125,12 +122,12 @@ public class DataSyncConfig {
         }
     }
 
-    private void createPaymentMethodIfNotFound(String name, String code, List<PaymentMethodType> types, String config) {
+    private void createPaymentMethodIfNotFound(String name, String code, Enums.PaymentMethodType type, String config) {
         if (!paymentMethodRepository.existsByCode(code)) {
             PaymentMethod method = PaymentMethod.builder()
                     .name(name)
                     .code(code)
-                    .types(types)
+                    .type(type)
                     .config(config)
                     .status(Enums.Status.ACTIVE)
                     .build();

@@ -117,7 +117,7 @@ public class PaymentMethodService {
 
         entity.setName(request.getName());
         entity.setCode(request.getCode());
-        entity.setTypes(request.getTypes());
+        entity.setType(request.getType());
         entity.setConfig(request.getConfig());
         entity.setDescription(request.getDescription());
         entity.setStatus(request.getStatus());

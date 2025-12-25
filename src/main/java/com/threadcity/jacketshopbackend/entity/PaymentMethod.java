@@ -4,14 +4,10 @@ import com.threadcity.jacketshopbackend.common.Enums.PaymentMethodType;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
-import java.util.List;
-import java.util.ArrayList;
 
 @Entity
 @Table(name = "payment_methods")
@@ -29,9 +25,8 @@ public class PaymentMethod extends BaseEntity {
     private String code;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 100)
-    @Builder.Default
-    private List<PaymentMethodType> types = new ArrayList<>();
+    @Column(nullable = false, length = 20)
+    private PaymentMethodType type;
 
     @Lob
     @Column(columnDefinition = "NVARCHAR(MAX)")
