@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -61,7 +60,6 @@ public class Address extends BaseEntity {
     private Province province;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "is_default", nullable = false)
     @Builder.Default
     private Boolean isDefault = false;

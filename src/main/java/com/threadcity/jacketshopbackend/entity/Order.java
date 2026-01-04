@@ -1,11 +1,11 @@
 package com.threadcity.jacketshopbackend.entity;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
@@ -38,10 +38,10 @@ public class Order extends BaseEntity {
     @Column(name = "order_code", nullable = false, length = 32)
     private String orderCode;
 
-    @Size(max = 20)
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "order_type", nullable = false, length = 20)
-    private String orderType;
+    private Enums.OrderType orderType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -108,9 +108,9 @@ public class Order extends BaseEntity {
     private String shippingProvinceName;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "shipping_fee", nullable = false, precision = 12, scale = 2)
-    private BigDecimal shippingFee;
+    @Builder.Default
+    private BigDecimal shippingFee = BigDecimal.ZERO;
 
     @Size(max = 100)
     @Nationalized
@@ -144,11 +144,11 @@ public class Order extends BaseEntity {
     @Column(name = "payment_method_name", length = 80)
     private String paymentMethodName;
 
-    @Size(max = 20)
     @NotNull
-    @ColumnDefault("'UNPAID'")
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false, length = 20)
-    private String paymentStatus;
+    @Builder.Default
+    private Enums.PaymentStatus paymentStatus = Enums.PaymentStatus.UNPAID;
 
     @Column(name = "payment_date")
     private OffsetDateTime paymentDate;
@@ -162,9 +162,9 @@ public class Order extends BaseEntity {
     private BigDecimal subtotal;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "discount", nullable = false, precision = 12, scale = 2)
-    private BigDecimal discount;
+    @Builder.Default
+    private BigDecimal discount = BigDecimal.ZERO;
 
     @NotNull
     @Column(name = "total", nullable = false, precision = 12, scale = 2)
@@ -178,11 +178,11 @@ public class Order extends BaseEntity {
     @Column(name = "coupon_code", length = 50)
     private String couponCode;
 
-    @Size(max = 20)
     @NotNull
-    @ColumnDefault("'PENDING'")
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Builder.Default
+    private Enums.OrderStatus status = Enums.OrderStatus.PENDING;
 
     @Size(max = 1000)
     @Nationalized
@@ -207,8 +207,7 @@ public class Order extends BaseEntity {
     @Column(name = "returned_at")
     private OffsetDateTime returnedAt;
 
-    @OneToMany
-    @JoinColumn(name = "order_id")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<OrderDetail> orderDetails = new LinkedHashSet<>();
 

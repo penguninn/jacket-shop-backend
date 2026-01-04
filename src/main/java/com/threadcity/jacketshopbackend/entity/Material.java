@@ -1,14 +1,11 @@
 package com.threadcity.jacketshopbackend.entity;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 @Getter
@@ -35,10 +32,10 @@ public class Material extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
-    @Size(max = 20)
     @NotNull
-    @ColumnDefault("'ACTIVE'")
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Builder.Default
+    private Enums.Status status = Enums.Status.ACTIVE;
 
 }

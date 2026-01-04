@@ -1,13 +1,10 @@
 package com.threadcity.jacketshopbackend.entity;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 @Getter
@@ -23,12 +20,6 @@ import org.hibernate.annotations.Nationalized;
 })
 public class Size extends BaseEntity {
 
-    @Column(name = "created_by")
-    private Long createdBy;
-
-    @Column(name = "updated_by")
-    private Long updatedBy;
-
     @jakarta.validation.constraints.Size(max = 120)
     @NotNull
     @Nationalized
@@ -40,10 +31,10 @@ public class Size extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
-    @jakarta.validation.constraints.Size(max = 20)
     @NotNull
-    @ColumnDefault("'ACTIVE'")
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Builder.Default
+    private Enums.Status status = Enums.Status.ACTIVE;
 
 }

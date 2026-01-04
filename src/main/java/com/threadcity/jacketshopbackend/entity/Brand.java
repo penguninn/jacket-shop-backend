@@ -1,17 +1,12 @@
 package com.threadcity.jacketshopbackend.entity;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.LastModifiedBy;
 
 @Getter
 @Setter
@@ -41,10 +36,10 @@ public class Brand extends BaseEntity {
     @Column(name = "logo", length = 500)
     private String logo;
 
-    @Size(max = 20)
     @NotNull
-    @ColumnDefault("'ACTIVE'")
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Builder.Default
+    private Enums.Status status = Enums.Status.ACTIVE;
 
 }

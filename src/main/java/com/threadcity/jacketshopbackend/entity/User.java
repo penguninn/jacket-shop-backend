@@ -6,11 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Getter
@@ -34,7 +34,7 @@ public class User extends BaseEntity {
     private String username;
 
     @Size(max = 255)
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
     @Size(max = 255)
@@ -57,20 +57,18 @@ public class User extends BaseEntity {
     @Column(name = "avatar", length = 500)
     private String avatar;
 
-    @Size(max = 20)
     @NotNull
-    @ColumnDefault("'ACTIVE'")
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private Enums.Status status;
+    @Builder.Default
+    private Enums.Status status = Enums.Status.ACTIVE;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "email_verified", nullable = false)
     @Builder.Default
     private Boolean emailVerified = false;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "phone_verified", nullable = false)
     @Builder.Default
     private Boolean phoneVerified = false;
@@ -88,6 +86,15 @@ public class User extends BaseEntity {
                     @UniqueConstraint(columnNames = {"user_id", "role_id"})
             }
     )
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<Address> addresses = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<UserCoupon> userCoupons = new LinkedHashSet<>();
 
 }

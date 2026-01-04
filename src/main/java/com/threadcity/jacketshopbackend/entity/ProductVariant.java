@@ -1,18 +1,17 @@
 package com.threadcity.jacketshopbackend.entity;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,12 +31,6 @@ import java.math.BigDecimal;
         @UniqueConstraint(name = "UK_product_variants_sku", columnNames = { "sku" })
 })
 public class ProductVariant extends BaseEntity {
-
-    @Column(name = "created_by")
-    private Long createdBy;
-
-    @Column(name = "updated_by")
-    private Long updatedBy;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -74,29 +67,29 @@ public class ProductVariant extends BaseEntity {
     private BigDecimal price;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "quantity", nullable = false)
-    private Integer quantity;
+    @Builder.Default
+    private Integer quantity = 0;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "available_quantity", nullable = false)
-    private Integer availableQuantity;
+    @Builder.Default
+    private Integer availableQuantity = 0;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "reserved_quantity", nullable = false)
-    private Integer reservedQuantity;
+    @Builder.Default
+    private Integer reservedQuantity = 0;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "sold_count", nullable = false)
-    private Integer soldCount;
+    @Builder.Default
+    private Integer soldCount = 0;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "return_count", nullable = false)
-    private Integer returnCount;
+    @Builder.Default
+    private Integer returnCount = 0;
 
     @Column(name = "weight", precision = 8, scale = 2)
     private BigDecimal weight;
@@ -110,15 +103,19 @@ public class ProductVariant extends BaseEntity {
     @Column(name = "height", precision = 8, scale = 2)
     private BigDecimal height;
 
-    @Size(max = 20)
     @NotNull
-    @ColumnDefault("'ACTIVE'")
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Builder.Default
+    private Enums.Status status = Enums.Status.ACTIVE;
 
     @NotNull
-    @ColumnDefault("1")
     @Column(name = "version", nullable = false)
-    private Integer version;
+    @Builder.Default
+    private Integer version = 1;
+
+    @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<SaleVariant> saleVariants = new LinkedHashSet<>();
 
 }

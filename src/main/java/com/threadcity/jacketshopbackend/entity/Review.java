@@ -1,6 +1,8 @@
 package com.threadcity.jacketshopbackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,8 @@ import org.hibernate.annotations.OnDeleteAction;
         @Index(name = "IX_reviews_user", columnList = "user_id, created_at"),
         @Index(name = "IX_reviews_order", columnList = "order_id"),
         @Index(name = "IX_reviews_rating", columnList = "product_id, rating")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "UK_reviews_user_product_order", columnNames = {"user_id", "product_id", "order_id"})
 })
 public class Review extends BaseEntity {
 
@@ -54,6 +58,8 @@ public class Review extends BaseEntity {
     private String productName;
 
     @NotNull
+    @Min(1)
+    @Max(5)
     @Column(name = "rating", nullable = false)
     private Integer rating;
 

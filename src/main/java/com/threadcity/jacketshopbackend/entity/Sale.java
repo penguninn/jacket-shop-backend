@@ -1,21 +1,19 @@
 package com.threadcity.jacketshopbackend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
+import com.threadcity.jacketshopbackend.common.Enums;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -27,12 +25,6 @@ import java.time.OffsetDateTime;
         @Index(name = "IX_sales_dates_status", columnList = "start_date, end_date, status")
 })
 public class Sale extends BaseEntity {
-
-    @Column(name = "created_by")
-    private Long createdBy;
-
-    @Column(name = "updated_by")
-    private Long updatedBy;
 
     @Size(max = 255)
     @NotNull
@@ -46,6 +38,8 @@ public class Sale extends BaseEntity {
     private String description;
 
     @NotNull
+    @DecimalMin("0.00")
+    @DecimalMax("100.00")
     @Column(name = "discount_percentage", nullable = false, precision = 5, scale = 2)
     private BigDecimal discountPercentage;
 
@@ -57,10 +51,14 @@ public class Sale extends BaseEntity {
     @Column(name = "end_date", nullable = false)
     private OffsetDateTime endDate;
 
-    @Size(max = 20)
     @NotNull
-    @ColumnDefault("'ACTIVE'")
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Builder.Default
+    private Enums.Status status = Enums.Status.ACTIVE;
+
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<SaleVariant> saleVariants = new LinkedHashSet<>();
 
 }

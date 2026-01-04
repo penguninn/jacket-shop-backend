@@ -2,12 +2,8 @@ package com.threadcity.jacketshopbackend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -40,9 +36,9 @@ public class UserCoupon extends BaseEntity {
     private Coupon coupon;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "used_count", nullable = false)
-    private Integer usedCount;
+    @Builder.Default
+    private Integer usedCount = 0;
 
     @Column(name = "first_used_at")
     private OffsetDateTime firstUsedAt;

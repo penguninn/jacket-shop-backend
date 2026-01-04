@@ -1,18 +1,18 @@
 package com.threadcity.jacketshopbackend.entity;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -38,10 +38,10 @@ public class Coupon extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
-    @Size(max = 20)
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 20)
-    private String type;
+    private Enums.CouponType type;
 
     @NotNull
     @Column(name = "\"value\"", nullable = false, precision = 12, scale = 2)
@@ -53,16 +53,18 @@ public class Coupon extends BaseEntity {
     @Column(name = "max_discount", precision = 12, scale = 2)
     private BigDecimal maxDiscount;
 
+    @Min(1)
     @Column(name = "usage_limit")
     private Integer usageLimit;
 
+    @Min(1)
     @Column(name = "usage_limit_per_user")
     private Integer usageLimitPerUser;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "used_count", nullable = false)
-    private Integer usedCount;
+    @Builder.Default
+    private Integer usedCount = 0;
 
     @NotNull
     @Column(name = "valid_from", nullable = false)
@@ -72,10 +74,14 @@ public class Coupon extends BaseEntity {
     @Column(name = "valid_to", nullable = false)
     private OffsetDateTime validTo;
 
-    @Size(max = 20)
     @NotNull
-    @ColumnDefault("'ACTIVE'")
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Builder.Default
+    private Enums.Status status = Enums.Status.ACTIVE;
+
+    @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<UserCoupon> userCoupons = new LinkedHashSet<>();
 
 }

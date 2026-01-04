@@ -3,9 +3,13 @@ package com.threadcity.jacketshopbackend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 
@@ -15,6 +19,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "sale_variants", schema = "dbo", indexes = {
         @Index(name = "IX_sale_variants_variant", columnList = "product_variant_id")
 })
@@ -34,9 +39,20 @@ public class SaleVariant {
     @JoinColumn(name = "product_variant_id", nullable = false)
     private ProductVariant productVariant;
 
-    @NotNull
-    @ColumnDefault("sysdatetimeoffset()")
-    @Column(name = "created_at", nullable = false)
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
+
+    @CreatedBy
+    @Column(name = "created_by", updatable = false)
+    private String createdBy;
+
+    @LastModifiedBy
+    @Column(name = "updated_by")
+    private String updatedBy;
 
 }

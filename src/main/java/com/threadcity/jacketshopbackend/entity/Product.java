@@ -1,14 +1,16 @@
 package com.threadcity.jacketshopbackend.entity;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -24,12 +26,6 @@ import java.math.BigDecimal;
         @Index(name = "IX_products_sold", columnList = "sold_count")
 })
 public class Product extends BaseEntity {
-
-    @Column(name = "created_by")
-    private Long createdBy;
-
-    @Column(name = "updated_by")
-    private Long updatedBy;
 
     @Size(max = 200)
     @NotNull
@@ -59,34 +55,46 @@ public class Product extends BaseEntity {
     private BigDecimal maxPrice;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "is_featured", nullable = false)
     @Builder.Default
     private Boolean isFeatured = false;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "sold_count", nullable = false)
-    private Long soldCount;
+    @Builder.Default
+    private Long soldCount = 0L;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "rating_count", nullable = false)
-    private Integer ratingCount;
+    @Builder.Default
+    private Integer ratingCount = 0;
 
-    @ColumnDefault("0")
+    @NotNull
     @Column(name = "rating_average", precision = 3, scale = 1)
-    private BigDecimal ratingAverage;
+    @Builder.Default
+    private BigDecimal ratingAverage = BigDecimal.ZERO;
 
-    @Size(max = 20)
     @NotNull
-    @ColumnDefault("'ACTIVE'")
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Builder.Default
+    private Enums.Status status = Enums.Status.ACTIVE;
 
     @NotNull
-    @ColumnDefault("1")
     @Column(name = "version", nullable = false)
-    private Integer version;
+    @Builder.Default
+    private Integer version = 1;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<ProductVariant> variants = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<ProductImage> images = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<Review> reviews = new LinkedHashSet<>();
 
 }

@@ -1,10 +1,10 @@
 package com.threadcity.jacketshopbackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -37,6 +37,7 @@ public class CartItem extends BaseEntity {
     private ProductVariant productVariant;
 
     @NotNull
+    @Min(1)
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
@@ -45,9 +46,8 @@ public class CartItem extends BaseEntity {
     private BigDecimal unitPrice;
 
     @NotNull
-    @ColumnDefault("1")
     @Column(name = "selected", nullable = false)
     @Builder.Default
-    private Boolean selected = false;
+    private Boolean selected = true;
 
 }

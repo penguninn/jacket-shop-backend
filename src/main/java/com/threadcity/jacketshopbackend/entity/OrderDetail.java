@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -83,6 +84,7 @@ public class OrderDetail extends BaseEntity {
     private BigDecimal discountPercentage;
 
     @NotNull
+    @Min(1)
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 

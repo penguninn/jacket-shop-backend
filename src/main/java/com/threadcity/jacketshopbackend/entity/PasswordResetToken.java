@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -41,7 +40,6 @@ public class PasswordResetToken extends BaseEntity {
     private OffsetDateTime expiryDate;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "is_used", nullable = false)
     @Builder.Default
     private Boolean isUsed = false;
