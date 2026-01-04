@@ -1,7 +1,7 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.payos.ConfirmWebhookRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.integration.payos.ConfirmWebhookRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
 import com.threadcity.jacketshopbackend.service.OnlineOrderService;
 import com.threadcity.jacketshopbackend.service.PayOSService;
 import lombok.RequiredArgsConstructor;

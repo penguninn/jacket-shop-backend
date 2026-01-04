@@ -1,13 +1,14 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.ColorRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.ColorResponse;
-import com.threadcity.jacketshopbackend.dto.response.ImportResult;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.request.ColorCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.ColorUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.filter.ColorFilterRequest;
 import com.threadcity.jacketshopbackend.service.ColorImportService;
 import com.threadcity.jacketshopbackend.service.ColorService;
@@ -87,7 +88,7 @@ public class ColorController {
         }
 
         @PostMapping
-        public ApiResponse<?> createColor(@Valid @RequestBody ColorRequest colorRequest) {
+        public ApiResponse<?> createColor(@Valid @RequestBody ColorCreateRequest colorRequest) {
                 log.info("ColorController::createColor - Execution started.");
                 ColorResponse response = colorService.createColor(colorRequest);
                 log.info("ColorController::createColor - Execution completed.");
@@ -100,7 +101,7 @@ public class ColorController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateColor(@PathVariable Long id, @Valid @RequestBody ColorRequest colorRequest) {
+        public ApiResponse<?> updateColor(@PathVariable Long id, @Valid @RequestBody ColorCreateRequest colorRequest) {
                 log.info("ColorController::updateColor - Execution started. [id: {}]", id);
                 ColorResponse response = colorService.updateColorById(colorRequest, id);
                 log.info("ColorController::updateColor - Execution completed. [id: {}]", id);

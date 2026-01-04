@@ -1,9 +1,9 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.dto.request.CartItemRequest;
-import com.threadcity.jacketshopbackend.dto.response.CartResponse;
-import com.threadcity.jacketshopbackend.dto.response.CartValidationResponse;
+import com.threadcity.jacketshopbackend.dto.cart.request.CartItemRequest;
+import com.threadcity.jacketshopbackend.dto.cart.response.CartResponse;
+import com.threadcity.jacketshopbackend.dto.cart.response.CartValidationResponse;
 import com.threadcity.jacketshopbackend.exception.AuthorizationFailedException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;

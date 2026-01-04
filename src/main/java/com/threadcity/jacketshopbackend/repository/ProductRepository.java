@@ -7,11 +7,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.threadcity.jacketshopbackend.entity.Product;
+
 import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
+
     Optional<Product> findByName(String name);
+
     boolean existsByName(String name);
 
     @Modifying
@@ -20,6 +24,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                 SET p.soldCount = p.soldCount + :quantity
                 WHERE p.id = :productId
             """)
+
     void increaseSoldCount(
             @Param("productId") Long productId,
             @Param("quantity") int quantity);

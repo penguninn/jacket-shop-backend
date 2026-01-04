@@ -1,13 +1,14 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.MaterialRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.ImportResult;
-import com.threadcity.jacketshopbackend.dto.response.MaterialResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.request.MaterialCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.MaterialUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.attribute.response.MaterialResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.filter.MaterialFilterRequest;
 import com.threadcity.jacketshopbackend.service.MaterialImportService;
 import com.threadcity.jacketshopbackend.service.MaterialService;
@@ -111,7 +112,7 @@ public class MaterialController {
         }
 
         @PostMapping
-        public ApiResponse<?> createMaterial(@RequestBody MaterialRequest materialRequest) {
+        public ApiResponse<?> createMaterial(@RequestBody MaterialCreateRequest materialRequest) {
                 log.info("MaterialController::createMaterial - Execution started.");
                 MaterialResponse response = materialService.createMaterial(materialRequest);
                 log.info("MaterialController::createMaterial - Execution completed.");
@@ -125,7 +126,7 @@ public class MaterialController {
 
         @PutMapping("/{id}")
         public ApiResponse<?> updateMaterial(@PathVariable Long id,
-                        @Valid @RequestBody MaterialRequest materialRequest) {
+                        @Valid @RequestBody MaterialCreateRequest materialRequest) {
                 log.info("MaterialController::updateMaterial - Execution started. [id: {}]", id);
 
                 MaterialResponse response = materialService.updateMaterialById(materialRequest, id);

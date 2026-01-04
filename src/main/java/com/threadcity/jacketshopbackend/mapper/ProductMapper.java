@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.mapper;
 
-import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.ProductResponse;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = {

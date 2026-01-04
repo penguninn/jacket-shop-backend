@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.response.RoleResponse;
+import com.threadcity.jacketshopbackend.dto.auth.response.RoleResponse;
 import com.threadcity.jacketshopbackend.mapper.RoleMapper;
 import com.threadcity.jacketshopbackend.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,10 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.SaleRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.SaleResponse;
+import com.threadcity.jacketshopbackend.dto.promotion.request.SaleCreateRequest;
+import com.threadcity.jacketshopbackend.dto.promotion.request.SaleUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.promotion.response.SaleResponse;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.filter.SaleFilterRequest;
@@ -37,7 +38,7 @@ public class SaleService {
     private final SaleRepository saleRepository;
 
     @Transactional
-    public SaleResponse createSale(SaleRequest request) {
+    public SaleResponse createSale(SaleCreateRequest request) {
         log.info("SaleService::createSale - Execution started. [variantIds: {}]", request.getProductVariantIds());
 
         List<ProductVariant> variants = productVariantRepository.findAllById(request.getProductVariantIds());
@@ -67,7 +68,7 @@ public class SaleService {
     }
 
     @Transactional
-    public SaleResponse updateSale(Long id, SaleRequest request) {
+    public SaleResponse updateSale(Long id, SaleUpdateRequest request) {
         log.info("SaleService::updateSale - Execution started. [id: {}]", id);
 
         Sale sale = saleRepository.findById(id)

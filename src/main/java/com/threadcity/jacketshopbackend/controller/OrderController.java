@@ -1,10 +1,10 @@
 package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
-import com.threadcity.jacketshopbackend.dto.request.OrderRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.OrderHistoryResponse;
-import com.threadcity.jacketshopbackend.dto.response.OrderResponse;
+import com.threadcity.jacketshopbackend.dto.order.request.OrderRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.order.response.OrderHistoryResponse;
+import com.threadcity.jacketshopbackend.dto.order.response.OrderResponse;
 import com.threadcity.jacketshopbackend.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,13 +1,14 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.ImportResult;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.ProductResponse;
 import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
 import com.threadcity.jacketshopbackend.service.ProductImportService;
 import com.threadcity.jacketshopbackend.service.ProductService;
@@ -102,7 +103,7 @@ public class ProductController {
 
     @PreAuthorize("hasRole('STAFF')")
         @PostMapping
-        public ApiResponse<?> createProduct(@Valid @RequestBody ProductRequest productRequest) {
+        public ApiResponse<?> createProduct(@Valid @RequestBody ProductCreateRequest productRequest) {
                 log.info("ProductController::createProduct - Execution started.");
                 ProductResponse response = productService.createProduct(productRequest);
                 log.info("ProductController::createProduct - Execution completed.");
@@ -115,7 +116,7 @@ public class ProductController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest productRequest) {
+        public ApiResponse<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductCreateRequest productRequest) {
                 log.info("ProductController::updateProduct - Execution started. [id: {}]", id);
                 ProductResponse response = productService.updateProductById(productRequest, id);
                 log.info("ProductController::updateProduct - Execution completed. [id: {}]", id);

@@ -1,13 +1,13 @@
 package com.threadcity.jacketshopbackend.service.auth;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.dto.request.ForgotPasswordRequest;
-import com.threadcity.jacketshopbackend.dto.request.LoginRequest;
-import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
-import com.threadcity.jacketshopbackend.dto.request.UpdatePasswordRequest;
-import com.threadcity.jacketshopbackend.dto.response.LoginResponse;
-import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
-import com.threadcity.jacketshopbackend.dto.response.UserResponse;
+import com.threadcity.jacketshopbackend.dto.auth.request.ForgotPasswordRequest;
+import com.threadcity.jacketshopbackend.dto.auth.request.LoginRequest;
+import com.threadcity.jacketshopbackend.dto.auth.request.RegisterRequest;
+import com.threadcity.jacketshopbackend.dto.auth.request.UpdatePasswordRequest;
+import com.threadcity.jacketshopbackend.dto.auth.response.LoginResponse;
+import com.threadcity.jacketshopbackend.dto.auth.response.TokenResponse;
+import com.threadcity.jacketshopbackend.dto.user.response.UserResponse;
 import com.threadcity.jacketshopbackend.exception.AuthenticationFailedException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;

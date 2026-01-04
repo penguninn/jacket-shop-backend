@@ -1,8 +1,8 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.goship.GoshipResponse;
-import com.threadcity.jacketshopbackend.dto.goship.rate.GoshipRateData;
-import com.threadcity.jacketshopbackend.dto.goship.rate.GoshipRateRequest;
+import com.threadcity.jacketshopbackend.dto.integration.goship.GoshipResponse;
+import com.threadcity.jacketshopbackend.dto.integration.goship.rate.GoshipRateData;
+import com.threadcity.jacketshopbackend.dto.integration.goship.rate.GoshipRateRequest;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ExternalServiceException;
 import lombok.RequiredArgsConstructor;

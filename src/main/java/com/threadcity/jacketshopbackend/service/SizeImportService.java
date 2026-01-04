@@ -1,8 +1,8 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.dto.request.excel.SizeExcelRow;
-import com.threadcity.jacketshopbackend.dto.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.integration.excel.SizeExcelRow;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
 import com.threadcity.jacketshopbackend.repository.SizeRepository;
 import com.threadcity.jacketshopbackend.utils.ExcelUtils;
 import lombok.RequiredArgsConstructor;

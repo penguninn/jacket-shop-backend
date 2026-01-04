@@ -1,11 +1,12 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.ColorRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ColorResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.request.ColorCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.ColorUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
@@ -68,7 +69,7 @@ public class ColorService {
     }
 
     @Transactional
-    public ColorResponse createColor(ColorRequest color) {
+    public ColorResponse createColor(ColorCreateRequest color) {
         log.info("ColorService::createColor - Execution started.");
         if (colorRepository.existsByName(color.getName())) {
             throw new ResourceConflictException(ErrorCodes.COLOR_NAME_DUPLICATE,
@@ -82,7 +83,7 @@ public class ColorService {
     }
 
     @Transactional
-    public ColorResponse updateColorById(ColorRequest colorRequest, Long id) {
+    public ColorResponse updateColorById(ColorUpdateRequest colorRequest, Long id) {
         log.info("ColorService::updateColorById - Execution started.");
 
         Color color = colorRepository.findById(id).orElseThrow(

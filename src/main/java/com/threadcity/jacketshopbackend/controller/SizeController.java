@@ -1,13 +1,14 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.ImportResult;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.SizeResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.request.SizeCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.SizeUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
 import com.threadcity.jacketshopbackend.filter.SizeFilterRequest;
 import com.threadcity.jacketshopbackend.service.SizeImportService;
 import com.threadcity.jacketshopbackend.service.SizeService;
@@ -111,7 +112,7 @@ public class SizeController {
         }
 
         @PostMapping
-        public ApiResponse<?> createSize(@RequestBody SizeRequest sizeRequest) {
+        public ApiResponse<?> createSize(@RequestBody SizeCreateRequest sizeRequest) {
                 log.info("SizeController::createSize - Execution started.");
                 SizeResponse response = sizeService.createSize(sizeRequest);
                 log.info("SizeController::createSize - Execution completed.");
@@ -124,7 +125,7 @@ public class SizeController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateSize(@PathVariable Long id, @RequestBody SizeRequest sizeRequest) {
+        public ApiResponse<?> updateSize(@PathVariable Long id, @RequestBody SizeCreateRequest sizeRequest) {
                 log.info("SizeController::updateSize - Execution started. [id: {}]", id);
                 SizeResponse response = sizeService.updateSizeById(sizeRequest, id);
                 log.info("SizeController::updateSize - Execution completed. [id: {}]", id);

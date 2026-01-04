@@ -1,9 +1,9 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.goship.GoshipResponse;
-import com.threadcity.jacketshopbackend.dto.goship.location.GoshipCity;
-import com.threadcity.jacketshopbackend.dto.goship.location.GoshipDistrict;
-import com.threadcity.jacketshopbackend.dto.goship.location.GoshipWard;
+import com.threadcity.jacketshopbackend.dto.integration.goship.GoshipResponse;
+import com.threadcity.jacketshopbackend.dto.integration.goship.location.GoshipCity;
+import com.threadcity.jacketshopbackend.dto.integration.goship.location.GoshipDistrict;
+import com.threadcity.jacketshopbackend.dto.integration.goship.location.GoshipWard;
 import com.threadcity.jacketshopbackend.entity.District;
 import com.threadcity.jacketshopbackend.entity.Province;
 import com.threadcity.jacketshopbackend.entity.Ward;

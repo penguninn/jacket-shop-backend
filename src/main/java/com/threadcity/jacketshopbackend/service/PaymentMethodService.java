@@ -1,11 +1,12 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.PaymentMethodRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.PaymentMethodResponse;
+import com.threadcity.jacketshopbackend.dto.payment.request.PaymentMethodCreateRequest;
+import com.threadcity.jacketshopbackend.dto.payment.request.PaymentMethodUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.payment.response.PaymentMethodResponse;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
@@ -77,7 +78,7 @@ public class PaymentMethodService {
     }
 
     @Transactional
-    public PaymentMethodResponse createPaymentMethod(PaymentMethodRequest request) {
+    public PaymentMethodResponse createPaymentMethod(PaymentMethodCreateRequest request) {
         log.info("PaymentMethodService::createPaymentMethod - Execution started.");
 
         if (paymentMethodRepository.existsByName(request.getName())) {
@@ -98,7 +99,7 @@ public class PaymentMethodService {
     }
 
     @Transactional
-    public PaymentMethodResponse updatePaymentMethodById(PaymentMethodRequest request, Long id) {
+    public PaymentMethodResponse updatePaymentMethodById(PaymentMethodUpdateRequest request, Long id) {
         log.info("PaymentMethodService::updatePaymentMethodById - Execution started. [Id: {}]", id);
 
         PaymentMethod entity = paymentMethodRepository.findById(id)

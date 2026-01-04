@@ -1,8 +1,8 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.dto.request.excel.ProductExcelRow;
-import com.threadcity.jacketshopbackend.dto.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.integration.excel.ProductExcelRow;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
 import com.threadcity.jacketshopbackend.repository.BrandRepository;
 import com.threadcity.jacketshopbackend.repository.ProductRepository;
 import com.threadcity.jacketshopbackend.repository.StyleRepository;

@@ -1,11 +1,12 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.SizeResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.request.SizeCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.SizeUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
@@ -68,7 +69,7 @@ public class SizeService {
     }
 
     @Transactional
-    public SizeResponse createSize(SizeRequest size) {
+    public SizeResponse createSize(SizeCreateRequest size) {
         log.info("SizeService::createSize- Execution started.");
         if (sizeRepository.existsByName(size.getName())) {
             throw new ResourceConflictException(ErrorCodes.SIZE_NAME_DUPLICATE,
@@ -81,7 +82,7 @@ public class SizeService {
     }
 
     @Transactional
-    public SizeResponse updateSizeById(SizeRequest sizeRequest, Long id) {
+    public SizeResponse updateSizeById(SizeUpdateRequest sizeRequest, Long id) {
         log.info("SizeService::updateSizeById - Execution started.");
 
         Size size = sizeRepository.findById(id).orElseThrow(

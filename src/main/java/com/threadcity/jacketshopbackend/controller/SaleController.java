@@ -1,10 +1,11 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.SaleRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.SaleResponse;
+import com.threadcity.jacketshopbackend.dto.promotion.request.SaleCreateRequest;
+import com.threadcity.jacketshopbackend.dto.promotion.request.SaleUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.promotion.response.SaleResponse;
 import com.threadcity.jacketshopbackend.filter.SaleFilterRequest;
 import com.threadcity.jacketshopbackend.service.SaleService;
 import jakarta.validation.Valid;
@@ -73,7 +74,7 @@ public class SaleController {
     }
 
     @PostMapping
-    public ApiResponse<?> createSale(@Valid @RequestBody SaleRequest request) {
+    public ApiResponse<?> createSale(@Valid @RequestBody SaleCreateRequest request) {
         log.info("SaleController::createSale - Execution started.");
         SaleResponse response = saleService.createSale(request);
         log.info("SaleController::createSale - Execution completed.");
@@ -86,7 +87,7 @@ public class SaleController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<?> updateSale(@PathVariable Long id, @Valid @RequestBody SaleRequest request) {
+    public ApiResponse<?> updateSale(@PathVariable Long id, @Valid @RequestBody SaleCreateRequest request) {
         log.info("SaleController::updateSale - Execution started. [id: {}]", id);
         SaleResponse response = saleService.updateSale(id, request);
         log.info("SaleController::updateSale - Execution completed.");

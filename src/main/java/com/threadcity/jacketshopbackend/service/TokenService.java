@@ -1,7 +1,7 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums.RefreshTokenStatus;
-import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
+import com.threadcity.jacketshopbackend.dto.auth.response.TokenResponse;
 import com.threadcity.jacketshopbackend.exception.AuthenticationFailedException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;

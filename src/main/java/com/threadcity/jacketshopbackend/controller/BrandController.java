@@ -1,13 +1,14 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
-import com.threadcity.jacketshopbackend.dto.response.ImportResult;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.BrandCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.BrandUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.BrandResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.filter.BrandFilterRequest;
 import com.threadcity.jacketshopbackend.service.BrandImportService;
 import com.threadcity.jacketshopbackend.service.BrandService;
@@ -83,7 +84,7 @@ public class BrandController {
         }
 
         @PostMapping
-        public ApiResponse<?> createBrand(@Valid @RequestBody BrandRequest brandRequest) {
+        public ApiResponse<?> createBrand(@Valid @RequestBody BrandCreateRequest brandRequest) {
                 log.info("BrandController::createBrand - Execution started.");
                 BrandResponse response = brandService.createBrand(brandRequest);
                 log.info("BrandController::createBrand - Execution completed.");
@@ -96,7 +97,7 @@ public class BrandController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateBrand(@PathVariable Long id, @Valid @RequestBody BrandRequest brandRequest) {
+        public ApiResponse<?> updateBrand(@PathVariable Long id, @Valid @RequestBody BrandCreateRequest brandRequest) {
                 log.info("BrandController::updateBrand - Execution started. [id: {}]", id);
                 BrandResponse response = brandService.updateBrandById(brandRequest, id);
                 log.info("BrandController::updateBrand - Execution completed. [id: {}]", id);

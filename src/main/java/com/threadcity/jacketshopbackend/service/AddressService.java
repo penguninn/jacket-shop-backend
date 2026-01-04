@@ -1,10 +1,11 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.AddressRequest;
-import com.threadcity.jacketshopbackend.dto.response.AddressResponse;
-import com.threadcity.jacketshopbackend.dto.response.DistrictResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProvinceResponse;
-import com.threadcity.jacketshopbackend.dto.response.WardResponse;
+import com.threadcity.jacketshopbackend.dto.user.request.AddressCreateRequest;
+import com.threadcity.jacketshopbackend.dto.user.request.AddressUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.user.response.AddressResponse;
+import com.threadcity.jacketshopbackend.dto.location.response.DistrictResponse;
+import com.threadcity.jacketshopbackend.dto.location.response.ProvinceResponse;
+import com.threadcity.jacketshopbackend.dto.location.response.WardResponse;
 import com.threadcity.jacketshopbackend.entity.*;
 import com.threadcity.jacketshopbackend.exception.AuthorizationFailedException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
@@ -106,12 +107,12 @@ public class AddressService {
     }
 
     @Transactional
-    public AddressResponse createAddress(AddressRequest request) {
+    public AddressResponse createAddress(AddressCreateRequest request) {
         return createAddress(getUserId(), request);
     }
 
     @Transactional
-    public AddressResponse createAddress(Long userId, AddressRequest request) {
+    public AddressResponse createAddress(Long userId, AddressCreateRequest request) {
         log.info("AddressService::createAddress - Execution started. [userId: {}]", userId);
         
         User user = userRepository.findById(userId)
@@ -155,12 +156,12 @@ public class AddressService {
     }
 
     @Transactional
-    public AddressResponse updateAddress(AddressRequest request, Long addressId) {
+    public AddressResponse updateAddress(AddressUpdateRequest request, Long addressId) {
         return updateAddress(getUserId(), addressId, request);
     }
 
     @Transactional
-    public AddressResponse updateAddress(Long userId, Long addressId, AddressRequest request) {
+    public AddressResponse updateAddress(Long userId, Long addressId, AddressUpdateRequest request) {
         log.info("AddressService::updateAddress - Execution started. [userId: {}, addressId: {}]", userId, addressId);
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ADDRESS_NOT_FOUND, "Address not found"));

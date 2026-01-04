@@ -1,12 +1,13 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.PaymentMethodRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.PaymentMethodResponse;
+import com.threadcity.jacketshopbackend.dto.payment.request.PaymentMethodCreateRequest;
+import com.threadcity.jacketshopbackend.dto.payment.request.PaymentMethodUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.payment.response.PaymentMethodResponse;
 import com.threadcity.jacketshopbackend.filter.PaymentMethodFilterRequest;
 import com.threadcity.jacketshopbackend.service.PaymentMethodService;
 import jakarta.validation.Valid;
@@ -75,7 +76,7 @@ public class PaymentMethodController {
         }
 
         @PostMapping
-        public ApiResponse<?> createPaymentMethod(@Valid @RequestBody PaymentMethodRequest request) {
+        public ApiResponse<?> createPaymentMethod(@Valid @RequestBody PaymentMethodCreateRequest request) {
                 log.info("PaymentMethodController::createPaymentMethod - Execution started.");
 
                 PaymentMethodResponse response = paymentMethodService.createPaymentMethod(request);
@@ -93,7 +94,7 @@ public class PaymentMethodController {
         @PutMapping("/{id}")
         public ApiResponse<?> updatePaymentMethod(
                         @PathVariable Long id,
-                        @Valid @RequestBody PaymentMethodRequest request) {
+                        @Valid @RequestBody PaymentMethodCreateRequest request) {
                 log.info("PaymentMethodController::updatePaymentMethod - Execution started. [id: {}]", id);
 
                 PaymentMethodResponse response = paymentMethodService.updatePaymentMethodById(request, id);

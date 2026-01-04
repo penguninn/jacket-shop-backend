@@ -1,13 +1,14 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.ImportResult;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.StyleResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.StyleCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.StyleUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.StyleResponse;
 import com.threadcity.jacketshopbackend.filter.StyleFilterRequest;
 import com.threadcity.jacketshopbackend.service.StyleImportService;
 import com.threadcity.jacketshopbackend.service.StyleService;
@@ -83,7 +84,7 @@ public class StyleController {
         }
 
         @PostMapping
-        public ApiResponse<?> createStyle(@Valid @RequestBody StyleRequest styleRequest) {
+        public ApiResponse<?> createStyle(@Valid @RequestBody StyleCreateRequest styleRequest) {
                 log.info("StyleController::createStyle - Execution started.");
                 StyleResponse response = styleService.createStyle(styleRequest);
                 log.info("StyleController::createStyle - Execution completed.");
@@ -96,7 +97,7 @@ public class StyleController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateStyle(@PathVariable Long id, @Valid @RequestBody StyleRequest styleRequest) {
+        public ApiResponse<?> updateStyle(@PathVariable Long id, @Valid @RequestBody StyleCreateRequest styleRequest) {
                 log.info("StyleController::updateStyle - Execution started. [id: {}]", id);
                 StyleResponse response = styleService.updateStyleById(styleRequest, id);
                 log.info("StyleController::updateStyle - Execution completed. [id: {}]", id);

@@ -1,15 +1,15 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.ProductVariantCreateRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProductVariantUpdateRequest;
-import com.threadcity.jacketshopbackend.dto.request.StockAdjustmentRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.ImportResult;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductVariantCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductVariantUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.StockAdjustmentRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.ProductVariantResponse;
 import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
 import com.threadcity.jacketshopbackend.service.ProductVariantImportService;
 import com.threadcity.jacketshopbackend.service.ProductVariantService;

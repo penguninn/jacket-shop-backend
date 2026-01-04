@@ -1,8 +1,9 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.AddressRequest;
-import com.threadcity.jacketshopbackend.dto.response.AddressResponse;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.user.request.AddressCreateRequest;
+import com.threadcity.jacketshopbackend.dto.user.request.AddressUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.user.response.AddressResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
 import com.threadcity.jacketshopbackend.service.AddressService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +61,7 @@ public class UserAddressController {
     }
 
     @PostMapping("/user/{userId}")
-    public ApiResponse<?> createAddressForUser(@PathVariable Long userId, @Valid @RequestBody AddressRequest request) {
+    public ApiResponse<?> createAddressForUser(@PathVariable Long userId, @Valid @RequestBody AddressCreateRequest request) {
         log.info("UserAddressController::createAddressForUser - Execution started. [userId: {}]", userId);
         AddressResponse response = addressService.createAddress(userId, request);
         log.info("UserAddressController::createAddressForUser - Execution completed. [userId: {}]", userId);
@@ -73,7 +74,7 @@ public class UserAddressController {
     }
 
     @PutMapping("/user/{userId}/{addressId}")
-    public ApiResponse<?> updateAddressForUser(@PathVariable Long userId, @PathVariable Long addressId, @Valid @RequestBody AddressRequest request) {
+    public ApiResponse<?> updateAddressForUser(@PathVariable Long userId, @PathVariable Long addressId, @Valid @RequestBody AddressCreateRequest request) {
         log.info("UserAddressController::updateAddressForUser - Execution started. [userId: {}, addressId: {}]", userId, addressId);
         AddressResponse response = addressService.updateAddress(userId, addressId, request);
         log.info("UserAddressController::updateAddressForUser - Execution completed. [userId: {}, addressId: {}]", userId, addressId);
@@ -86,7 +87,7 @@ public class UserAddressController {
     }
 
     @PostMapping
-    public ApiResponse<?> createAddress(@Valid @RequestBody AddressRequest request) {
+    public ApiResponse<?> createAddress(@Valid @RequestBody AddressCreateRequest request) {
         log.info("UserAddressController::createAddress - Execution started");
         AddressResponse response = addressService.createAddress(request);
         log.info("UserAddressController::createAddress - Execution completed");
@@ -99,7 +100,7 @@ public class UserAddressController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<?> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressRequest request) {
+    public ApiResponse<?> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressCreateRequest request) {
         log.info("UserAddressController::updateAddress - Execution started. [id: {}]", id);
         AddressResponse response = addressService.updateAddress(request, id);
         log.info("UserAddressController::updateAddress - Execution completed. [id: {}]", id);

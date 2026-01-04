@@ -1,12 +1,13 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.ProductResponse;
 import com.threadcity.jacketshopbackend.entity.Brand;
 import com.threadcity.jacketshopbackend.entity.Product;
 import com.threadcity.jacketshopbackend.entity.ProductVariant;
@@ -81,7 +82,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse createProduct(ProductRequest req) {
+    public ProductResponse createProduct(ProductCreateRequest req) {
         log.info("ProductService::createProduct - Execution started.");
         if (productRepository.existsByName(req.getName())) {
             throw new ResourceConflictException(ErrorCodes.PRODUCT_NAME_DUPLICATE,
@@ -118,7 +119,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse updateProductById(ProductRequest req, Long id) {
+    public ProductResponse updateProductById(ProductUpdateRequest req, Long id) {
         log.info("ProductService::updateProductById - Execution started. [id: {}]", id);
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
