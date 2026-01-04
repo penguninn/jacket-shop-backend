@@ -1,40 +1,23 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.CartItemRequest;
-import com.threadcity.jacketshopbackend.dto.request.OrderItemRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductVariantCreateRequest;
 import com.threadcity.jacketshopbackend.dto.request.ProductVariantUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
-import com.threadcity.jacketshopbackend.entity.Color;
-import com.threadcity.jacketshopbackend.entity.Material;
-import com.threadcity.jacketshopbackend.entity.OrderDetail;
-import com.threadcity.jacketshopbackend.entity.Product;
-import com.threadcity.jacketshopbackend.entity.ProductVariant;
-import com.threadcity.jacketshopbackend.entity.Size;
-
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.ProductVariantMapper;
-import com.threadcity.jacketshopbackend.repository.ColorRepository;
-import com.threadcity.jacketshopbackend.repository.MaterialRepository;
-import com.threadcity.jacketshopbackend.repository.ProductRepository;
-import com.threadcity.jacketshopbackend.repository.ProductVariantRepository;
-import com.threadcity.jacketshopbackend.repository.SizeRepository;
+import com.threadcity.jacketshopbackend.repository.*;
 import com.threadcity.jacketshopbackend.specification.ProductVariantSpecification;
 import com.threadcity.jacketshopbackend.utils.SkuUtils;
-
 import jakarta.transaction.Transactional;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -44,7 +27,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

@@ -1,32 +1,29 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.common.Enums;
+import com.threadcity.jacketshopbackend.dto.request.CouponCreateRequest;
+import com.threadcity.jacketshopbackend.dto.request.CouponUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.request.CouponValidateRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.CouponCreateRequest;
-import com.threadcity.jacketshopbackend.dto.request.CouponUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.entity.Coupon;
-import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.CouponMapper;
 import com.threadcity.jacketshopbackend.repository.CouponRepository;
-import com.threadcity.jacketshopbackend.filter.CouponFilterRequest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

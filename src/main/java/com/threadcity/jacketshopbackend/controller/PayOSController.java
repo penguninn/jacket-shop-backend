@@ -1,9 +1,9 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.threadcity.jacketshopbackend.dto.request.payos.ConfirmWebhookRequest;
-import com.threadcity.jacketshopbackend.dto.request.payos.CreatePaymentLinkRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
+import com.threadcity.jacketshopbackend.service.OnlineOrderService;
+import com.threadcity.jacketshopbackend.service.PayOSService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -13,19 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.payos.PayOS;
 import vn.payos.core.FileDownloadResponse;
-import vn.payos.exception.APIException;
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
 import vn.payos.model.v2.paymentRequests.PaymentLink;
-import vn.payos.model.v2.paymentRequests.PaymentLinkItem;
 import vn.payos.model.v2.paymentRequests.invoices.InvoicesInfo;
 import vn.payos.model.webhooks.ConfirmWebhookResponse;
 import vn.payos.model.webhooks.WebhookData;
 
 import java.time.Instant;
-import java.util.Map;
-
-import com.threadcity.jacketshopbackend.service.OnlineOrderService;
-import com.threadcity.jacketshopbackend.service.PayOSService;
 
 @RestController
 @RequestMapping("/api/payos")

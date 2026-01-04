@@ -1,8 +1,8 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.goship.GoshipResponse;
 import com.threadcity.jacketshopbackend.dto.goship.location.GoshipCity;
 import com.threadcity.jacketshopbackend.dto.goship.location.GoshipDistrict;
-import com.threadcity.jacketshopbackend.dto.goship.GoshipResponse;
 import com.threadcity.jacketshopbackend.dto.goship.location.GoshipWard;
 import com.threadcity.jacketshopbackend.entity.District;
 import com.threadcity.jacketshopbackend.entity.Province;
@@ -46,7 +46,6 @@ public class LocationService {
 
     public void syncAllAddressData() {
         log.info("START SYNCING ADDRESS DATA FROM GOSHIP...");
-
         try {
             syncProvinces();
 
@@ -63,9 +62,7 @@ public class LocationService {
                     syncWards(d);
                 }
             }
-
-            log.info("SYNC ADDRESS DATA COMPLETED SUCCESSFULLY!");
-
+            log.info("SYNC ADDRESS DATA COMPLETED.");
         } catch (Exception e) {
             log.error("Error syncing address data: {}", e.getMessage(), e);
         }
@@ -98,12 +95,14 @@ public class LocationService {
                     provinceRepository.save(province);
                 }
             }
+            log.info("Fetching cities successfully.");
         } catch (Exception e) {
             log.error("Failed to sync cities: {}", e.getMessage());
         }
     }
 
     private void syncDistricts(Province province) {
+        log.info("Fetching districts...");
         try {
             String cityCode = province.getGoshipId().toString();
 
@@ -134,12 +133,14 @@ public class LocationService {
                     districtRepository.save(district);
                 }
             }
+            log.info("Fetching districts successfully.");
         } catch (Exception e) {
             log.warn("Failed to fetch districts for city {}: {}", province.getName(), e.getMessage());
         }
     }
 
     private void syncWards(District district) {
+        log.info("Fetching wards...");
         try {
             String districtCode = district.getGoshipId().toString();
 
@@ -170,6 +171,7 @@ public class LocationService {
                     wardRepository.save(ward);
                 }
             }
+            log.info("Fetching wards successfully.");
         } catch (Exception e) {
             log.warn("Failed to fetch wards for district {}: {}", district.getName(), e.getMessage());
         }

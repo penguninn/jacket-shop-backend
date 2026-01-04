@@ -2,7 +2,6 @@ package com.threadcity.jacketshopbackend.mapper;
 
 import com.threadcity.jacketshopbackend.dto.request.MaterialRequest;
 import com.threadcity.jacketshopbackend.dto.response.MaterialResponse;
-import com.threadcity.jacketshopbackend.entity.Material;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

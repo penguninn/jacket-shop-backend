@@ -1,6 +1,5 @@
 package com.threadcity.jacketshopbackend.specification;
 
-import com.threadcity.jacketshopbackend.entity.Sale;
 import com.threadcity.jacketshopbackend.filter.SaleFilterRequest;
 import org.springframework.data.jpa.domain.Specification;
 

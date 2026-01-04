@@ -2,7 +2,6 @@ package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
-import com.threadcity.jacketshopbackend.entity.ProductVariant;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;

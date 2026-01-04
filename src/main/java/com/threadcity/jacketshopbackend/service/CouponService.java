@@ -1,28 +1,22 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.CouponCreateRequest;
+import com.threadcity.jacketshopbackend.dto.request.CouponUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.request.CouponValidateRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import java.math.BigDecimal;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.stream.Collectors;
-import com.threadcity.jacketshopbackend.filter.CouponFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.CouponCreateRequest;
-import com.threadcity.jacketshopbackend.dto.request.CouponUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.response.CouponResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.entity.Coupon;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.CouponFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.CouponMapper;
 import com.threadcity.jacketshopbackend.repository.CouponRepository;
 import com.threadcity.jacketshopbackend.specification.CouponSpecification;
 import com.threadcity.jacketshopbackend.utils.PriceUtils;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +28,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

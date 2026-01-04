@@ -1,17 +1,15 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.filter.ColorFilterRequest;
-
 import com.threadcity.jacketshopbackend.dto.request.ColorRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ColorResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.entity.Color;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.ColorFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.ColorMapper;
 import com.threadcity.jacketshopbackend.repository.ColorRepository;
 import com.threadcity.jacketshopbackend.specification.ColorSpecification;

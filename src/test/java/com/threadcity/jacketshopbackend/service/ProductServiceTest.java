@@ -1,28 +1,31 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
-import com.threadcity.jacketshopbackend.entity.*;
-import com.threadcity.jacketshopbackend.common.Enums;
+import com.threadcity.jacketshopbackend.entity.Brand;
+import com.threadcity.jacketshopbackend.entity.Product;
+import com.threadcity.jacketshopbackend.entity.Style;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.ProductMapper;
-import com.threadcity.jacketshopbackend.repository.*;
-import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
-
+import com.threadcity.jacketshopbackend.repository.BrandRepository;
+import com.threadcity.jacketshopbackend.repository.ProductRepository;
+import com.threadcity.jacketshopbackend.repository.ProductVariantRepository;
+import com.threadcity.jacketshopbackend.repository.StyleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.*;
 
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

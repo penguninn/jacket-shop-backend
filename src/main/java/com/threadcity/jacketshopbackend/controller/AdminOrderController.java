@@ -29,8 +29,6 @@ public class AdminOrderController {
 
     private final OrderService orderService;
 
-    // ==================== ORDER MANAGEMENT ====================
-
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
     public ApiResponse<?> getAllOrders(

@@ -2,7 +2,6 @@ package com.threadcity.jacketshopbackend.mapper;
 
 import com.threadcity.jacketshopbackend.dto.request.PaymentMethodRequest;
 import com.threadcity.jacketshopbackend.dto.response.PaymentMethodResponse;
-import com.threadcity.jacketshopbackend.entity.PaymentMethod;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

@@ -45,7 +45,6 @@ public class DataSyncConfig {
 
     private void initLocations() {
         if (provinceRepository.count() == 0) {
-            log.info("Syncing location data...");
             locationService.syncAllAddressData();
         }
     }
@@ -68,8 +67,6 @@ public class DataSyncConfig {
         createPaymentMethodIfNotFound("Tiền mặt", "CASH", Enums.PaymentMethodType.POS, null);
     }
 
-    // --- Helper Methods ---
-
     private void initAdminUser() {
         if (userRepository.findByUsername("admin123").isEmpty()) {
             log.info("Admin user not found. Creating...");
@@ -88,7 +85,6 @@ public class DataSyncConfig {
                     .build();
 
             userRepository.save(admin);
-            log.info("Admin user created successfully.");
         }
     }
 
@@ -100,15 +96,14 @@ public class DataSyncConfig {
 
             User guest = User.builder()
                     .username("guest")
-                    .password(passwordEncoder.encode("guest@123")) // Dummy password
+                    .password(passwordEncoder.encode("guest@123"))
                     .fullName("Khách lẻ")
-                    .phone("0000000000") // Dummy phone to satisfy unique constraint if present
+                    .phone("0000000000")
                     .status(Enums.Status.ACTIVE)
                     .roles(roles)
                     .build();
 
             userRepository.save(guest);
-            log.info("Guest user created successfully.");
         }
     }
 
@@ -119,7 +114,6 @@ public class DataSyncConfig {
                     .description(description)
                     .build();
             roleRepository.save(role);
-            log.info("Role {} created.", name);
         }
     }
 
@@ -129,11 +123,9 @@ public class DataSyncConfig {
                     .name(name)
                     .code(code)
                     .type(type)
-                    .config(config)
                     .status(Enums.Status.ACTIVE)
                     .build();
             paymentMethodRepository.save(method);
-            log.info("Payment method {} created.", code);
         }
     }
 }

@@ -2,18 +2,12 @@ package com.threadcity.jacketshopbackend.mapper;
 
 import com.threadcity.jacketshopbackend.dto.response.OrderDetailResponse;
 import com.threadcity.jacketshopbackend.dto.response.OrderResponse;
-import com.threadcity.jacketshopbackend.entity.Order;
-import com.threadcity.jacketshopbackend.entity.OrderDetail;
-import com.threadcity.jacketshopbackend.entity.Sale;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {

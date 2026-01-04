@@ -7,7 +7,6 @@ import com.threadcity.jacketshopbackend.dto.response.CartValidationResponse;
 import com.threadcity.jacketshopbackend.entity.*;
 import com.threadcity.jacketshopbackend.exception.AuthorizationFailedException;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
-import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.CartMapper;
 import com.threadcity.jacketshopbackend.repository.CartItemRepository;
 import com.threadcity.jacketshopbackend.repository.CartRepository;
@@ -24,7 +23,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;

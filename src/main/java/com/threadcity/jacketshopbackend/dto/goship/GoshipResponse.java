@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.dto.goship;
 
 import lombok.Data;
+
 import java.util.List;
 
 @Data

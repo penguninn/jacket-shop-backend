@@ -1,95 +1,124 @@
 package com.threadcity.jacketshopbackend.entity;
 
-import com.threadcity.jacketshopbackend.common.Enums.Status;
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
-@Entity
-@Table(name = "product_variants", uniqueConstraints = @UniqueConstraint(name = "uk_product_size_color_material", columnNames = {
-        "product_id",
-        "size_id",
-        "color_id",
-        "material_id"
-}))
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Entity
+@Table(name = "product_variants", schema = "dbo", indexes = {
+        @Index(name = "IX_product_variants_product", columnList = "product_id, status"),
+        @Index(name = "IX_product_variants_sku", columnList = "sku"),
+        @Index(name = "IX_product_variants_size", columnList = "size_id"),
+        @Index(name = "IX_product_variants_color", columnList = "color_id"),
+        @Index(name = "IX_product_variants_material", columnList = "material_id")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "UK_product_variants_combination", columnNames = { "product_id", "size_id", "color_id",
+                "material_id" }),
+        @UniqueConstraint(name = "UK_product_variants_sku", columnNames = { "sku" })
+})
 public class ProductVariant extends BaseEntity {
 
+    @Column(name = "created_by")
+    private Long createdBy;
 
-    @Column(length = 255, nullable = false, unique = true)
-    private String sku;
+    @Column(name = "updated_by")
+    private Long updatedBy;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Status status;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "size_id", nullable = false)
-    private Size size;
+    private com.threadcity.jacketshopbackend.entity.Size size;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "color_id", nullable = false)
     private Color color;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "material_id", nullable = false)
     private Material material;
 
-    @ManyToMany(mappedBy = "productVariants", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Sale> sales = new ArrayList<>();
+    @Size(max = 64)
+    @NotNull
+    @Column(name = "sku", nullable = false, length = 64)
+    private String sku;
 
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal price;
-
+    @NotNull
     @Column(name = "cost_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal costPrice;
 
-    @Builder.Default
-    @Column(nullable = false)
-    private Integer quantity = 0;
+    @NotNull
+    @Column(name = "price", nullable = false, precision = 12, scale = 2)
+    private BigDecimal price;
 
-    @Builder.Default
-    @Column(name = "reserved_quantity")
-    private Integer reservedQuantity = 0;
+    @NotNull
+    @ColumnDefault("0")
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
 
-    @Builder.Default
-    @Column(name = "available_quantity")
-    private Integer availableQuantity = 0;
+    @NotNull
+    @ColumnDefault("0")
+    @Column(name = "available_quantity", nullable = false)
+    private Integer availableQuantity;
 
-    @Builder.Default
-    @Column(name = "sold_count")
-    private Integer soldCount = 0;
+    @NotNull
+    @ColumnDefault("0")
+    @Column(name = "reserved_quantity", nullable = false)
+    private Integer reservedQuantity;
 
-    @Builder.Default
-    @Column(name = "return_count")
-    private Integer returnCount = 0;
+    @NotNull
+    @ColumnDefault("0")
+    @Column(name = "sold_count", nullable = false)
+    private Integer soldCount;
 
-    @Lob
-    @Column(columnDefinition = "NVARCHAR(MAX)")
-    private String image;
+    @NotNull
+    @ColumnDefault("0")
+    @Column(name = "return_count", nullable = false)
+    private Integer returnCount;
 
-    @Column(precision = 8, scale = 2)
+    @Column(name = "weight", precision = 8, scale = 2)
     private BigDecimal weight;
 
-    @Column(precision = 8, scale = 2)
+    @Column(name = "length", precision = 8, scale = 2)
     private BigDecimal length;
 
-    @Column(precision = 8, scale = 2)
+    @Column(name = "width", precision = 8, scale = 2)
     private BigDecimal width;
 
-    @Column(precision = 8, scale = 2)
+    @Column(name = "height", precision = 8, scale = 2)
     private BigDecimal height;
+
+    @Size(max = 20)
+    @NotNull
+    @ColumnDefault("'ACTIVE'")
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
+
+    @NotNull
+    @ColumnDefault("1")
+    @Column(name = "version", nullable = false)
+    private Integer version;
+
 }

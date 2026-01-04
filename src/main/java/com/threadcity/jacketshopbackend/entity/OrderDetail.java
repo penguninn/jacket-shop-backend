@@ -1,63 +1,93 @@
 package com.threadcity.jacketshopbackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Nationalized;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "order_details")
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Entity
+@Table(name = "order_details", schema = "dbo", indexes = {
+        @Index(name = "IX_order_details_order", columnList = "order_id"),
+        @Index(name = "IX_order_details_variant", columnList = "product_variant_id")
+})
 public class OrderDetail extends BaseEntity {
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_variant_id", nullable = false)
     private ProductVariant productVariant;
 
+    @Size(max = 200)
+    @NotNull
+    @Nationalized
     @Column(name = "product_name", nullable = false, length = 200)
     private String productName;
 
-    @Column(nullable = false, length = 10)
-    private String size;
-
-    @Column(nullable = false, length = 50)
-    private String color;
-
-    @Column(nullable = false, length = 50)
-    private String material;
-
-    @Column(length = 64)
+    @Size(max = 64)
+    @NotNull
+    @Column(name = "sku", nullable = false, length = 64)
     private String sku;
 
-    @Column(length = 500)
+    @Size(max = 50)
+    @NotNull
+    @Nationalized
+    @Column(name = "color", nullable = false, length = 50)
+    private String color;
+
+    @Size(max = 50)
+    @NotNull
+    @Nationalized
+    @Column(name = "\"size\"", nullable = false, length = 50)
+    private String size;
+
+    @Size(max = 50)
+    @NotNull
+    @Nationalized
+    @Column(name = "material", nullable = false, length = 50)
+    private String material;
+
+    @Size(max = 500)
+    @Nationalized
+    @Column(name = "image", length = 500)
     private String image;
 
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal price;
-
-    @Column(name = "original_price", precision = 12, scale = 2)
+    @NotNull
+    @Column(name = "original_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal originalPrice;
+
+    @NotNull
+    @Column(name = "price", nullable = false, precision = 12, scale = 2)
+    private BigDecimal price;
 
     @Column(name = "discount_percentage", precision = 5, scale = 2)
     private BigDecimal discountPercentage;
 
-    @Column(nullable = false)
+    @NotNull
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @Transient
-    public BigDecimal getSubtotal() {
-        return price.multiply(new BigDecimal(quantity));
-    }
+    @NotNull
+    @Column(name = "subtotal", nullable = false, precision = 12, scale = 2)
+    private BigDecimal subtotal;
+
 }

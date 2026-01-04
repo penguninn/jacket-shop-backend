@@ -1,6 +1,9 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.*;
+import com.threadcity.jacketshopbackend.common.Enums;
+import com.threadcity.jacketshopbackend.dto.request.CouponCreateRequest;
+import com.threadcity.jacketshopbackend.dto.request.CouponUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.request.CouponValidateRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
@@ -33,7 +36,7 @@ public class CouponController {
                         @RequestParam(defaultValue = "10") int size,
                         @RequestParam(defaultValue = "createdAt") String sortBy,
                         @RequestParam(defaultValue = "DESC") String sortDir,
-                        @RequestParam(required = false) List<String> type
+                        @RequestParam(required = false) List<Enums.CouponType> type
 
         ) {
                 log.info("CouponController::getAllCoupons - Execution started");

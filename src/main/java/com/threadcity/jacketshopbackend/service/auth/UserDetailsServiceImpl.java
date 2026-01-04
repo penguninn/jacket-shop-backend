@@ -1,6 +1,5 @@
 package com.threadcity.jacketshopbackend.service.auth;
 
-import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.mapper.UserMapper;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,16 +1,15 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.filter.StyleFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.StyleResponse;
-import com.threadcity.jacketshopbackend.entity.Style;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.StyleFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.StyleMapper;
 import com.threadcity.jacketshopbackend.repository.StyleRepository;
 import com.threadcity.jacketshopbackend.specification.StyleSpecification;

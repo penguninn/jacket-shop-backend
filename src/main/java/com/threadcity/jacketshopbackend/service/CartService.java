@@ -1,11 +1,9 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.request.CartItemRequest;
 import com.threadcity.jacketshopbackend.dto.response.CartResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
-import com.threadcity.jacketshopbackend.entity.Cart;
-import com.threadcity.jacketshopbackend.entity.CartItem;
-import com.threadcity.jacketshopbackend.entity.User;
+import com.threadcity.jacketshopbackend.dto.response.CartValidationResponse;
 import com.threadcity.jacketshopbackend.exception.AuthorizationFailedException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
@@ -23,12 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Optional;
-
-import com.threadcity.jacketshopbackend.dto.response.CartValidationResponse;
-import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.entity.ProductVariant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

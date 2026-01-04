@@ -1,6 +1,5 @@
 package com.threadcity.jacketshopbackend.repository;
 
-import com.threadcity.jacketshopbackend.entity.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

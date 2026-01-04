@@ -1,7 +1,5 @@
 package com.threadcity.jacketshopbackend.repository;
 
-import com.threadcity.jacketshopbackend.entity.PasswordResetToken;
-import com.threadcity.jacketshopbackend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,7 +1,10 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.dto.request.AddressRequest;
-import com.threadcity.jacketshopbackend.dto.response.*;
+import com.threadcity.jacketshopbackend.dto.response.AddressResponse;
+import com.threadcity.jacketshopbackend.dto.response.DistrictResponse;
+import com.threadcity.jacketshopbackend.dto.response.ProvinceResponse;
+import com.threadcity.jacketshopbackend.dto.response.WardResponse;
 import com.threadcity.jacketshopbackend.entity.*;
 import com.threadcity.jacketshopbackend.exception.AuthorizationFailedException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;

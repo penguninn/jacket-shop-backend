@@ -1,11 +1,8 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
 import com.threadcity.jacketshopbackend.common.Enums.OrderType;
 import com.threadcity.jacketshopbackend.dto.request.OrderRequest;
 import com.threadcity.jacketshopbackend.dto.response.OrderResponse;
-import com.threadcity.jacketshopbackend.entity.*;
-import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,9 +12,8 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class OrderServiceTest {

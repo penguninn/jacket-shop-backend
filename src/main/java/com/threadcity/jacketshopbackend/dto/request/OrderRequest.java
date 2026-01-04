@@ -1,16 +1,11 @@
 package com.threadcity.jacketshopbackend.dto.request;
 
+import com.threadcity.jacketshopbackend.common.Enums.OrderType;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.util.List;
-
-import com.threadcity.jacketshopbackend.common.Enums.OrderType;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Setter

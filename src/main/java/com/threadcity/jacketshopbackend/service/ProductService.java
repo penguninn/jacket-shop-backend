@@ -1,21 +1,25 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
+import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
-import com.threadcity.jacketshopbackend.entity.*;
-import com.threadcity.jacketshopbackend.common.Enums;
-import java.math.BigDecimal;
-import java.util.Comparator;
+import com.threadcity.jacketshopbackend.entity.Brand;
+import com.threadcity.jacketshopbackend.entity.Product;
+import com.threadcity.jacketshopbackend.entity.ProductVariant;
+import com.threadcity.jacketshopbackend.entity.Style;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.ProductMapper;
-import com.threadcity.jacketshopbackend.repository.*;
+import com.threadcity.jacketshopbackend.repository.BrandRepository;
+import com.threadcity.jacketshopbackend.repository.ProductRepository;
+import com.threadcity.jacketshopbackend.repository.ProductVariantRepository;
+import com.threadcity.jacketshopbackend.repository.StyleRepository;
 import com.threadcity.jacketshopbackend.specification.ProductSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +31,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @Service

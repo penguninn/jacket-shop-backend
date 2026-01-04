@@ -15,9 +15,9 @@ import java.util.List;
 public class ColorFilterRequest {
 
     @Size(max = 255, message = "Search term too long")
-    private String search; // search by name or description
+    private String search;
 
-    private List<String> status; // list of statuses
+    private List<String> status;
 
     @Builder.Default
     @Min(value = 0, message = "Page must be >= 0")

@@ -2,7 +2,6 @@ package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
 import com.threadcity.jacketshopbackend.common.Enums.PaymentStatus;
-import com.threadcity.jacketshopbackend.entity.Order;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.repository.OrderRepository;

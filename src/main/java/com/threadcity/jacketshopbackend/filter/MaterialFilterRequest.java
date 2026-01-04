@@ -14,9 +14,9 @@ import java.util.List;
 public class MaterialFilterRequest {
 
     @Size(max = 255, message = "Search term too long")
-    private String search;           // tìm theo name hoặc description
+    private String search;
 
-    private List<String> status;     // list status
+    private List<String> status;
 
     @Builder.Default
     @Min(value = 0, message = "Page must be >= 0")

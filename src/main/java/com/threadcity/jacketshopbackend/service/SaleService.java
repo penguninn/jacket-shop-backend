@@ -4,8 +4,6 @@ import com.threadcity.jacketshopbackend.dto.request.SaleRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.SaleResponse;
-import com.threadcity.jacketshopbackend.entity.ProductVariant;
-import com.threadcity.jacketshopbackend.entity.Sale;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.filter.SaleFilterRequest;

@@ -1,14 +1,15 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.*;
+import com.threadcity.jacketshopbackend.dto.request.ProfileUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.request.UserCreateRequest;
+import com.threadcity.jacketshopbackend.dto.request.UserUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.request.UserUpdateRolesRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
 import com.threadcity.jacketshopbackend.dto.response.UserResponse;
-import com.threadcity.jacketshopbackend.entity.Role;
-import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;

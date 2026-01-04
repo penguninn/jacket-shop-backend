@@ -1,27 +1,26 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.*;
+import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.response.ImportResult;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
 import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
+import com.threadcity.jacketshopbackend.service.ProductImportService;
 import com.threadcity.jacketshopbackend.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
-
-import com.threadcity.jacketshopbackend.service.ProductImportService;
-import com.threadcity.jacketshopbackend.dto.response.ImportResult;
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/products")
@@ -101,6 +100,7 @@ public class ProductController {
                                 .build();
         }
 
+    @PreAuthorize("hasRole('STAFF')")
         @PostMapping
         public ApiResponse<?> createProduct(@Valid @RequestBody ProductRequest productRequest) {
                 log.info("ProductController::createProduct - Execution started.");

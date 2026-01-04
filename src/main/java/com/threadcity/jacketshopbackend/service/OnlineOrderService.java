@@ -6,9 +6,6 @@ import com.threadcity.jacketshopbackend.common.Enums.PaymentStatus;
 import com.threadcity.jacketshopbackend.dto.request.CartItemRequest;
 import com.threadcity.jacketshopbackend.dto.request.OrderRequest;
 import com.threadcity.jacketshopbackend.dto.response.OrderResponse;
-import com.threadcity.jacketshopbackend.entity.Order;
-import com.threadcity.jacketshopbackend.entity.OrderDetail;
-import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
@@ -19,7 +16,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
 @Service

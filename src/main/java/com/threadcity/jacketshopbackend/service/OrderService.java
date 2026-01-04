@@ -2,7 +2,6 @@ package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
 import com.threadcity.jacketshopbackend.common.Enums.OrderType;
-import com.threadcity.jacketshopbackend.common.Enums.PaymentStatus;
 import com.threadcity.jacketshopbackend.dto.request.OrderItemRequest;
 import com.threadcity.jacketshopbackend.dto.request.OrderRequest;
 import com.threadcity.jacketshopbackend.dto.request.ShippingInfoRequest;
@@ -10,20 +9,18 @@ import com.threadcity.jacketshopbackend.dto.request.UpdatePaymentRequest;
 import com.threadcity.jacketshopbackend.dto.response.OrderHistoryResponse;
 import com.threadcity.jacketshopbackend.dto.response.OrderResponse;
 import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.entity.Order;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.filter.OrderFilterRequest;
 import com.threadcity.jacketshopbackend.repository.OrderRepository;
+import com.threadcity.jacketshopbackend.service.auth.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.threadcity.jacketshopbackend.service.auth.UserDetailsImpl;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
 import java.util.Arrays;

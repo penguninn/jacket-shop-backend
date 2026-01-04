@@ -2,6 +2,7 @@ package com.threadcity.jacketshopbackend.dto.response;
 
 import lombok.Builder;
 import lombok.Data;
+
 import java.util.List;
 
 @Data

@@ -1,33 +1,44 @@
 package com.threadcity.jacketshopbackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Nationalized;
 
-import java.util.List;
-
-@Entity
-@Table(name = "districts")
 @Getter
 @Setter
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "districts", schema = "dbo", indexes = {
+        @Index(name = "IX_districts_province", columnList = "province_id"),
+        @Index(name = "IX_districts_code", columnList = "code")
+})
 public class District extends BaseEntity {
 
-    @Column(name = "goship_id")
-    private String goshipId;
-
-    @Column(name = "name", nullable = false, columnDefinition = "NVARCHAR(255)")
+    @Size(max = 255)
+    @NotNull
+    @Nationalized
+    @Column(name = "name", nullable = false)
     private String name;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "province_id", nullable = false)
     private Province province;
 
-    @OneToMany(mappedBy = "district", cascade = CascadeType.ALL)
-    private List<Ward> wards;
+    @Size(max = 50)
+    @Column(name = "goship_id", length = 50)
+    private String goshipId;
+
+    @Size(max = 20)
+    @Column(name = "code", length = 20)
+    private String code;
+
 }

@@ -1,41 +1,61 @@
 package com.threadcity.jacketshopbackend.entity;
 
-import com.threadcity.jacketshopbackend.common.Enums.PaymentMethodType;
-import com.threadcity.jacketshopbackend.common.Enums.Status;
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Nationalized;
 
-@Entity
-@Table(name = "payment_methods")
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Entity
+@Table(name = "payment_methods", schema = "dbo", indexes = {
+        @Index(name = "IX_payment_methods_status_type", columnList = "status, type")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "UK_payment_methods_code", columnNames = { "code" })
+})
 public class PaymentMethod extends BaseEntity {
 
-    @Column(nullable = false, length = 100, columnDefinition = "NVARCHAR(100)")
-    private String name;
+    @Column(name = "created_by")
+    private Long createdBy;
 
-    @Column(nullable = false, length = 50, unique = true)
+    @Column(name = "updated_by")
+    private Long updatedBy;
+
+    @Size(max = 50)
+    @NotNull
+    @Column(name = "code", nullable = false, length = 50)
     private String code;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private PaymentMethodType type;
+    @Size(max = 100)
+    @NotNull
+    @Nationalized
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
 
-    @Lob
-    @Column(columnDefinition = "NVARCHAR(MAX)")
-    private String config;
-
-    @Column(length = 255, columnDefinition = "NVARCHAR(255)")
+    @Size(max = 500)
+    @Nationalized
+    @Column(name = "description", length = 500)
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Status status;
+    @Size(max = 20)
+    @NotNull
+    @Column(name = "type", nullable = false, length = 20)
+    private Enums.PaymentMethodType type;
+
+    @Size(max = 20)
+    @NotNull
+    @ColumnDefault("'ACTIVE'")
+    @Column(name = "status", nullable = false, length = 20)
+    private Enums.Status status;
+
 }

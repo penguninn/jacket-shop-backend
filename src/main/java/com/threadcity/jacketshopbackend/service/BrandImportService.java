@@ -3,7 +3,6 @@ package com.threadcity.jacketshopbackend.service;
 import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.request.excel.BrandExcelRow;
 import com.threadcity.jacketshopbackend.dto.response.ImportResult;
-import com.threadcity.jacketshopbackend.entity.Brand;
 import com.threadcity.jacketshopbackend.repository.BrandRepository;
 import com.threadcity.jacketshopbackend.utils.ExcelUtils;
 import lombok.RequiredArgsConstructor;
