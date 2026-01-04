@@ -163,13 +163,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-            <excludes>
-                <exclude>**/controller/**</exclude>
-                <exclude>**/service/**</exclude>
-                <exclude>**/mapper/**</exclude>
-                <exclude>**/repository/**</exclude>
-                <exclude>**/filter/**</exclude>
-            </excludes>
           <annotationProcessorPaths>
             <path>
               <groupId>org.springframework.boot</groupId>
