@@ -18,9 +18,12 @@ public class BrandUpdateRequest {
     @Size(max = 120, message = "Name must be less than 120 characters")
     private String name;
 
+    @Size(max = 500, message = "Description too long")
+    private String description;
+
+    @Size(max = 500, message = "Logo URL too long")
+    private String logo;
+
     @NotNull(message = "Status is required")
     private Enums.Status status;
-
-    @Size(max = 255, message = "Description too long")
-    private String description;
 }

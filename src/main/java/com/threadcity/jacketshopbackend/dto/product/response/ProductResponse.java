@@ -35,6 +35,8 @@ public class ProductResponse implements Serializable {
     private List<ColorResponse> colors;
     private List<MaterialResponse> materials;
     private List<SizeResponse> sizes;
+    private Integer variantsCount;
+    private Integer version;
     private Enums.Status status;
     private Instant createdAt;
     private Instant updatedAt;

@@ -3,6 +3,8 @@ package com.threadcity.jacketshopbackend.mapper;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.auth.response.ProfileResponse;
 import com.threadcity.jacketshopbackend.dto.user.response.UserResponse;
+import com.threadcity.jacketshopbackend.entity.Role;
+import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.service.auth.UserDetailsImpl;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

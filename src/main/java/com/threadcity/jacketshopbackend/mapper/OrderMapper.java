@@ -2,6 +2,8 @@ package com.threadcity.jacketshopbackend.mapper;
 
 import com.threadcity.jacketshopbackend.dto.order.response.OrderDetailResponse;
 import com.threadcity.jacketshopbackend.dto.order.response.OrderResponse;
+import com.threadcity.jacketshopbackend.entity.Order;
+import com.threadcity.jacketshopbackend.entity.OrderDetail;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

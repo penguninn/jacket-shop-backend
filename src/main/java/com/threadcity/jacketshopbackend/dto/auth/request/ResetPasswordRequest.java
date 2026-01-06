@@ -14,10 +14,10 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdatePasswordRequest implements Serializable {
+public class ResetPasswordRequest implements Serializable {
 
-    @NotBlank(message = "Old password is required")
-    private String oldPassword;
+    @NotBlank(message = "Token is required")
+    private String token;
 
     @NotBlank(message = "New password is required")
     @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")

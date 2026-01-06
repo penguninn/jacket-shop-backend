@@ -6,11 +6,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ProductVariantCreateRequest {
+public class ProductVariantCreateRequest implements Serializable {
 
     @NotNull(message = "Product ID is required")
     private Long productId;

@@ -2,6 +2,7 @@ package com.threadcity.jacketshopbackend.mapper;
 
 import com.threadcity.jacketshopbackend.dto.promotion.request.CouponCreateRequest;
 import com.threadcity.jacketshopbackend.dto.promotion.response.CouponResponse;
+import com.threadcity.jacketshopbackend.entity.Coupon;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

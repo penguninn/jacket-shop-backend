@@ -7,9 +7,11 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @Builder
-public class ProductUpdateRequest {
+public class ProductUpdateRequest implements Serializable {
 
     @NotNull(message = "ID is required")
     private Long id;
@@ -21,6 +23,7 @@ public class ProductUpdateRequest {
     @NotNull(message = "Brand ID is required")
     private Long brandId;
 
+    @Size(max = 4000, message = "Description must be less than 4000 characters")
     private String description;
 
     @NotNull(message = "Style ID is required")

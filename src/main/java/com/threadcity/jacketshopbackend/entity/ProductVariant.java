@@ -103,6 +103,10 @@ public class ProductVariant extends BaseEntity {
     @Column(name = "height", precision = 8, scale = 2)
     private BigDecimal height;
 
+    @Size(max = 500)
+    @Column(name = "image", length = 500)
+    private String image;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)

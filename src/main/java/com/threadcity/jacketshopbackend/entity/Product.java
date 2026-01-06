@@ -48,6 +48,10 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "style_id", nullable = false)
     private Style style;
 
+    @Size(max = 500)
+    @Column(name = "thumbnail", length = 500)
+    private String thumbnail;
+
     @Column(name = "min_price", precision = 12, scale = 2)
     private BigDecimal minPrice;
 
@@ -88,10 +92,6 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<ProductVariant> variants = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private Set<ProductImage> images = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

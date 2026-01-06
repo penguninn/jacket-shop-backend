@@ -13,12 +13,13 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CartItemRequest implements Serializable {
+public class UpdateCartItemRequest implements Serializable {
 
-    @NotNull(message = "Product variant ID is required")
-    private Long productVariantId;
+    @NotNull(message = "Cart item ID is required")
+    private Long id;
 
-    @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
+
+    private Boolean selected;
 }

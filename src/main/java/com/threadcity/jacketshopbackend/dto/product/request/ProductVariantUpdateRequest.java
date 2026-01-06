@@ -6,11 +6,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ProductVariantUpdateRequest {
+public class ProductVariantUpdateRequest implements Serializable {
+
+    @NotNull(message = "ID is required")
+    private Long id;
 
     @NotNull(message = "Price is required")
     @Min(value = 0, message = "Price cannot be negative")

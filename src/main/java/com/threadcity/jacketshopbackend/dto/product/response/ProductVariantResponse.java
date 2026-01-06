@@ -23,7 +23,7 @@ public class ProductVariantResponse implements Serializable {
     private Long id;
     private String sku;
     private Long productId;
-    private ProductResponse product;
+    private String productName;
     private SizeResponse size;
     private ColorResponse color;
     private MaterialResponse material;
@@ -42,6 +42,7 @@ public class ProductVariantResponse implements Serializable {
     private Integer returnCount;
     private BigDecimal salePrice;
     private BigDecimal discountPercentage;
+    private Integer version;
     private Instant createdAt;
     private Instant updatedAt;
 }

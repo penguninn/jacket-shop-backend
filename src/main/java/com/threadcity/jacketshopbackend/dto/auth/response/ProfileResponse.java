@@ -17,13 +17,23 @@ public class ProfileResponse implements Serializable {
 
     private String username;
 
+    private String email;
+
     private String fullName;
 
     private String phone;
 
+    private String avatar;
+
     private Set<RoleResponse> roles;
 
     private Status status;
+
+    private Boolean emailVerified;
+
+    private Boolean phoneVerified;
+
+    private Instant lastLoginAt;
 
     private Instant createdAt;
 

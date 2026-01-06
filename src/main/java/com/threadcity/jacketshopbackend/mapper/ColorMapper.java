@@ -3,6 +3,7 @@ package com.threadcity.jacketshopbackend.mapper;
 import com.threadcity.jacketshopbackend.dto.attribute.request.ColorCreateRequest;
 import com.threadcity.jacketshopbackend.dto.attribute.request.ColorUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
+import com.threadcity.jacketshopbackend.entity.Color;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

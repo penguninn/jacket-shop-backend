@@ -1,6 +1,8 @@
 package com.threadcity.jacketshopbackend.mapper;
 
 import com.threadcity.jacketshopbackend.dto.product.response.ProductVariantResponse;
+import com.threadcity.jacketshopbackend.entity.ProductVariant;
+import com.threadcity.jacketshopbackend.entity.Sale;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,13 +17,12 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {
         SizeMapper.class,
         ColorMapper.class,
-        MaterialMapper.class,
-        ProductMapper.class
+        MaterialMapper.class
 })
 public interface ProductVariantMapper {
 
     @Mapping(source = "product.id", target = "productId")
-    @Mapping(source = "product", target = "product")
+    @Mapping(source = "product.name", target = "productName")
     @Mapping(target = "salePrice", ignore = true)
     @Mapping(target = "discountPercentage", ignore = true)
     ProductVariantResponse toDto(ProductVariant productVariant);
