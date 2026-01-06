@@ -5,12 +5,13 @@ import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
-public class SaleUpdateRequest {
+public class SaleUpdateRequest implements Serializable {
 
     @NotNull(message = "ID is required")
     private Long id;
@@ -28,10 +29,10 @@ public class SaleUpdateRequest {
     private BigDecimal discountPercentage;
 
     @NotNull(message = "Start date is required")
-    private OffsetDateTime startDate;
+    private Instant startDate;
 
     @NotNull(message = "End date is required")
-    private OffsetDateTime endDate;
+    private Instant endDate;
 
     @NotNull(message = "Status is required")
     private Enums.Status status;

@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -38,7 +38,7 @@ public class RefreshToken extends BaseEntity {
 
     @NotNull
     @Column(name = "expires_at", nullable = false)
-    private OffsetDateTime expiresAt;
+    private Instant expiresAt;
 
     @NotNull
     @Enumerated(EnumType.STRING)

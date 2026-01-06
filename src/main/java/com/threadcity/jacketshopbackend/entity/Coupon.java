@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -68,11 +68,11 @@ public class Coupon extends BaseEntity {
 
     @NotNull
     @Column(name = "valid_from", nullable = false)
-    private OffsetDateTime validFrom;
+    private Instant validFrom;
 
     @NotNull
     @Column(name = "valid_to", nullable = false)
-    private OffsetDateTime validTo;
+    private Instant validTo;
 
     @NotNull
     @Enumerated(EnumType.STRING)

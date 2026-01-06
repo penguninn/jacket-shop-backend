@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -41,9 +41,9 @@ public class UserCoupon extends BaseEntity {
     private Integer usedCount = 0;
 
     @Column(name = "first_used_at")
-    private OffsetDateTime firstUsedAt;
+    private Instant firstUsedAt;
 
     @Column(name = "last_used_at")
-    private OffsetDateTime lastUsedAt;
+    private Instant lastUsedAt;
 
 }

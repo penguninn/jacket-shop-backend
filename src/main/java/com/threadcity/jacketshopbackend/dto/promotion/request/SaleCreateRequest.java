@@ -1,30 +1,40 @@
 package com.threadcity.jacketshopbackend.dto.promotion.request;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import com.threadcity.jacketshopbackend.common.Enums;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Data
 @Builder
-public class SaleCreateRequest {
+public class SaleCreateRequest implements Serializable {
 
     @NotNull(message = "Variant IDs are required")
     private List<Long> productVariantIds;
 
+    @NotBlank(message = "Name cannot be empty")
+    @Size(max = 255, message = "Name must be less than 255 characters")
     private String name;
 
+    @Size(max = 500, message = "Description must be less than 500 characters")
     private String description;
 
-    private LocalDateTime saleStartDate;
-    private LocalDateTime saleEndDate;
+    @NotNull(message = "Start date is required")
+    private Instant startDate;
 
-    @Min(value = 0, message = "Discount percentage cannot be negative")
-    @Max(value = 100, message = "Discount percentage cannot exceed 100")
+    @NotNull(message = "End date is required")
+    private Instant endDate;
+
+    @NotNull(message = "Discount percentage is required")
+    @DecimalMin(value = "0.00", message = "Discount percentage must be at least 0")
+    @DecimalMax(value = "100.00", message = "Discount percentage must not exceed 100")
     private BigDecimal discountPercentage;
+
+    @NotNull(message = "Status is required")
+    private Enums.Status status;
 }

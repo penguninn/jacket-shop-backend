@@ -81,7 +81,31 @@ public class OrderResponse implements Serializable {
 
     private String note;
 
+    private String customerEmail;
+
+    private String trackingNumber;
+
+    private String carrierRateId;
+
+    private String deliveryTimeEstimate;
+
+    private Long couponId;
+
+    private Instant confirmedAt;
+
+    private Instant processingAt;
+
+    private Instant shippedAt;
+
+    private Instant completedAt;
+
+    private Instant cancelledAt;
+
+    private Instant returnedAt;
+
     private Instant createdAt;
+
+    private Instant updatedAt;
 
     private List<OrderDetailResponse> details;
 }

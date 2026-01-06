@@ -7,14 +7,18 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 
 @Data
 @Builder
-public class CouponUpdateRequest {
+public class CouponUpdateRequest implements Serializable {
 
-    @Size(max = 255, message = "Description too long")
+    @NotNull(message = "ID is required")
+    private Long id;
+
+    @Size(max = 500, message = "Description must be less than 500 characters")
     private String description;
 
     @NotNull(message = "Coupon Type is required")
@@ -30,11 +34,11 @@ public class CouponUpdateRequest {
     @Min(value = 0, message = "Max discount cannot be negative")
     private BigDecimal maxDiscount;
 
-    @Min(value = 0, message = "Usage limit cannot be negative")
+    @Min(value = 1, message = "Usage limit must be at least 1")
     private Integer usageLimit;
 
-    @Min(value = 0, message = "Used count cannot be negative")
-    private Integer usedCount;
+    @Min(value = 1, message = "Usage limit per user must be at least 1")
+    private Integer usageLimitPerUser;
 
     @NotNull(message = "Valid From Date is required")
     private Instant validFrom;

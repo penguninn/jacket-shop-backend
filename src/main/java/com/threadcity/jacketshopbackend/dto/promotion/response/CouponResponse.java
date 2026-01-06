@@ -23,6 +23,7 @@ public class CouponResponse implements Serializable {
     private BigDecimal minOrderValue;
     private BigDecimal maxDiscount;
     private Integer usageLimit;
+    private Integer usageLimitPerUser;
     private Integer usedCount;
     private Instant validFrom;
     private Instant validTo;

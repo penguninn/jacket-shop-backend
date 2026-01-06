@@ -29,12 +29,12 @@ public class OrderDetailResponse implements Serializable {
     private String material;
 
     private String sku;
-    
+
     private String image;
 
-    private BigDecimal price;
+    private BigDecimal originalPrice;
 
-    private BigDecimal salePrice;
+    private BigDecimal price;
 
     private BigDecimal discountPercentage;
 

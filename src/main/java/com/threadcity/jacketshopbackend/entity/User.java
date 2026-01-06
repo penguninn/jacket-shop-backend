@@ -8,7 +8,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Nationalized;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -74,7 +74,7 @@ public class User extends BaseEntity {
     private Boolean phoneVerified = false;
 
     @Column(name = "last_login_at")
-    private OffsetDateTime lastLoginAt;
+    private Instant lastLoginAt;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

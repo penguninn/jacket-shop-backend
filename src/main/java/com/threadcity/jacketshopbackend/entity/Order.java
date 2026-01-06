@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -151,7 +151,7 @@ public class Order extends BaseEntity {
     private Enums.PaymentStatus paymentStatus = Enums.PaymentStatus.UNPAID;
 
     @Column(name = "payment_date")
-    private OffsetDateTime paymentDate;
+    private Instant paymentDate;
 
     @Size(max = 255)
     @Column(name = "transaction_id")
@@ -190,22 +190,22 @@ public class Order extends BaseEntity {
     private String note;
 
     @Column(name = "confirmed_at")
-    private OffsetDateTime confirmedAt;
+    private Instant confirmedAt;
 
     @Column(name = "processing_at")
-    private OffsetDateTime processingAt;
+    private Instant processingAt;
 
     @Column(name = "shipped_at")
-    private OffsetDateTime shippedAt;
+    private Instant shippedAt;
 
     @Column(name = "completed_at")
-    private OffsetDateTime completedAt;
+    private Instant completedAt;
 
     @Column(name = "cancelled_at")
-    private OffsetDateTime cancelledAt;
+    private Instant cancelledAt;
 
     @Column(name = "returned_at")
-    private OffsetDateTime returnedAt;
+    private Instant returnedAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

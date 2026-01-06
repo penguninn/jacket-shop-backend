@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -45,11 +45,11 @@ public class Sale extends BaseEntity {
 
     @NotNull
     @Column(name = "start_date", nullable = false)
-    private OffsetDateTime startDate;
+    private Instant startDate;
 
     @NotNull
     @Column(name = "end_date", nullable = false)
-    private OffsetDateTime endDate;
+    private Instant endDate;
 
     @NotNull
     @Enumerated(EnumType.STRING)

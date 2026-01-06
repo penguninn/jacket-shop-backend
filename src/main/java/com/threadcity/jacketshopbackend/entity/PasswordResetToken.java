@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -37,7 +37,7 @@ public class PasswordResetToken extends BaseEntity {
 
     @NotNull
     @Column(name = "expiry_date", nullable = false)
-    private OffsetDateTime expiryDate;
+    private Instant expiryDate;
 
     @NotNull
     @Column(name = "is_used", nullable = false)
