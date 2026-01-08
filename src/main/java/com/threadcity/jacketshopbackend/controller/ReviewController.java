@@ -33,13 +33,35 @@ public class ReviewController {
                 .build();
     }
 
+    // --- MỚI THÊM: API lấy danh sách tất cả reviews cho Admin ---
+    @GetMapping
+    public ApiResponse<?> getAllReviews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("ReviewController::getAllReviews - Execution started.");
+        PageResponse<?> response = reviewService.getAllReviews(page, size);
+        log.info("ReviewController::getAllReviews - Execution completed.");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Get all reviews successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+    // ------------------------------------------------------------
+
     @GetMapping("/product/{productId}")
     public ApiResponse<?> getReviewsByProductId(
             @PathVariable Long productId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("ReviewController::getReviewsByProductId - Execution started. [productId: {}]", productId);
-        PageResponse<?> response = reviewService.getReviewsByProductId(productId, page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "latest") String sort // <--- Cần thêm tham số này
+    ) {
+        log.info("ReviewController::getReviewsByProductId - Execution started. [productId: {}], [sort: {}]", productId, sort);
+
+        // Gọi method service 4 tham số (có xử lý sort) thay vì method 3 tham số cũ
+        PageResponse<?> response = reviewService.getReviewsByProductId(productId, page, size, sort);
+
         log.info("ReviewController::getReviewsByProductId - Execution completed.");
         return ApiResponse.builder()
                 .code(200)
@@ -60,4 +82,23 @@ public class ReviewController {
                 .timestamp(Instant.now())
                 .build();
     }
+    @GetMapping("/search")
+    public ApiResponse<?> searchReviews(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer rating,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "latest") String sort
+    ) {
+        PageResponse<?> response =
+                reviewService.searchReviews(keyword, rating, page, size, sort);
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Search reviews successfully.")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+    }
+
 }
