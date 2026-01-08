@@ -120,11 +120,4 @@ public class ProductSpecification {
                 .and(hasSizes(request.getSizeIds()))
                 .and(isFeatured(request.getIsFeatured()));
     }
-
-    public static Specification<Product> isFeatured(Boolean featured) {
-        return (root, query, cb) -> {
-            if (featured == null) return null;
-            return cb.equal(root.get("isFeatured"), featured);
-        };
-    }
 }

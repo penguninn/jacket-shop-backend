@@ -42,5 +42,4 @@ public class ProductFilterRequest {
         @Builder.Default
         @Pattern(regexp = "^(ASC|DESC)$", message = "Sort direction must be ASC or DESC")
         private String sortDir = "DESC";
-        private Boolean isFeatured;
 }
