@@ -1,18 +1,22 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.*;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.StyleResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.StyleCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.StyleUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.StyleResponse;
 import com.threadcity.jacketshopbackend.filter.StyleFilterRequest;
+import com.threadcity.jacketshopbackend.service.StyleImportService;
 import com.threadcity.jacketshopbackend.service.StyleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,6 +28,20 @@ import java.util.List;
 public class StyleController {
 
         private final StyleService styleService;
+        private final StyleImportService styleImportService;
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+        public ApiResponse<?> importStyles(@RequestParam("file") MultipartFile file) {
+                log.info("StyleController::importStyles - Execution started");
+                ImportResult result = styleImportService.importStyles(file);
+                log.info("StyleController::importStyles - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Import styles completed.")
+                        .data(result)
+                        .timestamp(Instant.now())
+                        .build();
+        }
 
         @GetMapping
         public ApiResponse<?> getAllStyles(
@@ -66,7 +84,7 @@ public class StyleController {
         }
 
         @PostMapping
-        public ApiResponse<?> createStyle(@Valid @RequestBody StyleRequest styleRequest) {
+        public ApiResponse<?> createStyle(@Valid @RequestBody StyleCreateRequest styleRequest) {
                 log.info("StyleController::createStyle - Execution started.");
                 StyleResponse response = styleService.createStyle(styleRequest);
                 log.info("StyleController::createStyle - Execution completed.");
@@ -79,7 +97,7 @@ public class StyleController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateStyle(@PathVariable Long id, @Valid @RequestBody StyleRequest styleRequest) {
+        public ApiResponse<?> updateStyle(@PathVariable Long id, @Valid @RequestBody StyleUpdateRequest styleRequest) {
                 log.info("StyleController::updateStyle - Execution started. [id: {}]", id);
                 StyleResponse response = styleService.updateStyleById(styleRequest, id);
                 log.info("StyleController::updateStyle - Execution completed. [id: {}]", id);

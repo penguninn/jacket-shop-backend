@@ -1,8 +1,8 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.goship.rate.GoshipRateData;
-import com.threadcity.jacketshopbackend.dto.goship.rate.GoshipRateRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.integration.goship.rate.GoshipRateData;
+import com.threadcity.jacketshopbackend.dto.integration.goship.rate.GoshipRateRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
 import com.threadcity.jacketshopbackend.service.ShippingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

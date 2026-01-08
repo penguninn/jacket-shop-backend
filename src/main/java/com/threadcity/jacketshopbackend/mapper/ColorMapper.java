@@ -1,7 +1,8 @@
 package com.threadcity.jacketshopbackend.mapper;
 
-import com.threadcity.jacketshopbackend.dto.request.ColorRequest;
-import com.threadcity.jacketshopbackend.dto.response.ColorResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.request.ColorCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.ColorUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
 import com.threadcity.jacketshopbackend.entity.Color;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,5 +14,7 @@ public interface ColorMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    Color toEntity(ColorRequest request);
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    Color toEntity(ColorCreateRequest request);
 }

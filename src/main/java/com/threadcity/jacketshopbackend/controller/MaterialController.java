@@ -1,37 +1,71 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.MaterialCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.MaterialUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.attribute.response.MaterialResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.filter.MaterialFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.MaterialRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.MaterialResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.service.MaterialImportService;
 import com.threadcity.jacketshopbackend.service.MaterialService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.List;
 
+
+
 @RestController
+
 @RequestMapping("/api/materials")
+
 @RequiredArgsConstructor
+
 @Slf4j
+
 public class MaterialController {
+
+
+
         private final MaterialService materialService;
+
+        private final MaterialImportService materialImportService;
+
+
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+
+        public ApiResponse<?> importMaterials(@RequestParam("file") MultipartFile file) {
+
+                log.info("MaterialController::importMaterials - Execution started");
+
+                ImportResult result = materialImportService.importMaterials(file);
+
+                log.info("MaterialController::importMaterials - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+
+                return ApiResponse.builder()
+
+                        .code(200)
+
+                        .message("Import materials completed.")
+
+                        .data(result)
+
+                        .timestamp(Instant.now())
+
+                        .build();
+
+        }
+
+
 
         @GetMapping
         public ApiResponse<?> getAllMaterials(
@@ -78,7 +112,7 @@ public class MaterialController {
         }
 
         @PostMapping
-        public ApiResponse<?> createMaterial(@RequestBody MaterialRequest materialRequest) {
+        public ApiResponse<?> createMaterial(@RequestBody MaterialCreateRequest materialRequest) {
                 log.info("MaterialController::createMaterial - Execution started.");
                 MaterialResponse response = materialService.createMaterial(materialRequest);
                 log.info("MaterialController::createMaterial - Execution completed.");
@@ -92,7 +126,7 @@ public class MaterialController {
 
         @PutMapping("/{id}")
         public ApiResponse<?> updateMaterial(@PathVariable Long id,
-                        @Valid @RequestBody MaterialRequest materialRequest) {
+                        @Valid @RequestBody MaterialUpdateRequest materialRequest) {
                 log.info("MaterialController::updateMaterial - Execution started. [id: {}]", id);
 
                 MaterialResponse response = materialService.updateMaterialById(materialRequest, id);

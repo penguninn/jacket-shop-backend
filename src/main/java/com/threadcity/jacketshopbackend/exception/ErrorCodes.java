@@ -84,10 +84,12 @@ public final class ErrorCodes {
     public static final String COUPON_NOT_STARTED = "COUPON_NOT_STARTED";
     public static final String COUPON_USAGE_LIMIT_REACHED = "COUPON_USAGE_LIMIT_REACHED";
     public static final String COUPON_NOT_ACTIVE = "COUPON_NOT_ACTIVE";
+    public static final String COUPON_MIN_ORDER_VALUE_NOT_REACHED = "COUPON_MIN_ORDER_VALUE_NOT_REACHED";
 
     // Order Domain
     public static final String ORDER_NOT_FOUND = "ORDER_NOT_FOUND";
     public static final String INVALID_ORDER_STATUS = "INVALID_ORDER_STATUS";
+    public static final String INVALID_REQUEST = "INVALID_REQUEST";
 
     // Payment Method Domain
     public static final String PAYMENT_METHOD_NOT_FOUND = "PAYMENT_METHOD_NOT_FOUND";

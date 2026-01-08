@@ -1,14 +1,14 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.DistrictResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProvinceResponse;
-import com.threadcity.jacketshopbackend.dto.response.WardResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.location.response.DistrictResponse;
+import com.threadcity.jacketshopbackend.dto.location.response.ProvinceResponse;
+import com.threadcity.jacketshopbackend.dto.location.response.WardResponse;
 import com.threadcity.jacketshopbackend.service.AddressService;
+import com.threadcity.jacketshopbackend.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import com.threadcity.jacketshopbackend.service.LocationService;
 
 import java.time.Instant;
 import java.util.List;

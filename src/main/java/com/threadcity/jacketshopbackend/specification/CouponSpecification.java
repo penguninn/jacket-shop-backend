@@ -2,8 +2,8 @@ package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.CouponType;
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.filter.CouponFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Coupon;
+import com.threadcity.jacketshopbackend.filter.CouponFilterRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
@@ -44,16 +44,12 @@ public class CouponSpecification {
         };
     }
 
-    private static Specification<Coupon> filterType(List<String> types) {
+    private static Specification<Coupon> filterType(List<CouponType> types) {
         return (root, query, cb) -> {
             if (types == null || types.isEmpty())
                 return null;
 
-            List<CouponType> typeEnums = types.stream()
-                    .map(s -> CouponType.valueOf(s.toUpperCase()))
-                    .toList();
-
-            return root.get("type").in(typeEnums);
+            return root.get("type").in(types);
         };
     }
 

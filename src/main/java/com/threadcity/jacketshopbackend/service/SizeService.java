@@ -1,23 +1,12 @@
 package com.threadcity.jacketshopbackend.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.SizeResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.request.SizeCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.SizeUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
 import com.threadcity.jacketshopbackend.entity.Size;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
@@ -26,10 +15,20 @@ import com.threadcity.jacketshopbackend.filter.SizeFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.SizeMapper;
 import com.threadcity.jacketshopbackend.repository.SizeRepository;
 import com.threadcity.jacketshopbackend.specification.SizeSpecification;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +70,7 @@ public class SizeService {
     }
 
     @Transactional
-    public SizeResponse createSize(SizeRequest size) {
+    public SizeResponse createSize(SizeCreateRequest size) {
         log.info("SizeService::createSize- Execution started.");
         if (sizeRepository.existsByName(size.getName())) {
             throw new ResourceConflictException(ErrorCodes.SIZE_NAME_DUPLICATE,
@@ -84,7 +83,7 @@ public class SizeService {
     }
 
     @Transactional
-    public SizeResponse updateSizeById(SizeRequest sizeRequest, Long id) {
+    public SizeResponse updateSizeById(SizeUpdateRequest sizeRequest, Long id) {
         log.info("SizeService::updateSizeById - Execution started.");
 
         Size size = sizeRepository.findById(id).orElseThrow(

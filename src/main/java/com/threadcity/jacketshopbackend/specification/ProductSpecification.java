@@ -1,8 +1,8 @@
 package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Product;
+import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
@@ -33,6 +33,7 @@ public class ProductSpecification {
             if (colorIds == null || colorIds.isEmpty()) {
                 return null;
             }
+            query.distinct(true); // Prevent duplicate rows from join
             return root.join("colors").get("id").in(colorIds);
         };
     }
@@ -42,6 +43,7 @@ public class ProductSpecification {
             if (materialIds == null || materialIds.isEmpty()) {
                 return null;
             }
+            query.distinct(true); // Prevent duplicate rows from join
             return root.join("materials").get("id").in(materialIds);
         };
     }
@@ -51,6 +53,7 @@ public class ProductSpecification {
             if (sizeIds == null || sizeIds.isEmpty()) {
                 return null;
             }
+            query.distinct(true); // Prevent duplicate rows from join
             return root.join("sizes").get("id").in(sizeIds);
         };
     }
@@ -93,6 +96,15 @@ public class ProductSpecification {
                     .toList();
 
             return root.get("status").in(statusEnums);
+        };
+    }
+
+    public static Specification<Product> isFeatured(Boolean isFeatured) {
+        return (root, query, cb) -> {
+            if (isFeatured == null) {
+                return null;
+            }
+            return cb.equal(root.get("isFeatured"), isFeatured);
         };
     }
 

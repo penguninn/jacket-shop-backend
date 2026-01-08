@@ -1,11 +1,14 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.SaleRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.SaleResponse;
+import com.threadcity.jacketshopbackend.dto.promotion.request.SaleCreateRequest;
+import com.threadcity.jacketshopbackend.dto.promotion.request.SaleUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.promotion.response.SaleResponse;
 import com.threadcity.jacketshopbackend.entity.ProductVariant;
 import com.threadcity.jacketshopbackend.entity.Sale;
+import com.threadcity.jacketshopbackend.entity.SaleVariant;
+import com.threadcity.jacketshopbackend.entity.SaleVariantId;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.filter.SaleFilterRequest;
@@ -39,7 +42,7 @@ public class SaleService {
     private final SaleRepository saleRepository;
 
     @Transactional
-    public SaleResponse createSale(SaleRequest request) {
+    public SaleResponse createSale(SaleCreateRequest request) {
         log.info("SaleService::createSale - Execution started. [variantIds: {}]", request.getProductVariantIds());
 
         List<ProductVariant> variants = productVariantRepository.findAllById(request.getProductVariantIds());
@@ -50,26 +53,37 @@ public class SaleService {
         Sale sale = Sale.builder()
                 .name(request.getName())
                 .description(request.getDescription())
-                .startDate(request.getSaleStartDate())
-                .endDate(request.getSaleEndDate())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
                 .discountPercentage(request.getDiscountPercentage())
-                .productVariants(new ArrayList<>())
+                .saleVariants(new java.util.LinkedHashSet<>())
                 .build();
 
         Sale savedSale = saleRepository.save(sale);
 
+        // Create SaleVariant join entities
         for (ProductVariant variant : variants) {
-            variant.getSales().add(savedSale);
-            productVariantRepository.save(variant);
-            savedSale.getProductVariants().add(variant);
+            SaleVariantId saleVariantId = SaleVariantId.builder()
+                    .saleId(savedSale.getId())
+                    .productVariantId(variant.getId())
+                    .build();
+
+            SaleVariant saleVariant = SaleVariant.builder()
+                    .id(saleVariantId)
+                    .sale(savedSale)
+                    .productVariant(variant)
+                    .build();
+
+            savedSale.getSaleVariants().add(saleVariant);
         }
 
+        Sale result = saleRepository.save(savedSale);
         log.info("SaleService::createSale - Execution completed.");
-        return mapToDto(savedSale);
+        return mapToDto(result);
     }
 
     @Transactional
-    public SaleResponse updateSale(Long id, SaleRequest request) {
+    public SaleResponse updateSale(Long id, SaleUpdateRequest request) {
         log.info("SaleService::updateSale - Execution started. [id: {}]", id);
 
         Sale sale = saleRepository.findById(id)
@@ -78,38 +92,9 @@ public class SaleService {
 
         sale.setName(request.getName());
         sale.setDescription(request.getDescription());
-        sale.setStartDate(request.getSaleStartDate());
-        sale.setEndDate(request.getSaleEndDate());
+        sale.setStartDate(request.getStartDate());
+        sale.setEndDate(request.getEndDate());
         sale.setDiscountPercentage(request.getDiscountPercentage());
-
-        // Update variants if provided
-        if (request.getProductVariantIds() != null) {
-            // Unlink old variants
-            if (sale.getProductVariants() != null) {
-                for (ProductVariant variant : sale.getProductVariants()) {
-                    variant.getSales().remove(sale);
-                    productVariantRepository.save(variant);
-                }
-                sale.getProductVariants().clear();
-            }
-
-            // Link new variants
-            List<ProductVariant> variants = productVariantRepository.findAllById(request.getProductVariantIds());
-            if (variants.isEmpty() && !request.getProductVariantIds().isEmpty()) {
-                 throw new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND, "No variants found with provided IDs");
-            }
-            
-            for (ProductVariant variant : variants) {
-                variant.getSales().add(sale);
-                productVariantRepository.save(variant);
-                if (sale.getProductVariants() == null) {
-                    sale.setProductVariants(new ArrayList<>());
-                }
-                sale.getProductVariants().add(variant);
-            }
-        } else {
-             // If variants are not being updated, we still need to sync because discount/dates might have changed
-        }
 
         Sale savedSale = saleRepository.save(sale);
         log.info("SaleService::updateSale - Execution completed.");
@@ -158,14 +143,7 @@ public class SaleService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND,
                         "Sale not found with id: " + saleId));
 
-        // Unlink variants
-        if (sale.getProductVariants() != null) {
-            for (ProductVariant variant : sale.getProductVariants()) {
-                variant.getSales().remove(sale);
-                productVariantRepository.save(variant);
-            }
-        }
-
+        // Cascade delete will handle SaleVariants
         saleRepository.delete(sale);
         log.info("SaleService::deleteSale - Execution completed.");
     }
@@ -183,16 +161,7 @@ public class SaleService {
             throw new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "Sales not found: " + missingIds);
         }
 
-        // Unlink variants for all sales
-        for (Sale sale : sales) {
-             if (sale.getProductVariants() != null) {
-                for (ProductVariant variant : sale.getProductVariants()) {
-                    variant.getSales().remove(sale);
-                    productVariantRepository.save(variant);
-                }
-            }
-        }
-
+        // Cascade delete will handle SaleVariants
         saleRepository.deleteAllInBatch(sales);
 
         log.info("SaleService::bulkDeleteSales - Execution completed.");
@@ -200,8 +169,9 @@ public class SaleService {
 
     private SaleResponse mapToDto(Sale sale) {
         List<SaleResponse.SaleVariantDetail> variantDetails = new ArrayList<>();
-        if (sale.getProductVariants() != null) {
-            for (ProductVariant variant : sale.getProductVariants()) {
+        if (sale.getSaleVariants() != null) {
+            for (SaleVariant saleVariant : sale.getSaleVariants()) {
+                ProductVariant variant = saleVariant.getProductVariant();
                 BigDecimal salePrice = null;
                 if (sale.getDiscountPercentage() != null && variant.getPrice() != null) {
                     BigDecimal discountFactor = sale.getDiscountPercentage().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);

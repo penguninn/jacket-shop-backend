@@ -1,13 +1,12 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.ReviewRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.ReviewResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.ReviewRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.ReviewResponse;
 import com.threadcity.jacketshopbackend.entity.Order;
 import com.threadcity.jacketshopbackend.entity.Product;
 import com.threadcity.jacketshopbackend.entity.Review;
 import com.threadcity.jacketshopbackend.entity.User;
-import com.threadcity.jacketshopbackend.exception.AppException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.ReviewMapper;
@@ -15,6 +14,7 @@ import com.threadcity.jacketshopbackend.repository.OrderRepository;
 import com.threadcity.jacketshopbackend.repository.ProductRepository;
 import com.threadcity.jacketshopbackend.repository.ReviewRepository;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
+import com.threadcity.jacketshopbackend.utils.SecurityUtils;
 import com.threadcity.jacketshopbackend.service.auth.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -113,6 +113,9 @@ public class ReviewService {
     public void deleteReview(Long id) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND, "Review not found"));
+
+        // Security: Verify ownership (user owns review OR is admin/staff)
+        SecurityUtils.requireOwnership(review.getUser().getId(), "review");
 
         Product product = review.getProduct();
         reviewRepository.delete(review);

@@ -1,26 +1,34 @@
 package com.threadcity.jacketshopbackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-@Entity
-@Table(name = "carts")
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Entity
+@Table(name = "carts", schema = "dbo", uniqueConstraints = {
+        @UniqueConstraint(name = "UK_carts_user", columnNames = { "user_id" })
+})
 public class Cart extends BaseEntity {
 
-    @OneToOne
+    @NotNull
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<CartItem> items = new ArrayList<>();
+    private Set<CartItem> cartItems = new LinkedHashSet<>();
+
 }

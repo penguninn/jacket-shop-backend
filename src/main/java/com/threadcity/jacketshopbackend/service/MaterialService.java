@@ -1,28 +1,30 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.MaterialRequest;
-import com.threadcity.jacketshopbackend.dto.response.MaterialResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.request.MaterialCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.MaterialUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.response.MaterialResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Material;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
+import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.filter.MaterialFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.MaterialMapper;
 import com.threadcity.jacketshopbackend.repository.MaterialRepository;
 import com.threadcity.jacketshopbackend.specification.MaterialSpecification;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,7 +71,7 @@ public class MaterialService {
     }
 
     @Transactional
-    public MaterialResponse createMaterial(MaterialRequest request) {
+    public MaterialResponse createMaterial(MaterialCreateRequest request) {
         log.info("MaterialService::createMaterial - Execution started.");
 
         if (materialRepository.existsByName(request.getName())) {
@@ -85,7 +87,7 @@ public class MaterialService {
     }
 
     @Transactional
-    public MaterialResponse updateMaterialById(MaterialRequest request, Long id) {
+    public MaterialResponse updateMaterialById(MaterialUpdateRequest request, Long id) {
         log.info("MaterialService::updateMaterialById - Execution started.");
 
         Material material = materialRepository.findById(id)

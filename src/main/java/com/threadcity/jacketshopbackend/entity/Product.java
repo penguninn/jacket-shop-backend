@@ -1,85 +1,100 @@
 package com.threadcity.jacketshopbackend.entity;
 
-import com.threadcity.jacketshopbackend.common.Enums.Status;
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Entity
-@Table(name = "products")
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Entity
+@Table(name = "products", schema = "dbo", indexes = {
+        @Index(name = "IX_products_brand", columnList = "brand_id, status"),
+        @Index(name = "IX_products_style", columnList = "style_id, status"),
+        @Index(name = "IX_products_featured", columnList = "is_featured, status"),
+        @Index(name = "IX_products_rating", columnList = "rating_average, rating_count"),
+        @Index(name = "IX_products_sold", columnList = "sold_count")
+})
 public class Product extends BaseEntity {
 
-    @Column(nullable = false, length = 200, columnDefinition = "NVARCHAR(200)")
+    @Size(max = 200)
+    @NotNull
+    @Nationalized
+    @Column(name = "name", nullable = false, length = 200)
     private String name;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Size(max = 4000)
+    @Nationalized
+    @Column(name = "description", length = 4000)
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Status status;
-
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "style_id", nullable = false)
     private Style style;
 
-    @Lob
-    @Column(name = "thumbnail", columnDefinition = "NVARCHAR(MAX)")
+    @Size(max = 500)
+    @Column(name = "thumbnail", length = 500)
     private String thumbnail;
 
-    @Column(name = "is_featured")
+    @Column(name = "min_price", precision = 12, scale = 2)
+    private BigDecimal minPrice;
+
+    @Column(name = "max_price", precision = 12, scale = 2)
+    private BigDecimal maxPrice;
+
+    @NotNull
+    @Column(name = "is_featured", nullable = false)
     @Builder.Default
     private Boolean isFeatured = false;
 
-    @Column(name = "sold_count")
+    @NotNull
+    @Column(name = "sold_count", nullable = false)
     @Builder.Default
     private Long soldCount = 0L;
 
-    @Column(name = "rating_average", precision = 3, scale = 2)
-    @Builder.Default
-    private BigDecimal ratingAverage = BigDecimal.ZERO;
-
-    @Column(name = "rating_count")
+    @NotNull
+    @Column(name = "rating_count", nullable = false)
     @Builder.Default
     private Integer ratingCount = 0;
 
-    @Column(name = "min_price", precision = 19, scale = 2)
-    private BigDecimal minPrice;
-
-    @Column(name = "max_price", precision = 19, scale = 2)
-    private BigDecimal maxPrice;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "product_colors", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "color_id"))
+    @NotNull
+    @Column(name = "rating_average", precision = 3, scale = 1)
     @Builder.Default
-    private Set<Color> colors = new HashSet<>();
+    private BigDecimal ratingAverage = BigDecimal.ZERO;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "product_materials", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "material_id"))
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
-    private Set<Material> materials = new HashSet<>();
+    private Enums.Status status = Enums.Status.ACTIVE;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "product_sizes", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "size_id"))
+    @NotNull
+    @Column(name = "version", nullable = false)
     @Builder.Default
-    private Set<Size> sizes = new HashSet<>();
+    private Integer version = 1;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ProductVariant> variants = new ArrayList<>();
+    private Set<ProductVariant> variants = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<Review> reviews = new LinkedHashSet<>();
+
 }

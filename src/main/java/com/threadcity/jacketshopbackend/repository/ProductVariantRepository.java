@@ -1,16 +1,15 @@
 package com.threadcity.jacketshopbackend.repository;
 
 import com.threadcity.jacketshopbackend.entity.ProductVariant;
-
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductVariantRepository
@@ -42,4 +41,8 @@ public interface ProductVariantRepository
     @Modifying
     @Query("UPDATE ProductVariant pv SET pv.quantity = pv.quantity - :quantity, pv.availableQuantity = pv.availableQuantity - :quantity, pv.soldCount = pv.soldCount + :quantity WHERE pv.id = :id AND pv.availableQuantity >= :quantity")
     int directDeductStock(@Param("id") Long id, @Param("quantity") int quantity);
+
+    @Modifying
+    @Query("UPDATE ProductVariant pv SET pv.quantity = pv.quantity + :quantity, pv.availableQuantity = pv.availableQuantity + :quantity, pv.soldCount = pv.soldCount - :quantity WHERE pv.id = :id")
+    void returnStock(@Param("id") Long id, @Param("quantity") int quantity);
 }

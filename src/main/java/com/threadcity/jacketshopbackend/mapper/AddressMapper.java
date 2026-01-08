@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.mapper;
 
-import com.threadcity.jacketshopbackend.dto.response.AddressResponse;
+import com.threadcity.jacketshopbackend.dto.user.response.AddressResponse;
 import com.threadcity.jacketshopbackend.entity.Address;
 import org.mapstruct.Mapper;
 

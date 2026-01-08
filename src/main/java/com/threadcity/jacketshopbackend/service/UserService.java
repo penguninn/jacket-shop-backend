@@ -1,12 +1,15 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.*;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProfileResponse;
-import com.threadcity.jacketshopbackend.dto.response.UserResponse;
+import com.threadcity.jacketshopbackend.dto.user.request.ProfileUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.user.request.UserCreateRequest;
+import com.threadcity.jacketshopbackend.dto.user.request.UserUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.auth.request.UserUpdateRolesRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.auth.response.ProfileResponse;
+import com.threadcity.jacketshopbackend.dto.user.response.UserResponse;
 import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;

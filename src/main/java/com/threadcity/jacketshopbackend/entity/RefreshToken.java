@@ -1,35 +1,49 @@
 package com.threadcity.jacketshopbackend.entity;
 
-import com.threadcity.jacketshopbackend.common.Enums.RefreshTokenStatus;
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
 
-@Entity
-@Table(name = "refresh_tokens")
 @Getter
 @Setter
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "refresh_tokens", schema = "dbo", indexes = {
+        @Index(name = "IX_refresh_tokens_user", columnList = "user_id"),
+        @Index(name = "IX_refresh_tokens_expires", columnList = "expires_at, status")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "UK_refresh_tokens_jti", columnNames = { "jti" })
+})
 public class RefreshToken extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, unique = true, length = 64)
+    @Size(max = 64)
+    @NotNull
+    @Column(name = "jti", nullable = false, length = 64)
     private String jti;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 16)
-    private RefreshTokenStatus status;
-
-    @Column(nullable = false)
+    @NotNull
+    @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
+    private Enums.RefreshTokenStatus status = Enums.RefreshTokenStatus.ACTIVE;
+
 }

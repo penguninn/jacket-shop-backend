@@ -1,8 +1,8 @@
 package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.filter.MaterialFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Material;
+import com.threadcity.jacketshopbackend.filter.MaterialFilterRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;

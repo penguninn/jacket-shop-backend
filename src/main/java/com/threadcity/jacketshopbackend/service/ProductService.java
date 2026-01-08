@@ -1,22 +1,26 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProductRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
-import com.threadcity.jacketshopbackend.entity.*;
 import com.threadcity.jacketshopbackend.common.Enums;
-import java.math.BigDecimal;
-import java.util.*;
-
+import com.threadcity.jacketshopbackend.dto.product.request.ProductCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.ProductResponse;
+import com.threadcity.jacketshopbackend.entity.Brand;
+import com.threadcity.jacketshopbackend.entity.Product;
+import com.threadcity.jacketshopbackend.entity.ProductVariant;
+import com.threadcity.jacketshopbackend.entity.Style;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.ProductMapper;
-import com.threadcity.jacketshopbackend.repository.*;
+import com.threadcity.jacketshopbackend.repository.BrandRepository;
+import com.threadcity.jacketshopbackend.repository.ProductRepository;
+import com.threadcity.jacketshopbackend.repository.ProductVariantRepository;
+import com.threadcity.jacketshopbackend.repository.StyleRepository;
 import com.threadcity.jacketshopbackend.specification.ProductSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +32,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,7 +82,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse createProduct(ProductRequest req) {
+    public ProductResponse createProduct(ProductCreateRequest req) {
         log.info("ProductService::createProduct - Execution started.");
         if (productRepository.existsByName(req.getName())) {
             throw new ResourceConflictException(ErrorCodes.PRODUCT_NAME_DUPLICATE,
@@ -110,7 +119,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse updateProductById(ProductRequest req, Long id) {
+    public ProductResponse updateProductById(ProductUpdateRequest req, Long id) {
         log.info("ProductService::updateProductById - Execution started. [id: {}]", id);
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
@@ -219,9 +228,6 @@ public class ProductService {
         if (activeVariants.isEmpty()) {
             product.setMinPrice(null);
             product.setMaxPrice(null);
-            product.setColors(new HashSet<>());
-            product.setMaterials(new HashSet<>());
-            product.setSizes(new HashSet<>());
         } else {
             BigDecimal minPrice = activeVariants.stream()
                     .map(ProductVariant::getPrice)
@@ -235,10 +241,6 @@ public class ProductService {
 
             product.setMinPrice(minPrice);
             product.setMaxPrice(maxPrice);
-
-            product.setColors(activeVariants.stream().map(ProductVariant::getColor).collect(Collectors.toSet()));
-            product.setMaterials(activeVariants.stream().map(ProductVariant::getMaterial).collect(Collectors.toSet()));
-            product.setSizes(activeVariants.stream().map(ProductVariant::getSize).collect(Collectors.toSet()));
         }
 
         productRepository.save(product);

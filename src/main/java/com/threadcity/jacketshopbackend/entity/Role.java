@@ -1,25 +1,38 @@
 package com.threadcity.jacketshopbackend.entity;
 
-import com.threadcity.jacketshopbackend.common.Enums.Status;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Nationalized;
 
-@Entity
-@Table(name = "roles")
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Entity
+@Table(name = "roles", schema = "dbo", uniqueConstraints = {
+        @UniqueConstraint(name = "UK_roles_name", columnNames = { "name" })
+})
 public class Role extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Size(max = 50)
+    @NotNull
+    @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @Column(length = 255, columnDefinition = "NVARCHAR(255)")
+    @Size(max = 255)
+    @Nationalized
+    @Column(name = "description")
     private String description;
+
+    @ManyToMany(mappedBy = "roles")
+    @Builder.Default
+    private Set<User> users = new HashSet<>();
+
 }

@@ -1,18 +1,23 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.*;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProductResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.ProductResponse;
 import com.threadcity.jacketshopbackend.filter.ProductFilterRequest;
+import com.threadcity.jacketshopbackend.service.ProductImportService;
 import com.threadcity.jacketshopbackend.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -25,6 +30,20 @@ import java.util.List;
 public class ProductController {
 
         private final ProductService productService;
+        private final ProductImportService productImportService;
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+        public ApiResponse<?> importProducts(@RequestParam("file") MultipartFile file) {
+                log.info("ProductController::importProducts - Execution started");
+                ImportResult result = productImportService.importProducts(file);
+                log.info("ProductController::importProducts - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Import products completed.")
+                        .data(result)
+                        .timestamp(Instant.now())
+                        .build();
+        }
 
         @GetMapping
         public ApiResponse<?> getAllProducts(
@@ -54,6 +73,7 @@ public class ProductController {
                                 .colorIds(colorIds)
                                 .materialIds(materialIds)
                                 .sizeIds(sizeIds)
+                                .isFeatured(isFeatured)
                                 .page(page)
                                 .size(size)
                                 .sortBy(sortBy)
@@ -82,8 +102,9 @@ public class ProductController {
                                 .build();
         }
 
+    @PreAuthorize("hasRole('STAFF')")
         @PostMapping
-        public ApiResponse<?> createProduct(@Valid @RequestBody ProductRequest productRequest) {
+        public ApiResponse<?> createProduct(@Valid @RequestBody ProductCreateRequest productRequest) {
                 log.info("ProductController::createProduct - Execution started.");
                 ProductResponse response = productService.createProduct(productRequest);
                 log.info("ProductController::createProduct - Execution completed.");
@@ -96,7 +117,7 @@ public class ProductController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest productRequest) {
+        public ApiResponse<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductUpdateRequest productRequest) {
                 log.info("ProductController::updateProduct - Execution started. [id: {}]", id);
                 ProductResponse response = productService.updateProductById(productRequest, id);
                 log.info("ProductController::updateProduct - Execution completed. [id: {}]", id);

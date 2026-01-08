@@ -1,16 +1,17 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.filter.BrandFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.BrandRequest;
-import com.threadcity.jacketshopbackend.dto.response.BrandResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.BrandCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.BrandUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.product.response.BrandResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Brand;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.BrandFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.BrandMapper;
 import com.threadcity.jacketshopbackend.repository.BrandRepository;
 import com.threadcity.jacketshopbackend.specification.BrandSpecification;
@@ -69,7 +70,7 @@ public class BrandService {
     }
 
     @Transactional
-    public BrandResponse createBrand(BrandRequest brand) {
+    public BrandResponse createBrand(BrandCreateRequest brand) {
         log.info("BrandService::createBrand - Execution started.");
         if (brandRepository.existsByName(brand.getName())) {
             throw new ResourceConflictException(ErrorCodes.BRAND_NAME_DUPLICATE,
@@ -83,7 +84,7 @@ public class BrandService {
     }
 
     @Transactional
-    public BrandResponse updateBrandById(BrandRequest brandRequest, Long id) {
+    public BrandResponse updateBrandById(BrandUpdateRequest brandRequest, Long id) {
         log.info("BrandService::updateBrandById - Execution started.");
 
         Brand brand = brandRepository.findById(id)

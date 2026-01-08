@@ -1,29 +1,41 @@
 package com.threadcity.jacketshopbackend.entity;
 
-import com.threadcity.jacketshopbackend.common.Enums.Status;
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Nationalized;
 
-@Entity
-@Table(name = "styles")
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Entity
+@Table(name = "styles", schema = "dbo", indexes = {
+        @Index(name = "IX_styles_status", columnList = "status")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "UK_styles_name", columnNames = { "name" })
+})
 public class Style extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 120, columnDefinition = "NVARCHAR(120)")
+    @Size(max = 120)
+    @NotNull
+    @Nationalized
+    @Column(name = "name", nullable = false, length = 120)
     private String name;
 
-    @Column(length = 255, columnDefinition = "NVARCHAR(255)")
+    @Size(max = 500)
+    @Nationalized
+    @Column(name = "description", length = 500)
     private String description;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Status status;
+    @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
+    private Enums.Status status = Enums.Status.ACTIVE;
+
 }

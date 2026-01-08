@@ -1,18 +1,22 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.attribute.request.ColorCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.ColorUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.filter.ColorFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.ColorRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.ColorResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
+import com.threadcity.jacketshopbackend.service.ColorImportService;
 import com.threadcity.jacketshopbackend.service.ColorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,6 +28,20 @@ import java.util.List;
 public class ColorController {
 
         private final ColorService colorService;
+        private final ColorImportService colorImportService;
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+        public ApiResponse<?> importColors(@RequestParam("file") MultipartFile file) {
+                log.info("ColorController::importColors - Execution started");
+                ImportResult result = colorImportService.importColors(file);
+                log.info("ColorController::importColors - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Import colors completed.")
+                        .data(result)
+                        .timestamp(Instant.now())
+                        .build();
+        }
 
         @GetMapping
         public ApiResponse<?> getAllColors(
@@ -70,7 +88,7 @@ public class ColorController {
         }
 
         @PostMapping
-        public ApiResponse<?> createColor(@Valid @RequestBody ColorRequest colorRequest) {
+        public ApiResponse<?> createColor(@Valid @RequestBody ColorCreateRequest colorRequest) {
                 log.info("ColorController::createColor - Execution started.");
                 ColorResponse response = colorService.createColor(colorRequest);
                 log.info("ColorController::createColor - Execution completed.");
@@ -83,7 +101,7 @@ public class ColorController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateColor(@PathVariable Long id, @Valid @RequestBody ColorRequest colorRequest) {
+        public ApiResponse<?> updateColor(@PathVariable Long id, @Valid @RequestBody ColorUpdateRequest colorRequest) {
                 log.info("ColorController::updateColor - Execution started. [id: {}]", id);
                 ColorResponse response = colorService.updateColorById(colorRequest, id);
                 log.info("ColorController::updateColor - Execution completed. [id: {}]", id);

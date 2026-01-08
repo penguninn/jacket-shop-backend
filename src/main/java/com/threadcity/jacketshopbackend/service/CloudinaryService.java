@@ -2,7 +2,7 @@ package com.threadcity.jacketshopbackend.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.threadcity.jacketshopbackend.dto.response.ImageUploadResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImageUploadResponse;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ExternalServiceException;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;

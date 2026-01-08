@@ -1,13 +1,13 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.ForgotPasswordRequest;
-import com.threadcity.jacketshopbackend.dto.request.LoginRequest;
-import com.threadcity.jacketshopbackend.dto.request.RefreshTokenRequest;
-import com.threadcity.jacketshopbackend.dto.request.RegisterRequest;
-import com.threadcity.jacketshopbackend.dto.request.UpdatePasswordRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.LoginResponse;
-import com.threadcity.jacketshopbackend.dto.response.TokenResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.auth.request.ForgotPasswordRequest;
+import com.threadcity.jacketshopbackend.dto.auth.request.LoginRequest;
+import com.threadcity.jacketshopbackend.dto.auth.request.RefreshTokenRequest;
+import com.threadcity.jacketshopbackend.dto.auth.request.RegisterRequest;
+import com.threadcity.jacketshopbackend.dto.auth.request.UpdatePasswordRequest;
+import com.threadcity.jacketshopbackend.dto.auth.response.LoginResponse;
+import com.threadcity.jacketshopbackend.dto.auth.response.TokenResponse;
 import com.threadcity.jacketshopbackend.service.TokenService;
 import com.threadcity.jacketshopbackend.service.auth.AuthService;
 import jakarta.validation.Valid;

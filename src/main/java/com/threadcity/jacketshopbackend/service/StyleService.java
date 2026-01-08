@@ -1,16 +1,17 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.filter.StyleFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.StyleRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.StyleResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.StyleCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.StyleUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.StyleResponse;
 import com.threadcity.jacketshopbackend.entity.Style;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.StyleFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.StyleMapper;
 import com.threadcity.jacketshopbackend.repository.StyleRepository;
 import com.threadcity.jacketshopbackend.specification.StyleSpecification;
@@ -68,7 +69,7 @@ public class StyleService {
     }
 
     @Transactional
-    public StyleResponse createStyle(StyleRequest style) {
+    public StyleResponse createStyle(StyleCreateRequest style) {
         log.info("StyleService::createStyle - Execution started.");
         if (styleRepository.existsByName(style.getName())) {
             throw new ResourceConflictException(ErrorCodes.STYLE_NAME_DUPLICATE,
@@ -82,7 +83,7 @@ public class StyleService {
     }
 
     @Transactional
-    public StyleResponse updateStyleById(StyleRequest styleRequest, Long id) {
+    public StyleResponse updateStyleById(StyleUpdateRequest styleRequest, Long id) {
         log.info("StyleService::updateStyleById - Execution started.");
 
         Style style = styleRepository.findById(id)

@@ -1,7 +1,7 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.ImageUploadResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImageUploadResponse;
 import com.threadcity.jacketshopbackend.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

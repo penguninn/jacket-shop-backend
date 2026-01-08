@@ -1,51 +1,100 @@
 package com.threadcity.jacketshopbackend.entity;
 
-import com.threadcity.jacketshopbackend.common.Enums.Status;
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Nationalized;
 
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Entity
-@Table(name = "users")
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Entity
+@Table(name = "users", schema = "dbo", indexes = {
+        @Index(name = "IX_users_email", columnList = "email", unique = true),
+        @Index(name = "IX_users_status", columnList = "status"),
+        @Index(name = "IX_users_phone", columnList = "phone")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "UK_users_username", columnNames = { "username" })
+})
 public class User extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Size(max = 50)
+    @NotNull
+    @Column(name = "username", nullable = false, length = 50)
     private String username;
 
-    @Column(nullable = false, length = 100)
+    @Size(max = 255)
+    @Column(name = "email", unique = true)
+    private String email;
+
+    @Size(max = 255)
+    @NotNull
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "full_name", nullable = false, length = 150, columnDefinition = "NVARCHAR(150)")
+    @Size(max = 150)
+    @NotNull
+    @Nationalized
+    @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
 
-    @Column(length = 15, unique = true)
+    @Size(max = 15)
+    @NotNull
+    @Column(name = "phone", nullable = false, length = 15)
     private String phone;
 
-    @Column(length = 255)
+    @Size(max = 500)
+    @Column(name = "avatar", length = 500)
     private String avatar;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Status status;
+    @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
+    private Enums.Status status = Enums.Status.ACTIVE;
+
+    @NotNull
+    @Column(name = "email_verified", nullable = false)
+    @Builder.Default
+    private Boolean emailVerified = false;
+
+    @NotNull
+    @Column(name = "phone_verified", nullable = false)
+    @Builder.Default
+    private Boolean phoneVerified = false;
+
+    @Column(name = "last_login_at")
+    private Instant lastLoginAt;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"), uniqueConstraints = @UniqueConstraint(name = "uk_user_role", columnNames = {
-            "user_id",
-            "role_id"
-    }))
+    @JoinTable(
+            name = "user_roles",
+            schema = "dbo",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"),
+            uniqueConstraints = {
+                    @UniqueConstraint(columnNames = {"user_id", "role_id"})
+            }
+    )
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Address> addresses = new ArrayList<>();
+    private Set<Address> addresses = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<UserCoupon> userCoupons = new LinkedHashSet<>();
+
 }

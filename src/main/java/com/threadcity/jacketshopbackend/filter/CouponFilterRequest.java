@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.filter;
 
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
@@ -16,13 +17,13 @@ import java.util.List;
 public class CouponFilterRequest {
 
     @Size(max = 255, message = "Search term too long")
-    private String search; // search in code or description
+    private String search;
 
-    private List<String> status; // ACTIVE, INACTIVE
-    private List<String> type;   // FIXED, PERCENTAGE
+    private List<String> status;
+    private List<Enums.CouponType> type;
 
-    private Instant validFrom; // filter coupons starting from date
-    private Instant validTo;   // filter coupons ending before date
+    private Instant validFrom;
+    private Instant validTo;
 
     @Builder.Default
     @Min(value = 0, message = "Page must be >= 0")

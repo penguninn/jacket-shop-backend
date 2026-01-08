@@ -1,39 +1,71 @@
 package com.threadcity.jacketshopbackend.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Nationalized;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-@Entity
-@Table(name = "reviews")
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Entity
+@Table(name = "reviews", schema = "dbo", indexes = {
+        @Index(name = "IX_reviews_product", columnList = "product_id, created_at"),
+        @Index(name = "IX_reviews_user", columnList = "user_id, created_at"),
+        @Index(name = "IX_reviews_order", columnList = "order_id"),
+        @Index(name = "IX_reviews_rating", columnList = "product_id, rating")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "UK_reviews_user_product_order", columnNames = {"user_id", "product_id", "order_id"})
+})
 public class Review extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
-    @Column(name = "product_name", nullable = false, length = 200, columnDefinition = "NVARCHAR(200)")
-    private String productName;
-
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "user_name", nullable = false, length = 120, columnDefinition = "NVARCHAR(120)")
-    private String userName;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    private Order order; // nullable, validate at service layer if needed
+    private Order order;
 
-    @Column(nullable = false)
-    private Integer rating; // 1-5
+    @Size(max = 120)
+    @NotNull
+    @Nationalized
+    @Column(name = "user_name", nullable = false, length = 120)
+    private String userName;
 
-    @Column(length = 800, columnDefinition = "NVARCHAR(800)")
+    @Size(max = 200)
+    @NotNull
+    @Nationalized
+    @Column(name = "product_name", nullable = false, length = 200)
+    private String productName;
+
+    @NotNull
+    @Min(1)
+    @Max(5)
+    @Column(name = "rating", nullable = false)
+    private Integer rating;
+
+    @Size(max = 2000)
+    @Nationalized
+    @Column(name = "comment", length = 2000)
     private String comment;
+
 }

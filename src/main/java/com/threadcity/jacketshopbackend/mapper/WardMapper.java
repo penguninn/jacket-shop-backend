@@ -1,21 +1,17 @@
 package com.threadcity.jacketshopbackend.mapper;
 
-import com.threadcity.jacketshopbackend.dto.response.WardResponse;
-import com.threadcity.jacketshopbackend.entity.District;
+import com.threadcity.jacketshopbackend.dto.location.response.WardResponse;
 import com.threadcity.jacketshopbackend.entity.Ward;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface WardMapper {
 
-    @Mapping(target = "districtId", source = "district", qualifiedByName = "districtToDistrictId")
-    @Mapping(target = "goShipId", source = "goshipId")
-    WardResponse toDto(Ward ward);
+    @Mapping(target = "districtId", source = "district.id")
+    WardResponse toResponse(Ward entity);
 
-    @Named("districtToDistrictId")
-    public static Long districtToDistrictId(District district) {
-        return district.getId();
-    }
+    List<WardResponse> toResponseList(List<Ward> entities);
 }

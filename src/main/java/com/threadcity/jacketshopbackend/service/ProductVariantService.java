@@ -1,40 +1,24 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
-import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.CartItemRequest;
-import com.threadcity.jacketshopbackend.dto.request.OrderItemRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProductVariantCreateRequest;
-import com.threadcity.jacketshopbackend.dto.request.ProductVariantUpdateRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
-import com.threadcity.jacketshopbackend.entity.Color;
-import com.threadcity.jacketshopbackend.entity.Material;
-import com.threadcity.jacketshopbackend.entity.OrderDetail;
-import com.threadcity.jacketshopbackend.entity.Product;
-import com.threadcity.jacketshopbackend.entity.ProductVariant;
-import com.threadcity.jacketshopbackend.entity.Size;
-
+import com.threadcity.jacketshopbackend.dto.product.request.ProductVariantCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductVariantUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.ProductVariantResponse;
+import com.threadcity.jacketshopbackend.entity.*;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.ProductVariantMapper;
-import com.threadcity.jacketshopbackend.repository.ColorRepository;
-import com.threadcity.jacketshopbackend.repository.MaterialRepository;
-import com.threadcity.jacketshopbackend.repository.ProductRepository;
-import com.threadcity.jacketshopbackend.repository.ProductVariantRepository;
-import com.threadcity.jacketshopbackend.repository.SizeRepository;
+import com.threadcity.jacketshopbackend.repository.*;
 import com.threadcity.jacketshopbackend.specification.ProductVariantSpecification;
 import com.threadcity.jacketshopbackend.utils.SkuUtils;
-
 import jakarta.transaction.Transactional;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -44,7 +28,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -231,7 +218,7 @@ public class ProductVariantService {
             int updatedRows = productVariantRepository.reserveStock(variantId, quantity);
             if (updatedRows == 0) {
                 throw new InvalidRequestException(ErrorCodes.PRODUCT_OUT_OF_STOCK,
-                        "Not enough stock for variant ID: " + variantId);
+                        "Not enough stock variant");
             }
         log.info("ProductVariantService::reserveStock - Execution completed.");
     }
@@ -250,6 +237,7 @@ public class ProductVariantService {
         log.info("ProductVariantService::commitReservedStock - Execution started. [details: {}]", details.size());
         for (OrderDetail detail : details) {
             productVariantRepository.commitReservedStock(detail.getProductVariant().getId(), detail.getQuantity());
+            productRepository.increaseSoldCount(detail.getProductVariant().getProduct().getId(), detail.getQuantity());
         }
         log.info("ProductVariantService::commitReservedStock - Execution completed.");
     }
@@ -263,6 +251,15 @@ public class ProductVariantService {
                         "Not enough stock for variant ID: " + variantId);
             }
         log.info("ProductVariantService::directDeductStock - Execution completed.");
+    }
+
+    @Transactional
+    public void returnStock(List<OrderDetail> details) {
+        log.info("ProductVariantService::returnStock - Execution started. [details: {}]", details.size());
+        for (OrderDetail detail : details) {
+            productVariantRepository.returnStock(detail.getProductVariant().getId(), detail.getQuantity());
+        }
+        log.info("ProductVariantService::returnStock - Execution completed.");
     }
 
     @Transactional

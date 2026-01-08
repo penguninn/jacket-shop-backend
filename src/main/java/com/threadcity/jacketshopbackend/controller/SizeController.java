@@ -1,28 +1,71 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.attribute.request.SizeCreateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.request.SizeUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
 import com.threadcity.jacketshopbackend.filter.SizeFilterRequest;
-import com.threadcity.jacketshopbackend.dto.request.SizeRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.SizeResponse;
+import com.threadcity.jacketshopbackend.service.SizeImportService;
 import com.threadcity.jacketshopbackend.service.SizeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.List;
 
+
+
 @RestController
+
 @RequestMapping("/api/sizes")
+
 @RequiredArgsConstructor
+
 @Slf4j
+
 public class SizeController {
+
+
+
         private final SizeService sizeService;
+
+        private final SizeImportService sizeImportService;
+
+
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+
+        public ApiResponse<?> importSizes(@RequestParam("file") MultipartFile file) {
+
+                log.info("SizeController::importSizes - Execution started");
+
+                ImportResult result = sizeImportService.importSizes(file);
+
+                log.info("SizeController::importSizes - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+
+                return ApiResponse.builder()
+
+                        .code(200)
+
+                        .message("Import sizes completed.")
+
+                        .data(result)
+
+                        .timestamp(Instant.now())
+
+                        .build();
+
+        }
+
+
 
         @GetMapping
         public ApiResponse<?> getAllSizes(
@@ -69,7 +112,7 @@ public class SizeController {
         }
 
         @PostMapping
-        public ApiResponse<?> createSize(@RequestBody SizeRequest sizeRequest) {
+        public ApiResponse<?> createSize(@RequestBody SizeCreateRequest sizeRequest) {
                 log.info("SizeController::createSize - Execution started.");
                 SizeResponse response = sizeService.createSize(sizeRequest);
                 log.info("SizeController::createSize - Execution completed.");
@@ -82,7 +125,7 @@ public class SizeController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateSize(@PathVariable Long id, @RequestBody SizeRequest sizeRequest) {
+        public ApiResponse<?> updateSize(@PathVariable Long id, @RequestBody SizeUpdateRequest sizeRequest) {
                 log.info("SizeController::updateSize - Execution started. [id: {}]", id);
                 SizeResponse response = sizeService.updateSizeById(sizeRequest, id);
                 log.info("SizeController::updateSize - Execution completed. [id: {}]", id);

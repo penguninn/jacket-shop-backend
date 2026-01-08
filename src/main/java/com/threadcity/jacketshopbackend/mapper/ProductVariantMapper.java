@@ -1,6 +1,6 @@
 package com.threadcity.jacketshopbackend.mapper;
 
-import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.ProductVariantResponse;
 import com.threadcity.jacketshopbackend.entity.ProductVariant;
 import com.threadcity.jacketshopbackend.entity.Sale;
 import org.mapstruct.AfterMapping;
@@ -10,9 +10,10 @@ import org.mapstruct.MappingTarget;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", uses = {
         SizeMapper.class,
@@ -22,16 +23,26 @@ import java.util.List;
 public interface ProductVariantMapper {
 
     @Mapping(source = "product.id", target = "productId")
+    @Mapping(source = "product.name", target = "productName")
     @Mapping(target = "salePrice", ignore = true)
     @Mapping(target = "discountPercentage", ignore = true)
     ProductVariantResponse toDto(ProductVariant productVariant);
 
     @AfterMapping
     default void mapSaleDetails(ProductVariant source, @MappingTarget ProductVariantResponse target) {
-        List<Sale> sales = source.getSales();
-        if (sales != null && !sales.isEmpty()) {
-            LocalDateTime now = LocalDateTime.now();
-            
+        if (source.getSaleVariants() == null || source.getSaleVariants().isEmpty()) {
+            return;
+        }
+
+        // Extract Sales from SaleVariants
+        List<Sale> sales = source.getSaleVariants().stream()
+                .map(saleVariant -> saleVariant.getSale())
+                .filter(sale -> sale != null)
+                .collect(Collectors.toList());
+
+        if (!sales.isEmpty()) {
+            Instant now = Instant.now();
+
             Sale bestSale = sales.stream()
                 .filter(sale -> {
                     if (sale.getDiscountPercentage() == null) return false;

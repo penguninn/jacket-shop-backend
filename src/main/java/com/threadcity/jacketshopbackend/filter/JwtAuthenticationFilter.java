@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,9 +31,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AuthenticationEntryPointImpl authenticationEntryPoint;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain chain)
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/payos");
+    }
+
+    @Override
+    protected void doFilterInternal(@NotNull HttpServletRequest request,
+                                    @NotNull HttpServletResponse response,
+                                    @NotNull FilterChain chain)
             throws ServletException, IOException {
 
         final String token = extractToken(request);
@@ -46,9 +53,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (!jwtService.isSignatureValid(token) || jwtService.isTokenExpired(token)) {
                 SecurityContextHolder.clearContext();
                 authenticationEntryPoint.commence(
-                    request, response,
-                    new AuthenticationException("Invalid or expired token") {}
-                );
+                        request, response,
+                        new AuthenticationException("Invalid or expired token") {
+                        });
                 return;
             }
 
@@ -58,9 +65,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 } else {
                     SecurityContextHolder.clearContext();
                     authenticationEntryPoint.commence(
-                        request, response,
-                        new AuthenticationException("Refresh token is not allowed for this endpoint") {}
-                    );
+                            request, response,
+                            new AuthenticationException("Refresh token is not allowed for this endpoint") {
+                            });
                 }
                 return;
             }
@@ -72,9 +79,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     if (!jwtService.isTokenValid(token, user)) {
                         SecurityContextHolder.clearContext();
                         authenticationEntryPoint.commence(
-                            request, response,
-                            new AuthenticationException("Token subject mismatch or user disabled") {}
-                        );
+                                request, response,
+                                new AuthenticationException("Token subject mismatch or user disabled") {
+                                });
                         return;
                     }
                     var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
@@ -87,24 +94,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.clearContext();
             authenticationEntryPoint.commence(
-                request, response,
-                new AuthenticationException("Unknown token type") {}
-            );
+                    request, response,
+                    new AuthenticationException("Unknown token type") {
+                    });
 
         } catch (UsernameNotFoundException e) {
             log.warn("User not found: {}", e.getMessage());
             SecurityContextHolder.clearContext();
             authenticationEntryPoint.commence(
-                request, response,
-                new AuthenticationException("User not found") {}
-            );
+                    request, response,
+                    new AuthenticationException("User not found") {
+                    });
         } catch (Exception e) {
             log.error("Authentication processing error", e);
             SecurityContextHolder.clearContext();
             authenticationEntryPoint.commence(
-                request, response,
-                new AuthenticationException("Authentication error") {}
-            );
+                    request, response,
+                    new AuthenticationException("Authentication error") {
+                    });
         }
     }
 
@@ -117,4 +124,3 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return "/api/auth/refresh".equals(path);
     }
 }
-

@@ -1,10 +1,8 @@
 package com.threadcity.jacketshopbackend.exception;
 
-/**
- * Base exception for the entire application.
- * Contains only message, cause, and errorCode.
- * Does NOT contain HttpStatus (separation of concerns).
- */
+import lombok.Getter;
+
+@Getter
 public abstract class AppException extends RuntimeException {
     private final String errorCode;
 
@@ -18,7 +16,4 @@ public abstract class AppException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public String getErrorCode() {
-        return errorCode;
-    }
 }

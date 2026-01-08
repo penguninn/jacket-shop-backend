@@ -1,18 +1,23 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.request.*;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkDeleteRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.BulkStatusRequest;
-import com.threadcity.jacketshopbackend.dto.request.common.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.response.ProductVariantResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductVariantCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.ProductVariantUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.StockAdjustmentRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.response.ProductVariantResponse;
 import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
+import com.threadcity.jacketshopbackend.service.ProductVariantImportService;
 import com.threadcity.jacketshopbackend.service.ProductVariantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -25,6 +30,20 @@ import java.util.List;
 public class ProductVariantController {
 
         private final ProductVariantService productVariantService;
+        private final ProductVariantImportService productVariantImportService;
+
+        @PostMapping(value = "/import", consumes = "multipart/form-data")
+        public ApiResponse<?> importVariants(@RequestParam("file") MultipartFile file) {
+                log.info("ProductVariantController::importVariants - Execution started");
+                ImportResult result = productVariantImportService.importVariants(file);
+                log.info("ProductVariantController::importVariants - Execution completed. Success: {}, Error: {}", result.getSuccessCount(), result.getErrorCount());
+                return ApiResponse.builder()
+                        .code(200)
+                        .message("Import variants completed.")
+                        .data(result)
+                        .timestamp(Instant.now())
+                        .build();
+        }
 
         @GetMapping
         public ApiResponse<?> getAllProductVariants(
@@ -44,8 +63,8 @@ public class ProductVariantController {
                                 .page(page)
                                 .size(size)
                                 .search(search)
-                                .fromPrice(fromPrice)
-                                .toPrice(toPrice)
+                                .minPrice(fromPrice)
+                                .maxPrice(toPrice)
                                 .colorIds(colorIds)
                                 .sizeIds(sizeIds)
                                 .materialIds(materialIds)

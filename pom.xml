@@ -140,6 +140,20 @@
       <scope>test</scope>
     </dependency>
 
+
+    <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>5.5.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>vn.payos</groupId>
+      <artifactId>payos-java</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+
   </dependencies>
 
 

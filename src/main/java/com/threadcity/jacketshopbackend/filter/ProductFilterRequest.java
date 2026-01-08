@@ -24,6 +24,7 @@ public class ProductFilterRequest {
         private List<Long> colorIds;
         private List<Long> materialIds;
         private List<Long> sizeIds;
+        private Boolean isFeatured;
 
         @Builder.Default
         @Min(value = 0, message = "Page must be >= 0")
