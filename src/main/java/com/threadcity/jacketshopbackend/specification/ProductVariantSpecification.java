@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
+import com.threadcity.jacketshopbackend.entity.ProductVariant;
 import com.threadcity.jacketshopbackend.filter.ProductVariantFilterRequest;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -50,18 +51,18 @@ public class ProductVariantSpecification {
         };
     }
 
-    public static Specification<ProductVariant> hasPriceRange(BigDecimal from, BigDecimal to) {
+    public static Specification<ProductVariant> hasPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         return (root, query, cb) -> {
-            if (from == null && to == null)
+            if (minPrice == null && maxPrice == null)
                 return null;
 
-            if (from != null && to != null)
-                return cb.between(root.get("price"), from, to);
+            if (minPrice != null && maxPrice != null)
+                return cb.between(root.get("price"), minPrice, maxPrice);
 
-            if (from != null)
-                return cb.greaterThanOrEqualTo(root.get("price"), from);
+            if (minPrice != null)
+                return cb.greaterThanOrEqualTo(root.get("price"), minPrice);
 
-            return cb.lessThanOrEqualTo(root.get("price"), to);
+            return cb.lessThanOrEqualTo(root.get("price"), maxPrice);
         };
     }
 
@@ -78,13 +79,56 @@ public class ProductVariantSpecification {
         };
     }
 
+    public static Specification<ProductVariant> isInStock(Boolean inStock) {
+        return (root, query, cb) -> {
+            if (inStock == null)
+                return null;
+
+            if (inStock) {
+                return cb.greaterThan(root.get("availableQuantity"), 0);
+            } else {
+                return cb.lessThanOrEqualTo(root.get("availableQuantity"), 0);
+            }
+        };
+    }
+
+    public static Specification<ProductVariant> isLowStock(Integer threshold) {
+        return (root, query, cb) -> {
+            if (threshold == null)
+                return null;
+
+            return cb.and(
+                    cb.greaterThan(root.get("availableQuantity"), 0),
+                    cb.lessThanOrEqualTo(root.get("availableQuantity"), threshold)
+            );
+        };
+    }
+
+    public static Specification<ProductVariant> hasQuantityRange(Integer minQuantity, Integer maxQuantity) {
+        return (root, query, cb) -> {
+            if (minQuantity == null && maxQuantity == null)
+                return null;
+
+            if (minQuantity != null && maxQuantity != null)
+                return cb.between(root.get("availableQuantity"), minQuantity, maxQuantity);
+
+            if (minQuantity != null)
+                return cb.greaterThanOrEqualTo(root.get("availableQuantity"), minQuantity);
+
+            return cb.lessThanOrEqualTo(root.get("availableQuantity"), maxQuantity);
+        };
+    }
+
     public static Specification<ProductVariant> buildSpec(ProductVariantFilterRequest request) {
         return hasSearch(request.getSearch())
                 .and(hasProduct(request.getProductId()))
                 .and(hasColor(request.getColorIds()))
                 .and(hasSize(request.getSizeIds()))
                 .and(hasMaterial(request.getMaterialIds()))
-                .and(hasPriceRange(request.getFromPrice(), request.getToPrice()))
-                .and(hasStatuses(request.getStatus()));
+                .and(hasPriceRange(request.getMinPrice(), request.getMaxPrice()))
+                .and(hasStatuses(request.getStatus()))
+                .and(isInStock(request.getInStock()))
+                .and(isLowStock(request.getLowStockThreshold()))
+                .and(hasQuantityRange(request.getMinQuantity(), request.getMaxQuantity()));
     }
 }

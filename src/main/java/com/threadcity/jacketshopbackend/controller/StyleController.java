@@ -97,7 +97,7 @@ public class StyleController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateStyle(@PathVariable Long id, @Valid @RequestBody StyleCreateRequest styleRequest) {
+        public ApiResponse<?> updateStyle(@PathVariable Long id, @Valid @RequestBody StyleUpdateRequest styleRequest) {
                 log.info("StyleController::updateStyle - Execution started. [id: {}]", id);
                 StyleResponse response = styleService.updateStyleById(styleRequest, id);
                 log.info("StyleController::updateStyle - Execution completed. [id: {}]", id);

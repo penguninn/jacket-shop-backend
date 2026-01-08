@@ -14,19 +14,17 @@ public class AddressUpdateRequest {
     @NotNull(message = "ID is required")
     private Long id;
 
-    @NotNull(message = "User ID is required")
-    private Long userId;
-
     @NotBlank(message = "Recipient name cannot be empty")
-    @Size(max = 200, message = "Recipient name must be less than 200 characters")
+    @Size(max = 120, message = "Recipient name must be less than 120 characters")
     private String recipientName;
 
-    @NotBlank(message = "Phone number cannot be empty")
-    @Pattern(regexp = "^[0-9]{10,11}$", message = "Phone number must be 10-11 digits")
-    private String phoneNumber;
+    @NotBlank(message = "Recipient phone cannot be empty")
+    @Size(max = 15, message = "Recipient phone must be at most 15 characters")
+    @Pattern(regexp = "^0\\d{9,14}$", message = "Phone number must start with 0 and have 10-15 digits")
+    private String recipientPhone;
 
     @NotBlank(message = "Address line cannot be empty")
-    @Size(max = 500, message = "Address line must be less than 500 characters")
+    @Size(max = 255, message = "Address line must be less than 255 characters")
     private String addressLine;
 
     @NotNull(message = "Province ID is required")

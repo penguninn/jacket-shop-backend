@@ -17,8 +17,9 @@ public class BrandResponse implements Serializable {
     
     private Long id;
     private String name;
-    private Enums.Status status;
     private String description;
+    private String logo;
+    private Enums.Status status;
     private Instant createdAt;
     private Instant updatedAt;
 }

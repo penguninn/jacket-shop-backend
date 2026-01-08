@@ -97,7 +97,7 @@ public class BrandController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateBrand(@PathVariable Long id, @Valid @RequestBody BrandCreateRequest brandRequest) {
+        public ApiResponse<?> updateBrand(@PathVariable Long id, @Valid @RequestBody BrandUpdateRequest brandRequest) {
                 log.info("BrandController::updateBrand - Execution started. [id: {}]", id);
                 BrandResponse response = brandService.updateBrandById(brandRequest, id);
                 log.info("BrandController::updateBrand - Execution completed. [id: {}]", id);

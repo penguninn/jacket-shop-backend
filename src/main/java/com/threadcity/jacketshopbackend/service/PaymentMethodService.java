@@ -7,6 +7,7 @@ import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.payment.response.PaymentMethodResponse;
+import com.threadcity.jacketshopbackend.entity.PaymentMethod;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
@@ -45,7 +46,7 @@ public class PaymentMethodService {
                         "Payment method not found with Id: " + id));
 
         log.info("PaymentMethodService::getPaymentMethodById - Execution completed. [Id: {}]", id);
-        return paymentMethodMapper.toDto(method);
+        return paymentMethodMapper.toResponse(method);
     }
 
     public PageResponse<?> getAllPaymentMethods(PaymentMethodFilterRequest request) {
@@ -63,7 +64,7 @@ public class PaymentMethodService {
 
         List<PaymentMethodResponse> responseList = page.getContent()
                 .stream()
-                .map(paymentMethodMapper::toDto)
+                .map(paymentMethodMapper::toResponse)
                 .toList();
 
         log.info("PaymentMethodService::getAllPaymentMethods - Execution completed.");
@@ -95,7 +96,7 @@ public class PaymentMethodService {
         PaymentMethod saved = paymentMethodRepository.save(entity);
 
         log.info("PaymentMethodService::createPaymentMethod - Execution completed.");
-        return paymentMethodMapper.toDto(saved);
+        return paymentMethodMapper.toResponse(saved);
     }
 
     @Transactional
@@ -119,14 +120,13 @@ public class PaymentMethodService {
         entity.setName(request.getName());
         entity.setCode(request.getCode());
         entity.setType(request.getType());
-        entity.setConfig(request.getConfig());
         entity.setDescription(request.getDescription());
         entity.setStatus(request.getStatus());
 
         PaymentMethod saved = paymentMethodRepository.save(entity);
 
         log.info("PaymentMethodService::updatePaymentMethodById - Execution completed. [Id: {}]", id);
-        return paymentMethodMapper.toDto(saved);
+        return paymentMethodMapper.toResponse(saved);
     }
 
     @Transactional
@@ -155,7 +155,7 @@ public class PaymentMethodService {
         PaymentMethod saved = paymentMethodRepository.save(method);
 
         log.info("PaymentMethodService::updateStatus - Execution completed. [id: {}]", id);
-        return paymentMethodMapper.toDto(saved);
+        return paymentMethodMapper.toResponse(saved);
     }
 
     @Transactional
@@ -175,7 +175,7 @@ public class PaymentMethodService {
         List<PaymentMethod> savedMethods = paymentMethodRepository.saveAll(methods);
 
         log.info("PaymentMethodService::bulkUpdatePaymentMethodsStatus - Execution completed.");
-        return savedMethods.stream().map(paymentMethodMapper::toDto).toList();
+        return savedMethods.stream().map(paymentMethodMapper::toResponse).toList();
     }
 
     @Transactional
@@ -183,7 +183,6 @@ public class PaymentMethodService {
         log.info("PaymentMethodService::bulkDeletePaymentMethods - Execution started.");
 
         List<PaymentMethod> methods = paymentMethodRepository.findAllById(request.getIds());
-
         if (methods.size() != request.getIds().size()) {
             Set<Long> foundIds = methods.stream().map(PaymentMethod::getId).collect(Collectors.toSet());
             Set<Long> missingIds = new HashSet<>(request.getIds());
@@ -193,7 +192,6 @@ public class PaymentMethodService {
         }
 
         paymentMethodRepository.deleteAllInBatch(methods);
-
         log.info("PaymentMethodService::bulkDeletePaymentMethods - Execution completed.");
     }
 }

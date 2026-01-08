@@ -19,12 +19,14 @@ public interface RoleMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "users", ignore = true)
     Role toEntity(RoleCreateRequest request);
 
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "users", ignore = true)
     void updateEntity(RoleUpdateRequest request, @MappingTarget Role entity);
 
     RoleResponse toResponse(Role entity);

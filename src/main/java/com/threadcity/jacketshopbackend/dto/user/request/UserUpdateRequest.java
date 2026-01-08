@@ -24,6 +24,6 @@ public class UserUpdateRequest implements Serializable {
     @Size(min = 1, message = "At least one role must be selected")
     private List<Long> roleIds;
 
-    @Pattern(regexp = "^0\\d{9,15}$", message = "Phone number must start with 0 and have 10-15 digits")
+    @Pattern(regexp = "^0\\d{9,14}$", message = "Phone number must start with 0 and have 10-15 digits")
     private String phone;
 }

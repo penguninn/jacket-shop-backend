@@ -13,6 +13,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface PaymentMethodMapper {
 
+    @Mapping(target = "config", ignore = true)
     PaymentMethodResponse toResponse(PaymentMethod entity);
 
     List<PaymentMethodResponse> toResponseList(List<PaymentMethod> entities);

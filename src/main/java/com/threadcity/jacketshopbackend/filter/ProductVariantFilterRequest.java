@@ -25,11 +25,23 @@ public class ProductVariantFilterRequest {
 
         private List<Long> materialIds;
 
-        private BigDecimal fromPrice;
+        private BigDecimal minPrice;
 
-        private BigDecimal toPrice;
+        private BigDecimal maxPrice;
 
         private List<String> status;
+
+        // Stock filters
+        private Boolean inStock;
+
+        @Min(value = 0, message = "Low stock threshold must be >= 0")
+        private Integer lowStockThreshold;
+
+        @Min(value = 0, message = "Min quantity must be >= 0")
+        private Integer minQuantity;
+
+        @Min(value = 0, message = "Max quantity must be >= 0")
+        private Integer maxQuantity;
 
         @Builder.Default
         @Min(value = 0, message = "Page must be >= 0")

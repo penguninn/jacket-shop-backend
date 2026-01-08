@@ -17,6 +17,7 @@ import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.filter.OrderFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.OrderMapper;
 import com.threadcity.jacketshopbackend.repository.*;
+import com.threadcity.jacketshopbackend.utils.SecurityUtils;
 import com.threadcity.jacketshopbackend.service.auth.UserDetailsImpl;
 import com.threadcity.jacketshopbackend.specification.OrderSpecification;
 import lombok.extern.slf4j.Slf4j;
@@ -35,10 +36,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Slf4j
 public abstract class AbstractOrderService {
@@ -82,9 +80,11 @@ public abstract class AbstractOrderService {
     public List<OrderHistoryResponse> getOrderHistory(Long orderId) {
         log.info("AbstractOrderService::getOrderHistory - Execution started. [orderId: {}]", orderId);
 
-        if (!orderRepository.existsById(orderId)) {
-            throw new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found");
-        }
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found"));
+
+        // Security: Verify ownership
+        SecurityUtils.requireOwnership(order.getUser().getId(), "order");
 
         List<OrderHistory> histories = orderHistoryRepository.findByOrderIdOrderByCreatedAtDesc(orderId);
 
@@ -95,7 +95,7 @@ public abstract class AbstractOrderService {
                 .newStatus(h.getNewStatus())
                 .oldPaymentStatus(h.getOldPaymentStatus())
                 .newPaymentStatus(h.getNewPaymentStatus())
-                .changedByUserId(h.getChangedByUserId())
+                .changedByUserId(h.getChangedByUser().getId())
                 .note(h.getNote())
                 .createdAt(h.getCreatedAt())
                 .build()).toList();
@@ -151,6 +151,9 @@ public abstract class AbstractOrderService {
         log.info("AbstractOrderService::getOrderById - Execution started. [id: {}]", id);
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found"));
+
+        // Security: Verify ownership
+        SecurityUtils.requireOwnership(order.getUser().getId(), "order");
 
         log.info("AbstractOrderService::getOrderById - Execution completed.");
         return orderMapper.toDto(order);
@@ -254,7 +257,7 @@ public abstract class AbstractOrderService {
         }
 
         PaymentStatus oldPaymentStatus = order.getPaymentStatus();
-        productVariantService.returnStock(order.getDetails());
+        productVariantService.returnStock(new ArrayList<>(order.getOrderDetails()));
 
         if (order.getPaymentStatus() == PaymentStatus.PAID) {
             order.setPaymentStatus(PaymentStatus.REFUNDED);
@@ -285,17 +288,18 @@ public abstract class AbstractOrderService {
                 .newStatus(order.getStatus())
                 .oldPaymentStatus(oldPaymentStatus)
                 .newPaymentStatus(order.getPaymentStatus())
-                .changedByUserId(getUserIdSafe())
+                .changedByUser(getUserIdSafe())
                 .note(note)
                 .build();
         orderHistoryRepository.save(history);
     }
 
-    protected Long getUserIdSafe() {
+    protected User getUserIdSafe() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
-                return ((UserDetailsImpl) authentication.getPrincipal()).getId();
+                Long userId = ((UserDetailsImpl) authentication.getPrincipal()).getId();
+                return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "User not found"));
             }
         } catch (Exception e) {
             log.warn("Could not get user ID for order history: {}", e.getMessage());
@@ -349,7 +353,7 @@ public abstract class AbstractOrderService {
     }
 
     protected void processOrderItems(Order order, List<OrderItemRequest> items, boolean applyStock) {
-        List<OrderDetail> details = new ArrayList<>();
+        Set<OrderDetail> details = new LinkedHashSet<>();
         BigDecimal subtotal = BigDecimal.ZERO;
 
         for (OrderItemRequest itemReq : items) {
@@ -401,16 +405,17 @@ public abstract class AbstractOrderService {
             subtotal = subtotal.add(lineTotal);
         }
 
-        order.setDetails(details);
+        order.setOrderDetails(details);
         order.setSubtotal(subtotal);
     }
 
     protected Sale getBestSale(ProductVariant variant) {
-        List<Sale> sales = variant.getSales();
-        if (sales == null || sales.isEmpty()) return null;
+        Set<SaleVariant> saleVariants = variant.getSaleVariants();
+        if (saleVariants == null || saleVariants.isEmpty()) return null;
 
-        LocalDateTime now = LocalDateTime.now();
-        return sales.stream()
+        Instant now = Instant.now();
+        return saleVariants.stream()
+            .map(SaleVariant::getSale)
             .filter(sale -> {
                 if (sale.getDiscountPercentage() == null) return false;
                 boolean startOk = sale.getStartDate() == null || !now.isBefore(sale.getStartDate());

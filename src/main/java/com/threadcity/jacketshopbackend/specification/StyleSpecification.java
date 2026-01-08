@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.specification;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
+import com.threadcity.jacketshopbackend.entity.Style;
 import com.threadcity.jacketshopbackend.filter.StyleFilterRequest;
 import org.springframework.data.jpa.domain.Specification;
 

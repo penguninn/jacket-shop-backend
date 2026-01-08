@@ -8,6 +8,9 @@ import com.threadcity.jacketshopbackend.dto.auth.request.UpdatePasswordRequest;
 import com.threadcity.jacketshopbackend.dto.auth.response.LoginResponse;
 import com.threadcity.jacketshopbackend.dto.auth.response.TokenResponse;
 import com.threadcity.jacketshopbackend.dto.user.response.UserResponse;
+import com.threadcity.jacketshopbackend.entity.PasswordResetToken;
+import com.threadcity.jacketshopbackend.entity.Role;
+import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.AuthenticationFailedException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
@@ -75,7 +78,7 @@ public class AuthService {
                                                         .fullName(user.getFullName())
                                                         .phone(user.getPhone())
                                                         .status(user.getStatus())
-                                                        .roles(user.getRoles().stream().map(roleMapper::toDto).toList())
+                                                        .roles(user.getRoles().stream().map(roleMapper::toResponse).toList())
                                                         .build())
                                         .build();
                         log.info("AuthService::login execution ended");
@@ -102,7 +105,7 @@ public class AuthService {
                 User user = User.builder()
                                 .username(request.getUsername())
                                 .fullName(request.getFullName())
-                                .phone(request.getPhoneNumber())
+                                .phone(request.getPhone())
                                 .password(passwordEncoder.encode(request.getPassword()))
                                 .status(Status.ACTIVE)
                                 .build();

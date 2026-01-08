@@ -28,10 +28,12 @@ public class AddressCreateRequest implements Serializable {
 
     private Boolean isDefault;
 
+    @NotBlank(message = "Recipient name cannot be empty")
     @Size(max = 120, message = "Recipient name must be less than 120 characters")
     private String recipientName;
 
-    @Size(min = 10, max = 20, message = "Phone number must be between 10 and 20 characters")
-    @Pattern(regexp = "^0\\d{9,14}$", message = "Phone number must start with 0 and contain only digits")
+    @NotBlank(message = "Recipient phone cannot be empty")
+    @Size(max = 15, message = "Recipient phone must be at most 15 characters")
+    @Pattern(regexp = "^0\\d{9,14}$", message = "Phone number must start with 0 and have 10-15 digits")
     private String recipientPhone;
 }

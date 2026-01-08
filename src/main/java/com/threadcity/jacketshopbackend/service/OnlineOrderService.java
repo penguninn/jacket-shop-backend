@@ -6,17 +6,22 @@ import com.threadcity.jacketshopbackend.common.Enums.PaymentStatus;
 import com.threadcity.jacketshopbackend.dto.cart.request.CartItemRequest;
 import com.threadcity.jacketshopbackend.dto.order.request.OrderRequest;
 import com.threadcity.jacketshopbackend.dto.order.response.OrderResponse;
+import com.threadcity.jacketshopbackend.entity.Order;
+import com.threadcity.jacketshopbackend.entity.OrderDetail;
+import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
 import com.threadcity.jacketshopbackend.mapper.OrderMapper;
 import com.threadcity.jacketshopbackend.repository.*;
+import com.threadcity.jacketshopbackend.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
 
 @Service
 @Slf4j
@@ -135,7 +140,7 @@ public class OnlineOrderService extends AbstractOrderService {
         PaymentStatus oldPaymentStatus = order.getPaymentStatus();
 
         // Commit reserved stock
-        productVariantService.commitReservedStock(order.getDetails());
+        productVariantService.commitReservedStock(new ArrayList<>(order.getOrderDetails()));
 
         // If COD, mark as PAID upon completion
         if (order.getPaymentStatus() == PaymentStatus.UNPAID) {
@@ -158,6 +163,9 @@ public class OnlineOrderService extends AbstractOrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found"));
 
+        // Security: Verify ownership
+        SecurityUtils.requireOwnership(order.getUser().getId(), "order");
+
         if (order.getStatus() == OrderStatus.COMPLETED || order.getStatus() == OrderStatus.CANCELLED
                 || order.getStatus() == OrderStatus.RETURNED) {
             throw new InvalidRequestException(ErrorCodes.INVALID_ORDER_STATUS, "Order is already finished");
@@ -172,7 +180,7 @@ public class OnlineOrderService extends AbstractOrderService {
         PaymentStatus oldPaymentStatus = order.getPaymentStatus();
 
         // Release reserved stock
-        productVariantService.releaseReservedStock(order.getDetails());
+        productVariantService.releaseReservedStock(new ArrayList<>(order.getOrderDetails()));
 
         if (order.getPaymentStatus() == PaymentStatus.PAID) {
             order.setPaymentStatus(PaymentStatus.REFUNDED);
@@ -218,7 +226,7 @@ public class OnlineOrderService extends AbstractOrderService {
             throw new AccessDeniedException("You can only reorder your own orders.");
         }
 
-        for (OrderDetail detail : order.getDetails()) {
+        for (OrderDetail detail : order.getOrderDetails()) {
             try {
                 CartItemRequest cartItemRequest = new CartItemRequest();
                 cartItemRequest.setProductVariantId(detail.getProductVariant().getId());

@@ -101,7 +101,7 @@ public class ColorController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateColor(@PathVariable Long id, @Valid @RequestBody ColorCreateRequest colorRequest) {
+        public ApiResponse<?> updateColor(@PathVariable Long id, @Valid @RequestBody ColorUpdateRequest colorRequest) {
                 log.info("ColorController::updateColor - Execution started. [id: {}]", id);
                 ColorResponse response = colorService.updateColorById(colorRequest, id);
                 log.info("ColorController::updateColor - Execution completed. [id: {}]", id);

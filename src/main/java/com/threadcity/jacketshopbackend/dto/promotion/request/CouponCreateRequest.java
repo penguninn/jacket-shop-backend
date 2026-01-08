@@ -1,10 +1,7 @@
 package com.threadcity.jacketshopbackend.dto.promotion.request;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 
@@ -50,4 +47,12 @@ public class CouponCreateRequest implements Serializable {
 
     @NotNull(message = "Status is required")
     private Enums.Status status;
+
+    @AssertTrue(message = "Valid from date must be before valid to date")
+    public boolean isValidDateRange() {
+        if (validFrom == null || validTo == null) {
+            return true; // Let @NotNull handle null validation
+        }
+        return validFrom.isBefore(validTo);
+    }
 }

@@ -74,7 +74,7 @@ public class UserAddressController {
     }
 
     @PutMapping("/user/{userId}/{addressId}")
-    public ApiResponse<?> updateAddressForUser(@PathVariable Long userId, @PathVariable Long addressId, @Valid @RequestBody AddressCreateRequest request) {
+    public ApiResponse<?> updateAddressForUser(@PathVariable Long userId, @PathVariable Long addressId, @Valid @RequestBody AddressUpdateRequest request) {
         log.info("UserAddressController::updateAddressForUser - Execution started. [userId: {}, addressId: {}]", userId, addressId);
         AddressResponse response = addressService.updateAddress(userId, addressId, request);
         log.info("UserAddressController::updateAddressForUser - Execution completed. [userId: {}, addressId: {}]", userId, addressId);
@@ -100,7 +100,7 @@ public class UserAddressController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<?> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressCreateRequest request) {
+    public ApiResponse<?> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressUpdateRequest request) {
         log.info("UserAddressController::updateAddress - Execution started. [id: {}]", id);
         AddressResponse response = addressService.updateAddress(request, id);
         log.info("UserAddressController::updateAddress - Execution completed. [id: {}]", id);

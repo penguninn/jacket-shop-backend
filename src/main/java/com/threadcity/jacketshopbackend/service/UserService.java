@@ -10,6 +10,8 @@ import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.auth.response.ProfileResponse;
 import com.threadcity.jacketshopbackend.dto.user.response.UserResponse;
+import com.threadcity.jacketshopbackend.entity.Role;
+import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;

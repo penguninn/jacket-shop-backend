@@ -8,6 +8,11 @@ import com.threadcity.jacketshopbackend.dto.order.request.OrderItemRequest;
 import com.threadcity.jacketshopbackend.dto.order.request.OrderRequest;
 import com.threadcity.jacketshopbackend.dto.order.request.UpdatePaymentRequest;
 import com.threadcity.jacketshopbackend.dto.order.response.OrderResponse;
+import com.threadcity.jacketshopbackend.entity.Coupon;
+import com.threadcity.jacketshopbackend.entity.Order;
+import com.threadcity.jacketshopbackend.entity.OrderDetail;
+import com.threadcity.jacketshopbackend.entity.ProductVariant;
+import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
@@ -97,7 +102,7 @@ public class PosOrderService extends AbstractOrderService {
         List<OrderItemRequest> items = request.getItems() != null ? request.getItems() : new ArrayList<>();
         processOrderItems(order, items, false);
 
-        if (order.getDetails().isEmpty()) {
+        if (order.getOrderDetails().isEmpty()) {
             log.warn("PosOrderService::createPosDraft - Created empty draft [Code: {}]", order.getOrderCode());
         }
 
@@ -125,7 +130,7 @@ public class PosOrderService extends AbstractOrderService {
         }
 
         // Validate before complete
-        if (order.getDetails().isEmpty()) {
+        if (order.getOrderDetails().isEmpty()) {
             throw new InvalidRequestException(ErrorCodes.VALIDATION_FAILED, "Draft must have at least 1 item");
         }
         if (order.getCustomerName() == null || order.getCustomerName().trim().isEmpty()) {
@@ -133,7 +138,7 @@ public class PosOrderService extends AbstractOrderService {
         }
 
         // Deduct stock
-        for (OrderDetail detail : order.getDetails()) {
+        for (OrderDetail detail : order.getOrderDetails()) {
             productVariantService.directDeductStock(detail.getProductVariant().getId(), detail.getQuantity());
         }
 
@@ -325,7 +330,7 @@ public class PosOrderService extends AbstractOrderService {
         }
 
         // Check if variant already exists in draft
-        Optional<OrderDetail> existingDetail = order.getDetails().stream()
+        Optional<OrderDetail> existingDetail = order.getOrderDetails().stream()
                 .filter(d -> d.getProductVariant().getId().equals(variant.getId()))
                 .findFirst();
 
@@ -367,7 +372,7 @@ public class PosOrderService extends AbstractOrderService {
                     .discountPercentage(discountPercentage)
                     .quantity(itemRequest.getQuantity())
                     .build();
-            order.getDetails().add(newDetail);
+            order.getOrderDetails().add(newDetail);
             log.info("PosOrderService::addItemToDraft - New item added with quantity {}", itemRequest.getQuantity());
         }
 
@@ -375,7 +380,7 @@ public class PosOrderService extends AbstractOrderService {
         recalculateDraftFinancials(order);
 
         Order saved = orderRepository.save(order);
-        log.info("PosOrderService::addItemToDraft - Success [total items: {}]", saved.getDetails().size());
+        log.info("PosOrderService::addItemToDraft - Success [total items: {}]", saved.getOrderDetails().size());
         return orderMapper.toDto(saved);
     }
 
@@ -388,7 +393,7 @@ public class PosOrderService extends AbstractOrderService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found"));
 
         // Find the specific item
-        OrderDetail item = order.getDetails().stream()
+        OrderDetail item = order.getOrderDetails().stream()
                 .filter(d -> d.getId().equals(itemId))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.VALIDATION_FAILED,
@@ -396,11 +401,11 @@ public class PosOrderService extends AbstractOrderService {
 
         if (quantity <= 0) {
             // Quantity = 0 -> remove item
-            order.getDetails().remove(item);
+            order.getOrderDetails().remove(item);
             log.info("PosOrderService::updateDraftItemQuantity - Item removed (quantity = 0)");
 
             // Check if draft is now empty
-            if (order.getDetails().isEmpty()) {
+            if (order.getOrderDetails().isEmpty()) {
                 order.setStatus(OrderStatus.CANCELLED);
                 orderRepository.save(order);
                 saveOrderHistory(order, OrderStatus.PENDING, order.getPaymentStatus(),
@@ -446,7 +451,7 @@ public class PosOrderService extends AbstractOrderService {
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found"));
 
         // Remove item
-        boolean removed = order.getDetails().removeIf(d -> d.getId().equals(itemId));
+        boolean removed = order.getOrderDetails().removeIf(d -> d.getId().equals(itemId));
         if (!removed) {
             throw new ResourceNotFoundException(ErrorCodes.VALIDATION_FAILED,
                     "Item not found in this draft");
@@ -455,7 +460,7 @@ public class PosOrderService extends AbstractOrderService {
         log.info("PosOrderService::removeItemFromDraft - Item removed");
 
         // Check if draft is now empty
-        if (order.getDetails().isEmpty()) {
+        if (order.getOrderDetails().isEmpty()) {
             order.setStatus(OrderStatus.CANCELLED);
             orderRepository.save(order);
             saveOrderHistory(order, OrderStatus.PENDING, order.getPaymentStatus(),
@@ -467,7 +472,7 @@ public class PosOrderService extends AbstractOrderService {
         recalculateDraftFinancials(order);
 
         Order saved = orderRepository.save(order);
-        log.info("PosOrderService::removeItemFromDraft - Success [remaining items: {}]", saved.getDetails().size());
+        log.info("PosOrderService::removeItemFromDraft - Success [remaining items: {}]", saved.getOrderDetails().size());
         return orderMapper.toDto(saved);
     }
 
@@ -476,7 +481,7 @@ public class PosOrderService extends AbstractOrderService {
      */
     private void recalculateDraftFinancials(Order order) {
         // 1. Recalculate subtotal from all items
-        BigDecimal subtotal = order.getDetails().stream()
+        BigDecimal subtotal = order.getOrderDetails().stream()
                 .map(detail -> detail.getPrice().multiply(new BigDecimal(detail.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setSubtotal(subtotal);

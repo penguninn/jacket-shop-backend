@@ -9,6 +9,7 @@ import com.threadcity.jacketshopbackend.dto.order.request.UpdatePaymentRequest;
 import com.threadcity.jacketshopbackend.dto.order.response.OrderHistoryResponse;
 import com.threadcity.jacketshopbackend.dto.order.response.OrderResponse;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.entity.Order;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;

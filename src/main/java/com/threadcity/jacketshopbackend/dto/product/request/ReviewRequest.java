@@ -1,23 +1,23 @@
 package com.threadcity.jacketshopbackend.dto.product.request;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReviewRequest {
+public class ReviewRequest implements Serializable {
 
     @NotNull(message = "Product ID is required")
     private Long productId;
 
+    @NotNull(message = "Order ID is required")
     private Long orderId;
 
     @NotNull(message = "Rating is required")
@@ -26,5 +26,6 @@ public class ReviewRequest {
     private Integer rating;
 
     @NotBlank(message = "Comment cannot be empty")
+    @Size(max = 2000, message = "Comment must be less than 2000 characters")
     private String comment;
 }

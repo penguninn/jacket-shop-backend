@@ -36,4 +36,12 @@ public class SaleUpdateRequest implements Serializable {
 
     @NotNull(message = "Status is required")
     private Enums.Status status;
+
+    @AssertTrue(message = "Start date must be before end date")
+    public boolean isValidDateRange() {
+        if (startDate == null || endDate == null) {
+            return true; // Let @NotNull handle null validation
+        }
+        return startDate.isBefore(endDate);
+    }
 }

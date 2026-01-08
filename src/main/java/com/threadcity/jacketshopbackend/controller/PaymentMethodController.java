@@ -94,7 +94,7 @@ public class PaymentMethodController {
         @PutMapping("/{id}")
         public ApiResponse<?> updatePaymentMethod(
                         @PathVariable Long id,
-                        @Valid @RequestBody PaymentMethodCreateRequest request) {
+                        @Valid @RequestBody PaymentMethodUpdateRequest request) {
                 log.info("PaymentMethodController::updatePaymentMethod - Execution started. [id: {}]", id);
 
                 PaymentMethodResponse response = paymentMethodService.updatePaymentMethodById(request, id);

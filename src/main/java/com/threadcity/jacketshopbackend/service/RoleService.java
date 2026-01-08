@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.dto.auth.response.RoleResponse;
+import com.threadcity.jacketshopbackend.entity.Role;
 import com.threadcity.jacketshopbackend.mapper.RoleMapper;
 import com.threadcity.jacketshopbackend.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class RoleService {
         log.info("RoleService::getAllRoles - Execution started.");
         List<Role> roles = roleRepository.findAll();
         List<RoleResponse> roleResponses = roles.stream()
-                .map(roleMapper::toDto)
+                .map(roleMapper::toResponse)
                 .toList();
         log.info("RoleService::getAllRoles - Execution completed.");
         return roleResponses;

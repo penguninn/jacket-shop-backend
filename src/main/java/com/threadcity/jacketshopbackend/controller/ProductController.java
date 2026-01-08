@@ -116,7 +116,7 @@ public class ProductController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductCreateRequest productRequest) {
+        public ApiResponse<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductUpdateRequest productRequest) {
                 log.info("ProductController::updateProduct - Execution started. [id: {}]", id);
                 ProductResponse response = productService.updateProductById(productRequest, id);
                 log.info("ProductController::updateProduct - Execution completed. [id: {}]", id);

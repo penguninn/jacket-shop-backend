@@ -126,7 +126,7 @@ public class MaterialController {
 
         @PutMapping("/{id}")
         public ApiResponse<?> updateMaterial(@PathVariable Long id,
-                        @Valid @RequestBody MaterialCreateRequest materialRequest) {
+                        @Valid @RequestBody MaterialUpdateRequest materialRequest) {
                 log.info("MaterialController::updateMaterial - Execution started. [id: {}]", id);
 
                 MaterialResponse response = materialService.updateMaterialById(materialRequest, id);

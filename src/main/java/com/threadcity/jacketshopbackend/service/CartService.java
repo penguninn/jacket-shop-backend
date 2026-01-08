@@ -4,6 +4,10 @@ import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.cart.request.CartItemRequest;
 import com.threadcity.jacketshopbackend.dto.cart.response.CartResponse;
 import com.threadcity.jacketshopbackend.dto.cart.response.CartValidationResponse;
+import com.threadcity.jacketshopbackend.entity.Cart;
+import com.threadcity.jacketshopbackend.entity.CartItem;
+import com.threadcity.jacketshopbackend.entity.ProductVariant;
+import com.threadcity.jacketshopbackend.entity.User;
 import com.threadcity.jacketshopbackend.exception.AuthorizationFailedException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,7 +62,7 @@ public class CartService {
         Cart cart = getOrCreateCart();
         List<CartValidationResponse.CartIssue> issues = new ArrayList<>();
 
-        for (CartItem item : cart.getItems()) {
+        for (CartItem item : cart.getCartItems()) {
             ProductVariant variant = item.getProductVariant();
 
             if (variant.getStatus() != Status.ACTIVE) {
@@ -93,7 +98,7 @@ public class CartService {
         Cart cart = getOrCreateCart();
 
         int quantityToAdd = request.getQuantity();
-        Optional<CartItem> existingItem = cart.getItems().stream()
+        Optional<CartItem> existingItem = cart.getCartItems().stream()
                 .filter(item -> item.getProductVariant().getId().equals(request.getProductVariantId()))
                 .findFirst();
 
@@ -114,7 +119,7 @@ public class CartService {
                     .productVariant(variantRef)
                     .quantity(request.getQuantity())
                     .build();
-            cart.getItems().add(newItem);
+            cart.getCartItems().add(newItem);
         }
 
         Cart savedCart = cartRepository.save(cart);
@@ -165,7 +170,7 @@ public class CartService {
         }
 
         Cart cart = cartItem.getCart();
-        cart.getItems().remove(cartItem);
+        cart.getCartItems().remove(cartItem);
         cartRepository.save(cart);
 
         log.info("CartService::removeCartItem - Execution completed.");
@@ -176,7 +181,7 @@ public class CartService {
     public void clearCart() {
         log.info("CartService::clearCart - Execution started.");
         Cart cart = getOrCreateCart();
-        cart.getItems().clear();
+        cart.getCartItems().clear();
         cartRepository.save(cart);
         log.info("CartService::clearCart - Execution completed.");
     }
@@ -188,7 +193,7 @@ public class CartService {
                     .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "User not found"));
             Cart newCart = Cart.builder()
                     .user(user)
-                    .items(new ArrayList<>())
+                    .cartItems(new LinkedHashSet<>())
                     .build();
             return cartRepository.save(newCart);
         });

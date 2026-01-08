@@ -45,7 +45,7 @@ public class AddressService {
     public List<ProvinceResponse> getAllProvinces() {
         log.info("AddressService::getAllProvinces - Execution started");
         List<ProvinceResponse> provinceResponses = provinceRepository.findAll().stream()
-                .map(provinceMapper::toDto)
+                .map(provinceMapper::toResponse)
                 .toList();
         log.info("AddressService::getAllProvinces - Execution ended");
         return provinceResponses;
@@ -55,7 +55,7 @@ public class AddressService {
         log.info("AddressService::getAllDistricts - Execution started");
         List<DistrictResponse> districtResponses = districtRepository.findAllByProvinceId(provinceId)
                 .stream()
-                .map(districtMapper::toDto)
+                .map(districtMapper::toResponse)
                 .toList();
         log.info("AddressService::getAllDistricts - Execution ended");
         return districtResponses;
@@ -65,7 +65,7 @@ public class AddressService {
         log.info("AddressService::getAllWards - Execution started");
         List<WardResponse> wardResponses = wardRepository.findAllByDistrictId(districtId)
                 .stream()
-                .map(wardMapper::toDto)
+                .map(wardMapper::toResponse)
                 .toList();
         log.info("AddressService::getAllWards - Execution ended");
         return wardResponses;

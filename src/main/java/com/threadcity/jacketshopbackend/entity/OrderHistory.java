@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.entity;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -34,21 +35,21 @@ public class OrderHistory extends BaseEntity {
     @JoinColumn(name = "changed_by_user_id")
     private User changedByUser;
 
-    @Size(max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "old_status", length = 20)
-    private String oldStatus;
+    private Enums.OrderStatus oldStatus;
 
-    @Size(max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "new_status", length = 20)
-    private String newStatus;
+    private Enums.OrderStatus newStatus;
 
-    @Size(max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "old_payment_status", length = 20)
-    private String oldPaymentStatus;
+    private Enums.PaymentStatus oldPaymentStatus;
 
-    @Size(max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "new_payment_status", length = 20)
-    private String newPaymentStatus;
+    private Enums.PaymentStatus newPaymentStatus;
 
     @Size(max = 1000)
     @Nationalized

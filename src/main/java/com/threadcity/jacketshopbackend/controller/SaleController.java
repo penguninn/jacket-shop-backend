@@ -87,7 +87,7 @@ public class SaleController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<?> updateSale(@PathVariable Long id, @Valid @RequestBody SaleCreateRequest request) {
+    public ApiResponse<?> updateSale(@PathVariable Long id, @Valid @RequestBody SaleUpdateRequest request) {
         log.info("SaleController::updateSale - Execution started. [id: {}]", id);
         SaleResponse response = saleService.updateSale(id, request);
         log.info("SaleController::updateSale - Execution completed.");

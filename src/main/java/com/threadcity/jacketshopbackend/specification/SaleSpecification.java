@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.specification;
 
+import com.threadcity.jacketshopbackend.entity.Sale;
 import com.threadcity.jacketshopbackend.filter.SaleFilterRequest;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -53,8 +54,17 @@ public class SaleSpecification {
     }
 
     public static Specification<Sale> buildSpec(SaleFilterRequest request) {
-        return Specification.where(hasSearch(request.getSearch()))
-                .and(hasDateRange(request.getFromDate(), request.getToDate()))
-                .and(hasDiscountRange(request.getMinDiscount(), request.getMaxDiscount()));
+        Specification<Sale> spec = (root, query, cb) -> cb.conjunction();
+
+        Specification<Sale> searchSpec = hasSearch(request.getSearch());
+        if (searchSpec != null) spec = spec.and(searchSpec);
+
+        Specification<Sale> dateRangeSpec = hasDateRange(request.getFromDate(), request.getToDate());
+        if (dateRangeSpec != null) spec = spec.and(dateRangeSpec);
+
+        Specification<Sale> discountRangeSpec = hasDiscountRange(request.getMinDiscount(), request.getMaxDiscount());
+        if (discountRangeSpec != null) spec = spec.and(discountRangeSpec);
+
+        return spec;
     }
 }

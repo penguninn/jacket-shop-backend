@@ -1,11 +1,7 @@
 package com.threadcity.jacketshopbackend.dto.order.request;
 
 import com.threadcity.jacketshopbackend.common.Enums.OrderType;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.io.Serializable;
@@ -93,5 +89,30 @@ public class OrderRequest implements Serializable {
 
     @Size(max = 255, message = "Transaction ID must be less than 255 characters")
     private String transactionId;
+
+    /**
+     * XOR validation: Either addressId OR manual shipping fields must be provided, not both or neither.
+     * For ONLINE orders, shipping info is required.
+     * For POS_INSTORE orders, shipping info is optional.
+     */
+    @AssertTrue(message = "Either provide addressId OR manual shipping information (recipient name, phone, address line, ward code, district code, province code)")
+    public boolean isValidShippingInfo() {
+        // For POS orders, shipping is optional
+        if (orderType == OrderType.POS_INSTORE) {
+            return true;
+        }
+
+        // For ONLINE orders, must provide either addressId or manual shipping
+        boolean hasAddressId = addressId != null;
+        boolean hasManualShipping = shippingRecipientName != null
+                && shippingRecipientPhone != null
+                && shippingAddressLine != null
+                && shippingWardCode != null
+                && shippingDistrictCode != null
+                && shippingProvinceCode != null;
+
+        // XOR: exactly one must be true
+        return hasAddressId ^ hasManualShipping;
+    }
 
 }

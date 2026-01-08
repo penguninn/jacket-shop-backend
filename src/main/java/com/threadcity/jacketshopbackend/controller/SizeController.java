@@ -125,7 +125,7 @@ public class SizeController {
         }
 
         @PutMapping("/{id}")
-        public ApiResponse<?> updateSize(@PathVariable Long id, @RequestBody SizeCreateRequest sizeRequest) {
+        public ApiResponse<?> updateSize(@PathVariable Long id, @RequestBody SizeUpdateRequest sizeRequest) {
                 log.info("SizeController::updateSize - Execution started. [id: {}]", id);
                 SizeResponse response = sizeService.updateSizeById(sizeRequest, id);
                 log.info("SizeController::updateSize - Execution completed. [id: {}]", id);

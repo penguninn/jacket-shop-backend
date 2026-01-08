@@ -228,9 +228,6 @@ public class ProductService {
         if (activeVariants.isEmpty()) {
             product.setMinPrice(null);
             product.setMaxPrice(null);
-            product.setColors(new HashSet<>());
-            product.setMaterials(new HashSet<>());
-            product.setSizes(new HashSet<>());
         } else {
             BigDecimal minPrice = activeVariants.stream()
                     .map(ProductVariant::getPrice)
@@ -244,10 +241,6 @@ public class ProductService {
 
             product.setMinPrice(minPrice);
             product.setMaxPrice(maxPrice);
-
-            product.setColors(activeVariants.stream().map(ProductVariant::getColor).collect(Collectors.toSet()));
-            product.setMaterials(activeVariants.stream().map(ProductVariant::getMaterial).collect(Collectors.toSet()));
-            product.setSizes(activeVariants.stream().map(ProductVariant::getSize).collect(Collectors.toSet()));
         }
 
         productRepository.save(product);

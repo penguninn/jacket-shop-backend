@@ -37,7 +37,6 @@ public class PaymentMethod extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
-    @Size(max = 20)
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 20)
