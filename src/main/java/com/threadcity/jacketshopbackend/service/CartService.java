@@ -2,6 +2,7 @@ package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.cart.request.CartItemRequest;
+import com.threadcity.jacketshopbackend.dto.cart.response.CartItemResponse;
 import com.threadcity.jacketshopbackend.dto.cart.response.CartResponse;
 import com.threadcity.jacketshopbackend.dto.cart.response.CartValidationResponse;
 import com.threadcity.jacketshopbackend.entity.Cart;
@@ -24,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,12 +42,13 @@ public class CartService {
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
     private final ProductVariantService productVariantService;
+    private final PricingService pricingService;
 
     public CartResponse getCart() {
         log.info("CartService::getCart - Execution started.");
         Cart cart = getOrCreateCart();
         log.info("CartService::getCart - Execution completed.");
-        return cartMapper.toCartResponse(cart);
+        return buildCartResponse(cart);
     }
 
     public Integer countMyCartItems() {
@@ -118,14 +121,13 @@ public class CartService {
                     .cart(cart)
                     .productVariant(variantRef)
                     .quantity(request.getQuantity())
-                    .unitPrice(variantRef.getPrice())
                     .build();
             cart.getCartItems().add(newItem);
         }
 
         Cart savedCart = cartRepository.save(cart);
         log.info("CartService::addToCart - Execution completed.");
-        return cartMapper.toCartResponse(savedCart);
+        return buildCartResponse(savedCart);
     }
 
     @Transactional
@@ -155,7 +157,7 @@ public class CartService {
 
         Cart cart = cartItem.getCart();
         log.info("CartService::updateCartItem - Execution completed.");
-        return cartMapper.toCartResponse(cart);
+        return buildCartResponse(cart);
     }
 
     @Transactional
@@ -175,7 +177,7 @@ public class CartService {
         cartRepository.save(cart);
 
         log.info("CartService::removeCartItem - Execution completed.");
-        return cartMapper.toCartResponse(cart);
+        return buildCartResponse(cart);
     }
 
     @Transactional
@@ -185,6 +187,48 @@ public class CartService {
         cart.getCartItems().clear();
         cartRepository.save(cart);
         log.info("CartService::clearCart - Execution completed.");
+    }
+
+
+    private CartResponse buildCartResponse(Cart cart) {
+        CartResponse response = cartMapper.toCartResponse(cart);
+
+        int totalItems = 0;
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        int selectedItemsCount = 0;
+        BigDecimal selectedItemsTotal = BigDecimal.ZERO;
+
+        List<CartItemResponse> enrichedItems = new ArrayList<>();
+
+        for (CartItem cartItem : cart.getCartItems()) {
+            CartItemResponse itemResponse = cartMapper.toCartItemResponse(cartItem);
+
+            // Calculate pricing using PricingService
+            PricingService.PriceResult priceResult = pricingService.calculatePrice(cartItem.getProductVariant());
+            itemResponse.setPrice(priceResult.getFinalPrice());
+            itemResponse.setOriginalPrice(priceResult.getOriginalPrice());
+            itemResponse.setDiscountPercentage(priceResult.getDiscountPercentage());
+            itemResponse.setSubtotal(priceResult.getFinalPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+
+            enrichedItems.add(itemResponse);
+
+            // Calculate totals
+            totalItems += cartItem.getQuantity();
+            totalPrice = totalPrice.add(itemResponse.getSubtotal());
+
+            if (Boolean.TRUE.equals(cartItem.getSelected())) {
+                selectedItemsCount += cartItem.getQuantity();
+                selectedItemsTotal = selectedItemsTotal.add(itemResponse.getSubtotal());
+            }
+        }
+
+        response.setItems(enrichedItems);
+        response.setTotalItems(totalItems);
+        response.setTotalPrice(totalPrice);
+        response.setSelectedItemsCount(selectedItemsCount);
+        response.setSelectedItemsTotal(selectedItemsTotal);
+
+        return response;
     }
 
     private Cart getOrCreateCart() {

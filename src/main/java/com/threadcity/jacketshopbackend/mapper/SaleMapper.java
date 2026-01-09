@@ -5,7 +5,9 @@ import com.threadcity.jacketshopbackend.dto.promotion.request.SaleUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.promotion.response.SaleResponse;
 import com.threadcity.jacketshopbackend.entity.Sale;
 import com.threadcity.jacketshopbackend.entity.SaleVariant;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

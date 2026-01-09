@@ -2,10 +2,10 @@ package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.dto.attribute.request.ColorCreateRequest;
 import com.threadcity.jacketshopbackend.dto.attribute.request.ColorUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Color;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;

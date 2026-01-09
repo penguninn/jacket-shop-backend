@@ -2,16 +2,16 @@ package com.threadcity.jacketshopbackend.repository;
 
 import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
 import com.threadcity.jacketshopbackend.common.Enums.OrderType;
+import com.threadcity.jacketshopbackend.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-
-import com.threadcity.jacketshopbackend.entity.Order;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
@@ -26,4 +26,14 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
             @Param("staffId") Long staffId);
 
     long countByOrderTypeAndStatus(OrderType orderType, OrderStatus status);
+
+    /**
+     * Find stale POS drafts for timeout processing.
+     * Returns PENDING POS orders that haven't been updated since the cutoff time.
+     */
+    @Query("SELECT o FROM Order o WHERE o.orderType = :orderType AND o.status = :status AND o.updatedAt < :cutoff")
+    List<Order> findStalePosDrafts(
+            @Param("orderType") OrderType orderType,
+            @Param("status") OrderStatus status,
+            @Param("cutoff") Instant cutoff);
 }

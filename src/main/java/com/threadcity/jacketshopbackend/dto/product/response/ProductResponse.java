@@ -1,10 +1,6 @@
 package com.threadcity.jacketshopbackend.dto.product.response;
 
 import com.threadcity.jacketshopbackend.common.Enums;
-import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
-import com.threadcity.jacketshopbackend.dto.attribute.response.MaterialResponse;
-import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
-
 import com.threadcity.jacketshopbackend.entity.Review;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

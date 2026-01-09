@@ -2,13 +2,13 @@ package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.attribute.request.SizeCreateRequest;
 import com.threadcity.jacketshopbackend.dto.attribute.request.SizeUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
 import com.threadcity.jacketshopbackend.filter.SizeFilterRequest;
 import com.threadcity.jacketshopbackend.service.SizeImportService;
 import com.threadcity.jacketshopbackend.service.SizeService;

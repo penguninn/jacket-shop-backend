@@ -1,9 +1,9 @@
 package com.threadcity.jacketshopbackend.dto.location.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 import java.io.Serializable;
 
