@@ -19,7 +19,13 @@ public class CartItemResponse implements Serializable {
     private ProductVariantResponse productVariant;
     private Integer quantity;
     private Boolean selected;
-    private BigDecimal unitPrice;
+
+    private BigDecimal price;
+    private BigDecimal originalPrice;
+    private BigDecimal discountPercentage;
+
+    private BigDecimal subtotal;
+
     private Instant createdAt;
     private Instant updatedAt;
 }

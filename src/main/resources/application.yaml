@@ -15,7 +15,7 @@ spring:
     url: jdbc:sqlserver://localhost:1433;databaseName=JacketShop;encrypt=true;trustServerCertificate=true;
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: sa
-    password: 123456
+    password: Password123!
   jackson:
     time-zone: UTC
   jpa:

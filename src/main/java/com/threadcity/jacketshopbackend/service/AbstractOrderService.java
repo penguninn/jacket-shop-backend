@@ -55,9 +55,6 @@ public abstract class AbstractOrderService {
 
     protected final OrderMapper orderMapper;
 
-    /**
-     * Get order by ID with ownership check.
-     */
     public OrderResponse getOrderById(Long id) {
         log.info("AbstractOrderService::getOrderById - Start [id: {}]", id);
 
