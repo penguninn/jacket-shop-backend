@@ -5,6 +5,7 @@ import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
 import com.threadcity.jacketshopbackend.dto.attribute.response.MaterialResponse;
 import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
 
+import com.threadcity.jacketshopbackend.entity.Review;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,12 +33,10 @@ public class ProductResponse implements Serializable {
     private Integer ratingCount;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
-    private List<ColorResponse> colors;
-    private List<MaterialResponse> materials;
-    private List<SizeResponse> sizes;
     private Integer variantsCount;
     private Integer version;
     private Enums.Status status;
     private Instant createdAt;
     private Instant updatedAt;
+    private List<Review> reviews;
 }
