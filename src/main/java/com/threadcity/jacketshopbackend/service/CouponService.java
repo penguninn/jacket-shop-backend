@@ -1,13 +1,13 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.promotion.request.CouponCreateRequest;
-import com.threadcity.jacketshopbackend.dto.promotion.request.CouponUpdateRequest;
-import com.threadcity.jacketshopbackend.dto.promotion.request.CouponValidateRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.promotion.response.CouponResponse;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.promotion.request.CouponCreateRequest;
+import com.threadcity.jacketshopbackend.dto.promotion.request.CouponUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.promotion.request.CouponValidateRequest;
+import com.threadcity.jacketshopbackend.dto.promotion.response.CouponResponse;
 import com.threadcity.jacketshopbackend.entity.Coupon;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
@@ -28,6 +28,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -229,5 +231,111 @@ public class CouponService {
 
         couponRepository.deleteAllInBatch(coupons);
         log.info("CouponService::bulkDeleteCoupons - Execution completed");
+    }
+
+    // ==================== ORDER PROCESSING METHODS ====================
+
+    /**
+     * Tìm và validate coupon cho order.
+     * Check: status, date range, usage limit, min order value.
+     *
+     * @param code     Mã coupon
+     * @param subtotal Tổng tiền order (trước discount)
+     * @return Coupon entity nếu hợp lệ
+     * @throws ResourceNotFoundException nếu không tìm thấy coupon
+     * @throws InvalidRequestException   nếu coupon không hợp lệ
+     */
+    public Coupon findAndValidate(String code, BigDecimal subtotal) {
+        log.debug("CouponService::findAndValidate - code: {}, subtotal: {}", code, subtotal);
+
+        if (code == null || code.isBlank()) {
+            return null;
+        }
+
+        Coupon coupon = couponRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.COUPON_NOT_FOUND,
+                        "Coupon not found with code: " + code));
+
+        validateCoupon(coupon);
+
+        if (coupon.getMinOrderValue() != null && subtotal.compareTo(coupon.getMinOrderValue()) < 0) {
+            throw new InvalidRequestException(ErrorCodes.COUPON_MIN_ORDER_VALUE_NOT_REACHED,
+                    "Order amount does not reach minimum: " + PriceUtils.formatVnd(coupon.getMinOrderValue()));
+        }
+
+        log.info("CouponService::findAndValidate - Coupon validated: {}", code);
+        return coupon;
+    }
+
+    /**
+     * Tính số tiền được giảm từ coupon.
+     * - AMOUNT: discount = value (capped tại subtotal)
+     * - PERCENT: discount = subtotal * value / 100 (capped tại maxDiscount nếu có)
+     *
+     * @param coupon   Coupon entity
+     * @param subtotal Tổng tiền order
+     * @return Số tiền được giảm (luôn >= 0 và <= subtotal)
+     */
+    public BigDecimal calculateDiscount(Coupon coupon, BigDecimal subtotal) {
+        if (coupon == null || subtotal == null || subtotal.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        log.debug("CouponService::calculateDiscount - coupon: {}, type: {}, value: {}, subtotal: {}",
+                coupon.getCode(), coupon.getType(), coupon.getValue(), subtotal);
+
+        BigDecimal discount;
+
+        if (coupon.getType() == com.threadcity.jacketshopbackend.common.Enums.CouponType.AMOUNT) {
+            // Fixed amount
+            discount = coupon.getValue();
+        } else {
+            // Percentage
+            discount = subtotal.multiply(coupon.getValue())
+                    .divide(BigDecimal.valueOf(100), 0, java.math.RoundingMode.HALF_UP);
+
+            // Cap at maxDiscount if set
+            if (coupon.getMaxDiscount() != null && discount.compareTo(coupon.getMaxDiscount()) > 0) {
+                discount = coupon.getMaxDiscount();
+            }
+        }
+
+        // Discount cannot exceed subtotal
+        if (discount.compareTo(subtotal) > 0) {
+            discount = subtotal;
+        }
+
+        log.info("CouponService::calculateDiscount - Calculated discount: {}", discount);
+        return discount;
+    }
+
+    /**
+     * Increment usage count khi order được tạo (atomic).
+     *
+     * @param couponCode Mã coupon
+     */
+    @Transactional
+    public void incrementUsage(String couponCode) {
+        if (couponCode == null || couponCode.isBlank()) {
+            return;
+        }
+        log.debug("CouponService::incrementUsage - code: {}", couponCode);
+        couponRepository.incrementUsage(couponCode);
+        log.info("CouponService::incrementUsage - Incremented usage for: {}", couponCode);
+    }
+
+    /**
+     * Decrement usage count khi order bị cancel (atomic).
+     *
+     * @param couponCode Mã coupon
+     */
+    @Transactional
+    public void decrementUsage(String couponCode) {
+        if (couponCode == null || couponCode.isBlank()) {
+            return;
+        }
+        log.debug("CouponService::decrementUsage - code: {}", couponCode);
+        couponRepository.decrementUsage(couponCode);
+        log.info("CouponService::decrementUsage - Decremented usage for: {}", couponCode);
     }
 }

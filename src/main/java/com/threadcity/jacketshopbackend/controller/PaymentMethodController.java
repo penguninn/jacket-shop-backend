@@ -1,12 +1,12 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.payment.request.PaymentMethodCreateRequest;
-import com.threadcity.jacketshopbackend.dto.payment.request.PaymentMethodUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.payment.request.PaymentMethodCreateRequest;
+import com.threadcity.jacketshopbackend.dto.payment.request.PaymentMethodUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.payment.response.PaymentMethodResponse;
 import com.threadcity.jacketshopbackend.filter.PaymentMethodFilterRequest;
 import com.threadcity.jacketshopbackend.service.PaymentMethodService;

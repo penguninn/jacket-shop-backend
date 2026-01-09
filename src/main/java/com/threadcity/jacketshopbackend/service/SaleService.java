@@ -1,9 +1,9 @@
 package com.threadcity.jacketshopbackend.service;
 
-import com.threadcity.jacketshopbackend.dto.promotion.request.SaleCreateRequest;
-import com.threadcity.jacketshopbackend.dto.promotion.request.SaleUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.promotion.request.SaleCreateRequest;
+import com.threadcity.jacketshopbackend.dto.promotion.request.SaleUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.promotion.response.SaleResponse;
 import com.threadcity.jacketshopbackend.entity.ProductVariant;
 import com.threadcity.jacketshopbackend.entity.Sale;

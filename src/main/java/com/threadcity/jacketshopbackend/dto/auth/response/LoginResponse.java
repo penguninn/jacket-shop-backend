@@ -1,9 +1,8 @@
 package com.threadcity.jacketshopbackend.dto.auth.response;
 
+import com.threadcity.jacketshopbackend.dto.user.response.UserResponse;
 import lombok.Builder;
 import lombok.Data;
-
-import com.threadcity.jacketshopbackend.dto.user.response.UserResponse;
 
 import java.io.Serializable;
 

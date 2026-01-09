@@ -8,15 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
-/**
- * Security utility class for common authorization checks
- */
 @Component
 public class SecurityUtils {
 
-    /**
-     * Get current authenticated user ID
-     */
     public static Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
@@ -31,23 +25,14 @@ public class SecurityUtils {
         return null;
     }
 
-    /**
-     * Check if current user is ADMIN or STAFF
-     */
     public static boolean isAdminOrStaff() {
         return hasAnyRole("ADMIN", "STAFF");
     }
 
-    /**
-     * Check if current user is ADMIN
-     */
     public static boolean isAdmin() {
         return hasRole("ADMIN");
     }
 
-    /**
-     * Check if current user has specific role
-     */
     public static boolean hasRole(String role) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
@@ -58,9 +43,6 @@ public class SecurityUtils {
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + role));
     }
 
-    /**
-     * Check if current user has any of the specified roles
-     */
     public static boolean hasAnyRole(String... roles) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
@@ -77,9 +59,6 @@ public class SecurityUtils {
         return false;
     }
 
-    /**
-     * Check if current user owns the resource or is admin/staff
-     */
     public static boolean isOwnerOrAdmin(Long resourceOwnerId) {
         if (isAdminOrStaff()) {
             return true;
@@ -89,9 +68,6 @@ public class SecurityUtils {
         return currentUserId != null && currentUserId.equals(resourceOwnerId);
     }
 
-    /**
-     * Verify current user owns the resource, throw exception if not
-     */
     public static void requireOwnership(Long resourceOwnerId, String resourceType) {
         if (!isOwnerOrAdmin(resourceOwnerId)) {
             throw new SecurityException("You don't have permission to access this " + resourceType);

@@ -6,11 +6,8 @@ import com.threadcity.jacketshopbackend.entity.Cart;
 import com.threadcity.jacketshopbackend.entity.CartItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", uses = {ProductVariantMapper.class})
 public interface CartMapper {

@@ -1,12 +1,11 @@
 package com.threadcity.jacketshopbackend.dto.user.response;
 
 import com.threadcity.jacketshopbackend.common.Enums.Status;
+import com.threadcity.jacketshopbackend.dto.auth.response.RoleResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import com.threadcity.jacketshopbackend.dto.auth.response.RoleResponse;
 
 import java.io.Serializable;
 import java.time.Instant;

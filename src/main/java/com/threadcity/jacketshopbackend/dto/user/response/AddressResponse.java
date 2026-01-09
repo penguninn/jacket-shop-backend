@@ -1,5 +1,8 @@
 package com.threadcity.jacketshopbackend.dto.user.response;
 
+import com.threadcity.jacketshopbackend.dto.location.response.DistrictResponse;
+import com.threadcity.jacketshopbackend.dto.location.response.ProvinceResponse;
+import com.threadcity.jacketshopbackend.dto.location.response.WardResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,10 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.Instant;
-
-import com.threadcity.jacketshopbackend.dto.location.response.DistrictResponse;
-import com.threadcity.jacketshopbackend.dto.location.response.ProvinceResponse;
-import com.threadcity.jacketshopbackend.dto.location.response.WardResponse;
 
 @Data
 @Builder

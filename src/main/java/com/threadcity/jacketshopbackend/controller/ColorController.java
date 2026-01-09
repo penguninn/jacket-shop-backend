@@ -2,11 +2,11 @@ package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.attribute.request.ColorCreateRequest;
 import com.threadcity.jacketshopbackend.dto.attribute.request.ColorUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
 import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.filter.ColorFilterRequest;

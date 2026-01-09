@@ -1,9 +1,8 @@
 package com.threadcity.jacketshopbackend.repository;
 
+import com.threadcity.jacketshopbackend.entity.CartItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import com.threadcity.jacketshopbackend.entity.CartItem;
 
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {

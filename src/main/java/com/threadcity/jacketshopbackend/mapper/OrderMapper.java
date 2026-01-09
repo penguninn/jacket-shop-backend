@@ -1,5 +1,7 @@
 package com.threadcity.jacketshopbackend.mapper;
 
+import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
+import com.threadcity.jacketshopbackend.common.Enums.OrderType;
 import com.threadcity.jacketshopbackend.dto.order.response.OrderDetailResponse;
 import com.threadcity.jacketshopbackend.dto.order.response.OrderResponse;
 import com.threadcity.jacketshopbackend.entity.Order;
@@ -56,4 +58,24 @@ public interface OrderMapper {
     @Mapping(source = "coupon.id", target = "couponId")
     @Mapping(source = "orderDetails", target = "details")
     OrderResponse toDto(Order order);
+
+    @AfterMapping
+    default void computeOrderFlags(Order source, @MappingTarget OrderResponse target) {
+        OrderStatus status = source.getStatus();
+        OrderType orderType = source.getOrderType();
+
+        // canCancel: PENDING or CONFIRMED (not SHIPPING, COMPLETED, CANCELLED, RETURNED)
+        // For POS: only PENDING
+        if (orderType == OrderType.POS_INSTORE) {
+            target.setCanCancel(status == OrderStatus.PENDING);
+        } else {
+            target.setCanCancel(status == OrderStatus.PENDING || status == OrderStatus.CONFIRMED);
+        }
+
+        // canReceive: SHIPPING (customer can confirm receipt)
+        target.setCanReceive(status == OrderStatus.SHIPPING);
+
+        // canReturn: COMPLETED (customer can request return)
+        target.setCanReturn(status == OrderStatus.COMPLETED);
+    }
 }

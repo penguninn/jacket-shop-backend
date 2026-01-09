@@ -1,14 +1,14 @@
 package com.threadcity.jacketshopbackend.controller;
 
-import com.threadcity.jacketshopbackend.dto.product.request.BrandCreateRequest;
-import com.threadcity.jacketshopbackend.dto.product.request.BrandUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
-import com.threadcity.jacketshopbackend.dto.product.response.BrandResponse;
 import com.threadcity.jacketshopbackend.dto.common.response.ImportResult;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
+import com.threadcity.jacketshopbackend.dto.product.request.BrandCreateRequest;
+import com.threadcity.jacketshopbackend.dto.product.request.BrandUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.product.response.BrandResponse;
 import com.threadcity.jacketshopbackend.filter.BrandFilterRequest;
 import com.threadcity.jacketshopbackend.service.BrandImportService;
 import com.threadcity.jacketshopbackend.service.BrandService;

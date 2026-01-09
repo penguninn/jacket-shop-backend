@@ -4,7 +4,6 @@ import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.attribute.response.ColorResponse;
 import com.threadcity.jacketshopbackend.dto.attribute.response.MaterialResponse;
 import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
