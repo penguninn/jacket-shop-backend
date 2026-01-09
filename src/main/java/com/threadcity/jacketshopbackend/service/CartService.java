@@ -118,6 +118,7 @@ public class CartService {
                     .cart(cart)
                     .productVariant(variantRef)
                     .quantity(request.getQuantity())
+                    .unitPrice(variantRef.getPrice())
                     .build();
             cart.getCartItems().add(newItem);
         }

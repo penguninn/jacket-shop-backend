@@ -15,8 +15,5 @@ import org.mapstruct.Mapping;
 public interface ProductMapper {
 
     @Mapping(target = "variantsCount", expression = "java(product.getVariants() != null ? product.getVariants().size() : 0)")
-    @Mapping(target = "colors", ignore = true)
-    @Mapping(target = "materials", ignore = true)
-    @Mapping(target = "sizes", ignore = true)
     ProductResponse toDto(Product product);
 }
