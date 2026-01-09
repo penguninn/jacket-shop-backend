@@ -115,9 +115,6 @@ public class ProductSpecification {
                 .and(hasStatuses(request.getStatus()))
                 .and(hasMinPrice(request.getMinPrice()))
                 .and(hasMaxPrice(request.getMaxPrice()))
-                .and(hasColors(request.getColorIds()))
-                .and(hasMaterials(request.getMaterialIds()))
-                .and(hasSizes(request.getSizeIds()))
                 .and(isFeatured(request.getIsFeatured()));
     }
 }

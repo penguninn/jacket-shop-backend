@@ -96,5 +96,4 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<Review> reviews = new LinkedHashSet<>();
-
 }
