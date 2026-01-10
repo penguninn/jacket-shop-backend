@@ -1,4 +1,4 @@
-package com.threadcity.jacketshopbackend.filter;
+package com.threadcity.jacketshopbackend.dto.review.request;
 
 import lombok.*;
 
@@ -12,6 +12,8 @@ public class ReviewFilterRequest {
     private Long productId;
     private Long userId;
     private Long orderId;
+
+    private Integer rating;
     private Integer minRating;
     private Integer maxRating;
 
