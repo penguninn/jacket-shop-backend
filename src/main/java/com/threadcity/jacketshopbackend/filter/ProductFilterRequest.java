@@ -21,9 +21,6 @@ public class ProductFilterRequest {
         private List<String> status;
         private BigDecimal minPrice;
         private BigDecimal maxPrice;
-        private List<Long> colorIds;
-        private List<Long> materialIds;
-        private List<Long> sizeIds;
         private Boolean isFeatured;
 
         @Builder.Default

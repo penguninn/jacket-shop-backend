@@ -2,10 +2,10 @@ package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.dto.attribute.request.MaterialCreateRequest;
 import com.threadcity.jacketshopbackend.dto.attribute.request.MaterialUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.response.MaterialResponse;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
-import com.threadcity.jacketshopbackend.dto.attribute.response.MaterialResponse;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.entity.Material;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;

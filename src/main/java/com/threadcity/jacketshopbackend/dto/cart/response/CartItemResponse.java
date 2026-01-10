@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.dto.cart.response;
 
+import com.threadcity.jacketshopbackend.dto.product.response.ProductVariantResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,8 +9,6 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
-
-import com.threadcity.jacketshopbackend.dto.product.response.ProductVariantResponse;
 
 @Data
 @Builder
@@ -20,7 +19,13 @@ public class CartItemResponse implements Serializable {
     private ProductVariantResponse productVariant;
     private Integer quantity;
     private Boolean selected;
-    private BigDecimal unitPrice;
+
+    private BigDecimal price;
+    private BigDecimal originalPrice;
+    private BigDecimal discountPercentage;
+
+    private BigDecimal subtotal;
+
     private Instant createdAt;
     private Instant updatedAt;
 }

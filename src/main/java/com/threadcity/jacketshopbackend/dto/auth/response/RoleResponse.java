@@ -1,8 +1,8 @@
 package com.threadcity.jacketshopbackend.dto.auth.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;

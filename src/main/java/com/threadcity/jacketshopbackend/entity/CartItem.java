@@ -8,8 +8,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.math.BigDecimal;
-
 @Getter
 @Setter
 @SuperBuilder
@@ -40,10 +38,6 @@ public class CartItem extends BaseEntity {
     @Min(1)
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
-
-    @NotNull
-    @Column(name = "unit_price", nullable = false, precision = 12, scale = 2)
-    private BigDecimal unitPrice;
 
     @NotNull
     @Column(name = "selected", nullable = false)

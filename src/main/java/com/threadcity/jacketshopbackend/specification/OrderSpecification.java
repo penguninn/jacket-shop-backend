@@ -1,6 +1,5 @@
 package com.threadcity.jacketshopbackend.specification;
 
-import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.order.request.CustomerOrderFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Order;
 import com.threadcity.jacketshopbackend.filter.OrderFilterRequest;

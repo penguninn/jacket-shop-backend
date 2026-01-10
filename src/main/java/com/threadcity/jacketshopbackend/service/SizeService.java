@@ -2,11 +2,11 @@ package com.threadcity.jacketshopbackend.service;
 
 import com.threadcity.jacketshopbackend.dto.attribute.request.SizeCreateRequest;
 import com.threadcity.jacketshopbackend.dto.attribute.request.SizeUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.request.UpdateStatusRequest;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.attribute.response.SizeResponse;
 import com.threadcity.jacketshopbackend.entity.Size;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;

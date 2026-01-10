@@ -1,9 +1,9 @@
 package com.threadcity.jacketshopbackend.controller;
 
+import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.user.request.AddressCreateRequest;
 import com.threadcity.jacketshopbackend.dto.user.request.AddressUpdateRequest;
 import com.threadcity.jacketshopbackend.dto.user.response.AddressResponse;
-import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
 import com.threadcity.jacketshopbackend.service.AddressService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

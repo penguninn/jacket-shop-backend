@@ -108,4 +108,11 @@ public class OrderResponse implements Serializable {
     private Instant updatedAt;
 
     private List<OrderDetailResponse> details;
+
+    // Computed flags for UI
+    private Boolean canCancel;
+
+    private Boolean canReceive;
+
+    private Boolean canReturn;
 }
