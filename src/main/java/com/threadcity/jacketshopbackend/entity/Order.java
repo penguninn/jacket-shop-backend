@@ -27,7 +27,8 @@ import java.util.Set;
         @Index(name = "IX_orders_payment_status", columnList = "payment_status, status"),
         @Index(name = "IX_orders_type", columnList = "order_type, status"),
         @Index(name = "IX_orders_created", columnList = "created_at"),
-        @Index(name = "IX_orders_tracking", columnList = "tracking_number")
+        @Index(name = "IX_orders_tracking", columnList = "tracking_number"),
+        @Index(name = "IX_orders_payos_code", columnList = "payos_order_code")
 }, uniqueConstraints = {
         @UniqueConstraint(name = "UK_orders_code", columnNames = { "order_code" })
 })
@@ -144,6 +145,11 @@ public class Order extends BaseEntity {
     @Column(name = "payment_method_name", length = 80)
     private String paymentMethodName;
 
+    @Size(max = 20)
+    @Nationalized
+    @Column(name = "payment_method_code", length = 80)
+    private String paymentMethodCode;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false, length = 20)
@@ -156,6 +162,20 @@ public class Order extends BaseEntity {
     @Size(max = 255)
     @Column(name = "transaction_id")
     private String transactionId;
+
+    @Column(name = "payos_order_code", unique = true)
+    private Long payosOrderCode;
+
+    @Size(max = 100)
+    @Column(name = "payos_payment_link_id", length = 100)
+    private String payosPaymentLinkId;
+
+    @Size(max = 500)
+    @Column(name = "payos_checkout_url", length = 500)
+    private String payosCheckoutUrl;
+
+    @Column(name = "payos_qr_code", columnDefinition = "TEXT")
+    private String payosQrCode;
 
     @NotNull
     @Column(name = "subtotal", nullable = false, precision = 12, scale = 2)

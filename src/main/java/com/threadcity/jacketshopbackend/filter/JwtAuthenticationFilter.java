@@ -33,7 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        return path.startsWith("/api/payos");
+        // Only skip JWT filter for PayOS webhook callback (public endpoint)
+        return path.equals("/api/payos/transfer-handler");
     }
 
     @Override

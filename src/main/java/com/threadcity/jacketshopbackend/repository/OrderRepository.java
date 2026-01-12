@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.repository;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
 import com.threadcity.jacketshopbackend.common.Enums.OrderType;
 import com.threadcity.jacketshopbackend.entity.Order;
@@ -36,4 +37,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
             @Param("orderType") OrderType orderType,
             @Param("status") OrderStatus status,
             @Param("cutoff") Instant cutoff);
+
+    List<Order> findByPaymentStatus(Enums.PaymentStatus paymentStatus);
+
+    Optional<Order> findByPayosOrderCode(Long payosOrderCode);
 }

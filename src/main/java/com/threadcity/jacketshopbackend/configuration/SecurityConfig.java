@@ -39,9 +39,9 @@ public class SecurityConfig {
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
 
     private static final String[] PUBLIC_ENDPOINT = {
-            "/api/payos/**",
             "/api/auth/**",
             "/api/token/**",
+            "/api/payos/transfer-handler",
             "/actuator/health",
             "/actuator/info",
             "/api/docs/**",
@@ -62,8 +62,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/me/cart/**").authenticated()
                 .requestMatchers("/api/orders/**").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated()
+                .requestMatchers("/api/reviews/**").authenticated()
+                .requestMatchers("/api/coupons/**").authenticated()
+                .requestMatchers("/api/payment-methods/**").authenticated()
+                .requestMatchers("/api/payos/**").authenticated()
                 .requestMatchers("/api/users/profile/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                 .anyRequest().authenticated());
