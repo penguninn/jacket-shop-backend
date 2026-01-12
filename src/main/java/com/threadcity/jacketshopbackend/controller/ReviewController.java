@@ -3,13 +3,15 @@ package com.threadcity.jacketshopbackend.controller;
 import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.review.request.ReviewCreateRequest;
-import com.threadcity.jacketshopbackend.dto.review.request.ReviewUpdateRequest;
-import com.threadcity.jacketshopbackend.dto.review.response.ReviewResponse;
 import com.threadcity.jacketshopbackend.dto.review.request.ReviewFilterRequest;
+import com.threadcity.jacketshopbackend.dto.review.request.ReviewUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.review.response.ReviewListResponse;
+import com.threadcity.jacketshopbackend.dto.review.response.ReviewResponse;
 import com.threadcity.jacketshopbackend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,15 +28,18 @@ public class ReviewController {
     // ================= CREATE =================
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ApiResponse<?> createReview(@Valid @RequestBody ReviewCreateRequest request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<ReviewResponse> createReview(
+            @Valid @RequestBody ReviewCreateRequest request) {
+
         log.info("ReviewController::createReview - Execution started");
 
         ReviewResponse response = reviewService.createReview(request);
 
         log.info("ReviewController::createReview - Execution completed");
 
-        return ApiResponse.builder()
-                .code(201)
+        return ApiResponse.<ReviewResponse>builder()
+                .code(HttpStatus.CREATED.value())
                 .message("Review created successfully.")
                 .data(response)
                 .timestamp(Instant.now())
@@ -43,8 +48,9 @@ public class ReviewController {
 
     // ================= UPDATE =================
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ApiResponse<?> updateReview(
+//    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER','STAFF','ADMIN')")
+    public ApiResponse<ReviewResponse> updateReview(
             @PathVariable Long id,
             @Valid @RequestBody ReviewUpdateRequest request) {
 
@@ -54,8 +60,8 @@ public class ReviewController {
 
         log.info("ReviewController::updateReview - Execution completed. [id: {}]", id);
 
-        return ApiResponse.builder()
-                .code(200)
+        return ApiResponse.<ReviewResponse>builder()
+                .code(HttpStatus.OK.value())
                 .message("Review updated successfully.")
                 .data(response)
                 .timestamp(Instant.now())
@@ -64,16 +70,18 @@ public class ReviewController {
 
     // ================= DELETE =================
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CUSTOMER','ADMIN')")
-    public ApiResponse<?> deleteReview(@PathVariable Long id) {
+    @PreAuthorize("hasAnyRole('CUSTOMER','ADMIN','STAFF')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ApiResponse<Void> deleteReview(@PathVariable Long id) {
+
         log.info("ReviewController::deleteReview - Execution started. [id: {}]", id);
 
         reviewService.deleteReview(id);
 
         log.info("ReviewController::deleteReview - Execution completed. [id: {}]", id);
 
-        return ApiResponse.builder()
-                .code(200)
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.NO_CONTENT.value())
                 .message("Review deleted successfully.")
                 .timestamp(Instant.now())
                 .build();
@@ -81,7 +89,7 @@ public class ReviewController {
 
     // ================= GET BY PRODUCT (PUBLIC) =================
     @GetMapping("/product/{productId}")
-    public ApiResponse<?> getReviewsByProduct(
+    public ApiResponse<PageResponse<ReviewListResponse>> getReviewsByProduct(
             @PathVariable Long productId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -98,22 +106,22 @@ public class ReviewController {
                 .sortDir(sortDir)
                 .build();
 
-        PageResponse<?> response = reviewService.getAllReviews(filter);
+        PageResponse<ReviewListResponse> response = reviewService.getAllReviews(filter);
 
         log.info("ReviewController::getReviewsByProduct - Execution completed. [productId: {}]", productId);
 
-        return ApiResponse.builder()
-                .code(200)
-                .message("Get reviews by product successfully.")
+        return ApiResponse.<PageResponse<ReviewListResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Reviews retrieved successfully for product.")
                 .data(response)
                 .timestamp(Instant.now())
                 .build();
     }
 
-    // ================= GET ALL (ADMIN) =================
+    // ================= GET ALL (ADMIN ONLY) =================
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<?> getAllReviews(
+    public ApiResponse<PageResponse<ReviewListResponse>> getAllReviews(
             @RequestParam(required = false) Long productId,
             @RequestParam(required = false) Integer rating,
             @RequestParam(defaultValue = "0") int page,
@@ -132,13 +140,13 @@ public class ReviewController {
                 .sortDir(sortDir)
                 .build();
 
-        PageResponse<?> response = reviewService.getAllReviews(filter);
+        PageResponse<ReviewListResponse> response = reviewService.getAllReviews(filter);
 
         log.info("ReviewController::getAllReviews - Execution completed");
 
-        return ApiResponse.builder()
-                .code(200)
-                .message("Get all reviews successfully.")
+        return ApiResponse.<PageResponse<ReviewListResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("All reviews retrieved successfully.")
                 .data(response)
                 .timestamp(Instant.now())
                 .build();

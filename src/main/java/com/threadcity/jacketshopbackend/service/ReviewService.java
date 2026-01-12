@@ -1,17 +1,18 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.review.request.ReviewCreateRequest;
+import com.threadcity.jacketshopbackend.dto.review.request.ReviewFilterRequest;
 import com.threadcity.jacketshopbackend.dto.review.request.ReviewUpdateRequest;
+import com.threadcity.jacketshopbackend.dto.review.response.ReviewListResponse;
 import com.threadcity.jacketshopbackend.dto.review.response.ReviewResponse;
-
 import com.threadcity.jacketshopbackend.entity.Order;
 import com.threadcity.jacketshopbackend.entity.Product;
 import com.threadcity.jacketshopbackend.entity.Review;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
+import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
-import com.threadcity.jacketshopbackend.dto.review.request.ReviewFilterRequest;
-import com.threadcity.jacketshopbackend.mapper.ReviewMapper;
 import com.threadcity.jacketshopbackend.repository.OrderRepository;
 import com.threadcity.jacketshopbackend.repository.ProductRepository;
 import com.threadcity.jacketshopbackend.repository.ReviewRepository;
@@ -20,10 +21,7 @@ import com.threadcity.jacketshopbackend.specification.ReviewSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -33,6 +31,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -43,27 +43,46 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
-    private final ReviewMapper reviewMapper;
 
-    public PageResponse<?> getAllReviews(ReviewFilterRequest request) {
+    // ================== GET ALL ==================
+    public PageResponse<ReviewListResponse> getAllReviews(ReviewFilterRequest request) {
         log.info("ReviewService::getAllReviews - Execution started.");
 
-        Sort sort = Sort.by(Sort.Direction.fromString(request.getSortDir()), request.getSortBy());
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+        Sort sort = Sort.by(
+                Sort.Direction.fromString(request.getSortDir()),
+                request.getSortBy()
+        );
+
+        Pageable pageable = PageRequest.of(
+                request.getPage(),
+                request.getSize(),
+                sort
+        );
 
         Specification<Review> spec = ReviewSpecification.buildSpec(request);
         Page<Review> page = reviewRepository.findAll(spec, pageable);
 
+        List<ReviewResponse> items = page.getContent()
+                .stream()
+                .map(this::toReviewResponse)
+                .toList();
+
+        ReviewListResponse contents = ReviewListResponse.builder()
+                .items(items)
+                .build();
+
         log.info("ReviewService::getAllReviews - Execution completed.");
-        return PageResponse.builder()
-                .contents(page.getContent().stream().map(reviewMapper::toDto).toList())
-                .page(request.getPage())
-                .size(request.getSize())
+
+        return PageResponse.<ReviewListResponse>builder()
+                .contents(contents)
+                .page(page.getNumber())
+                .size(page.getSize())
                 .totalPages(page.getTotalPages())
                 .totalElements(page.getTotalElements())
                 .build();
     }
 
+    // ================== CREATE ==================
     @Transactional
     public ReviewResponse createReview(ReviewCreateRequest req) {
         log.info("ReviewService::createReview - Execution started.");
@@ -71,35 +90,38 @@ public class ReviewService {
         Long currentUserId = getCurrentUserId();
 
         Product product = productRepository.findById(req.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCodes.PRODUCT_NOT_FOUND,
                         "Product not found with id: " + req.getProductId()));
 
         Order order = orderRepository.findById(req.getOrderId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND,
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCodes.ORDER_NOT_FOUND,
                         "Order not found with id: " + req.getOrderId()));
 
-        // Validate: order phải thuộc về user hiện tại
         if (!order.getUser().getId().equals(currentUserId)) {
-            throw new AccessDeniedException("Bạn chỉ được đánh giá đơn hàng của mình");
+            throw new AccessDeniedException("Bạn chỉ được đánh giá đơn hàng của chính mình");
         }
 
-        // Validate: order phải đã COMPLETED
-        if (order.getStatus() != com.threadcity.jacketshopbackend.common.Enums.OrderStatus.COMPLETED) {
-            throw new AccessDeniedException("Chỉ được đánh giá sau khi đơn hàng đã hoàn thành");
+        if (order.getStatus() != Enums.OrderStatus.COMPLETED) {
+            throw new AccessDeniedException("Chỉ được đánh giá sau khi đơn hàng hoàn thành");
         }
 
-        // Validate: sản phẩm có trong đơn hàng không
         boolean hasProduct = order.getOrderDetails().stream()
-                .anyMatch(detail -> detail.getProductVariant() != null &&
-                        detail.getProductVariant().getProduct().getId().equals(req.getProductId()));
+                .anyMatch(d ->
+                        d.getProductVariant() != null &&
+                                d.getProductVariant().getProduct().getId().equals(req.getProductId())
+                );
 
         if (!hasProduct) {
-            throw new AccessDeniedException("Sản phẩm này không có trong đơn hàng");
+            throw new AccessDeniedException("Sản phẩm không tồn tại trong đơn hàng");
         }
 
-        // Validate: chưa review cho cùng product + order
-        if (reviewRepository.existsByUserIdAndProductIdAndOrderId(currentUserId, req.getProductId(), req.getOrderId())) {
-            throw new AccessDeniedException("Bạn đã đánh giá sản phẩm này trong đơn hàng rồi");
+        if (reviewRepository.existsByUserIdAndProductIdAndOrderId(
+                currentUserId, req.getProductId(), req.getOrderId())) {
+            throw new ResourceConflictException(
+                    ErrorCodes.REVIEW_ALREADY_EXISTS,
+                    "Bạn đã đánh giá sản phẩm này rồi");
         }
 
         Review review = Review.builder()
@@ -115,23 +137,22 @@ public class ReviewService {
         Review saved = reviewRepository.save(review);
         updateProductRating(product.getId());
 
-        log.info("ReviewService::createReview - Execution completed. [reviewId: {}]", saved.getId());
-        return reviewMapper.toDto(saved);
+        return toReviewResponse(saved);
     }
 
+    // ================== UPDATE ==================
     @Transactional
     public ReviewResponse updateReviewById(ReviewUpdateRequest req, Long id) {
-        log.info("ReviewService::updateReviewById - Execution started. [id: {}]", id);
-
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.REVIEW_NOT_FOUND,
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCodes.REVIEW_NOT_FOUND,
                         "Review not found with id: " + id));
 
         Long currentUserId = getCurrentUserId();
         boolean isAdmin = hasRole("ADMIN");
 
         if (!review.getUser().getId().equals(currentUserId) && !isAdmin) {
-            throw new AccessDeniedException("Bạn không có quyền sửa đánh giá này");
+            throw new AccessDeniedException("Không có quyền chỉnh sửa");
         }
 
         if (req.getRating() != null) review.setRating(req.getRating());
@@ -140,34 +161,54 @@ public class ReviewService {
         Review saved = reviewRepository.save(review);
         updateProductRating(review.getProduct().getId());
 
-        log.info("ReviewService::updateReviewById - Execution completed.");
-        return reviewMapper.toDto(saved);
+        return toReviewResponse(saved);
     }
 
+    // ================== DELETE ==================
     @Transactional
     public void deleteReview(Long id) {
-        log.info("ReviewService::deleteReview - Execution started. [id: {}]", id);
-
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.REVIEW_NOT_FOUND,
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCodes.REVIEW_NOT_FOUND,
                         "Review not found with id: " + id));
 
         Long currentUserId = getCurrentUserId();
         boolean isAdmin = hasRole("ADMIN");
 
         if (!review.getUser().getId().equals(currentUserId) && !isAdmin) {
-            throw new AccessDeniedException("Bạn không có quyền xóa đánh giá này");
+            throw new AccessDeniedException("Không có quyền xóa");
         }
 
         Long productId = review.getProduct().getId();
         reviewRepository.delete(review);
         updateProductRating(productId);
+    }
 
-        log.info("ReviewService::deleteReview - Execution completed.");
+    // ================== HELPER ==================
+    private ReviewResponse toReviewResponse(Review review) {
+        return ReviewResponse.builder()
+                .id(review.getId())
+                .productId(review.getProduct().getId())
+                .productName(review.getProductName())
+                .userId(review.getUser().getId())
+                .userName(review.getUserName())
+                .orderId(review.getOrder() != null ? review.getOrder().getId() : null)
+                .rating(review.getRating())
+                .comment(review.getComment())
+                .createdAt(review.getCreatedAt() != null
+                        ? LocalDateTime.ofInstant(review.getCreatedAt(), ZoneId.systemDefault())
+                        : null)
+                .updatedAt(review.getUpdatedAt() != null
+                        ? LocalDateTime.ofInstant(review.getUpdatedAt(), ZoneId.systemDefault())
+                        : null)
+                .build();
     }
 
     private void updateProductRating(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow();
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCodes.PRODUCT_NOT_FOUND,
+                        "Product not found with id: " + productId));
 
         List<Review> reviews = reviewRepository.findByProductId(productId);
 
@@ -175,26 +216,23 @@ public class ReviewService {
             product.setRatingCount(0);
             product.setRatingAverage(BigDecimal.ZERO);
         } else {
-            double avg = reviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
+            double avg = reviews.stream().mapToInt(Review::getRating).average().orElse(0);
             product.setRatingCount(reviews.size());
-            product.setRatingAverage(BigDecimal.valueOf(avg).setScale(1, RoundingMode.HALF_UP));
+            product.setRatingAverage(
+                    BigDecimal.valueOf(avg).setScale(1, RoundingMode.HALF_UP)
+            );
         }
 
         productRepository.save(product);
     }
 
     private Long getCurrentUserId() {
-        return ((UserDetailsImpl) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal()).getId();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ((UserDetailsImpl) auth.getPrincipal()).getId();
     }
 
-    // =========================
-    // Method bổ sung để fix lỗi compile hasRole
-    // =========================
     private boolean hasRole(String role) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getAuthorities() == null) return false;
-
         return auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch(r -> r.equals(role) || r.equals("ROLE_" + role));
