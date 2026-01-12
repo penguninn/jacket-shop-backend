@@ -144,40 +144,6 @@ public abstract class AbstractOrderService {
     }
 
     /**
-     * Update payment status of an order.
-     */
-    @Transactional
-    public OrderResponse updatePaymentStatus(Long id, UpdatePaymentRequest request) {
-        log.info("AbstractOrderService::updatePaymentStatus - Start [id: {}, status: {}]", id, request.getPaymentStatus());
-
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ORDER_NOT_FOUND, "Order not found"));
-
-        PaymentStatus oldPaymentStatus = order.getPaymentStatus();
-
-        if (request.getPaymentMethodId() != null) {
-            PaymentMethod pm = paymentMethodRepository.findById(request.getPaymentMethodId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.VALIDATION_FAILED, "Payment method not found"));
-            if (pm.getStatus() != Status.ACTIVE) {
-                throw new InvalidRequestException(ErrorCodes.VALIDATION_FAILED, "Payment method is not active");
-            }
-            order.setPaymentMethod(pm);
-            order.setPaymentMethodName(pm.getName());
-        }
-
-        order.setPaymentStatus(request.getPaymentStatus());
-        if (request.getPaymentStatus() == PaymentStatus.PAID) {
-            order.setPaymentDate(Instant.now());
-        }
-
-        Order saved = orderRepository.save(order);
-        saveOrderHistory(saved, order.getStatus(), oldPaymentStatus, "Payment status updated");
-
-        log.info("AbstractOrderService::updatePaymentStatus - Completed");
-        return orderMapper.toDto(saved);
-    }
-
-    /**
      * Update shipping info of an order.
      */
     @Transactional
@@ -336,6 +302,7 @@ public abstract class AbstractOrderService {
 
             // Calculate pricing using PricingService
             PricingService.PriceResult priceResult = pricingService.calculatePrice(variant);
+            BigDecimal lineTotal = priceResult.getFinalPrice().multiply(BigDecimal.valueOf(itemReq.getQuantity()));
 
             OrderDetail detail = OrderDetail.builder()
                     .order(order)
@@ -349,11 +316,10 @@ public abstract class AbstractOrderService {
                     .price(priceResult.getFinalPrice())
                     .originalPrice(priceResult.getOriginalPrice())
                     .discountPercentage(priceResult.getDiscountPercentage())
+                    .subtotal(lineTotal)
                     .quantity(itemReq.getQuantity())
                     .build();
             details.add(detail);
-
-            BigDecimal lineTotal = priceResult.getFinalPrice().multiply(BigDecimal.valueOf(itemReq.getQuantity()));
             subtotal = subtotal.add(lineTotal);
         }
 
@@ -413,6 +379,7 @@ public abstract class AbstractOrderService {
 
         order.setPaymentMethod(paymentMethod);
         order.setPaymentMethodName(paymentMethod.getName());
+        order.setPaymentMethodCode(paymentMethod.getCode());
     }
 
     /**

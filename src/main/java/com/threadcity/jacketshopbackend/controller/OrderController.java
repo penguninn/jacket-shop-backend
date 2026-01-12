@@ -239,22 +239,6 @@ public class OrderController {
 
     // ==================== UPDATE OPERATIONS ====================
 
-    @PutMapping("/{id}/payment")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ApiResponse<OrderResponse> updatePaymentStatus(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdatePaymentRequest request) {
-        log.info("OrderController::updatePaymentStatus - Start [id: {}]", id);
-        OrderResponse response = orderService.updatePaymentStatus(id, request);
-        log.info("OrderController::updatePaymentStatus - Completed");
-        return ApiResponse.<OrderResponse>builder()
-                .code(200)
-                .message("Payment status updated successfully")
-                .data(response)
-                .timestamp(Instant.now())
-                .build();
-    }
-
     @PutMapping("/{id}/shipping")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<OrderResponse> updateShippingInfo(
