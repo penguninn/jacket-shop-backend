@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.common.Enums;
 import com.threadcity.jacketshopbackend.dto.common.request.BulkDeleteRequest;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.promotion.request.SaleCreateRequest;
@@ -15,8 +16,12 @@ import com.threadcity.jacketshopbackend.filter.SaleFilterRequest;
 import com.threadcity.jacketshopbackend.repository.ProductVariantRepository;
 import com.threadcity.jacketshopbackend.repository.SaleRepository;
 import com.threadcity.jacketshopbackend.specification.SaleSpecification;
+
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,8 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -87,8 +94,10 @@ public class SaleService {
         log.info("SaleService::updateSale - Execution started. [id: {}]", id);
 
         Sale sale = saleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND,
-                        "Sale not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCodes.RESOURCE_NOT_FOUND,
+                        "Sale not found with id: " + id
+                ));
 
         sale.setName(request.getName());
         sale.setDescription(request.getDescription());
@@ -96,6 +105,39 @@ public class SaleService {
         sale.setEndDate(request.getEndDate());
         sale.setStatus(request.getStatus());
         sale.setDiscountPercentage(request.getDiscountPercentage());
+
+        if (request.getProductVariantIds() != null) {
+
+            sale.getSaleVariants().clear();
+
+            saleRepository.saveAndFlush(sale);
+
+            List<ProductVariant> variants = productVariantRepository.findAllById(request.getProductVariantIds());
+
+            if (variants.size() != request.getProductVariantIds().size()) {
+                throw new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "One or more product variants not found");
+            }
+
+            for (Long variantId : request.getProductVariantIds()) {
+                ProductVariant variant = variants.stream()
+                        .filter(v -> v.getId().equals(variantId))
+                        .findFirst()
+                        .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, "Variant not found: " + variantId));
+
+                SaleVariantId svId = SaleVariantId.builder()
+                        .saleId(sale.getId())
+                        .productVariantId(variant.getId())
+                        .build();
+
+                SaleVariant saleVariant = SaleVariant.builder()
+                        .id(svId)
+                        .sale(sale)
+                        .productVariant(variant)
+                        .build();
+
+                sale.getSaleVariants().add(saleVariant);
+            }
+        }
 
         Sale savedSale = saleRepository.save(sale);
         log.info("SaleService::updateSale - Execution completed.");
@@ -170,16 +212,16 @@ public class SaleService {
 
     private SaleResponse mapToDto(Sale sale) {
         List<SaleResponse.SaleVariantDetail> variantDetails = new ArrayList<>();
+        boolean saleActive = isSaleActive(sale);
         if (sale.getSaleVariants() != null) {
             for (SaleVariant saleVariant : sale.getSaleVariants()) {
                 ProductVariant variant = saleVariant.getProductVariant();
                 BigDecimal salePrice = null;
-                if (sale.getDiscountPercentage() != null && variant.getPrice() != null) {
-                    BigDecimal discountFactor = sale.getDiscountPercentage().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-                    BigDecimal discountAmount = variant.getPrice().multiply(discountFactor);
-                    salePrice = variant.getPrice().subtract(discountAmount);
-                }
-
+                if (saleActive && sale.getDiscountPercentage() != null && variant.getPrice() != null) {
+                BigDecimal discountFactor = sale.getDiscountPercentage().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                BigDecimal discountAmount = variant.getPrice().multiply(discountFactor);
+                salePrice = variant.getPrice().subtract(discountAmount);
+            }
                 variantDetails.add(SaleResponse.SaleVariantDetail.builder()
                         .variantId(variant.getId())
                         .productName(variant.getProduct() != null ? variant.getProduct().getName() : null)
@@ -203,5 +245,22 @@ public class SaleService {
                 .createdAt(sale.getCreatedAt())
                 .updatedAt(sale.getUpdatedAt())
                 .build();
+    }
+    private boolean isSaleActive(Sale sale) {
+        if (sale.getStatus() != Enums.Status.ACTIVE) {
+            return false;
+        }
+
+        Instant now = Instant.now();
+
+        if (sale.getStartDate() != null && now.isBefore(sale.getStartDate())) {
+            return false;
+        }
+
+        if (sale.getEndDate() != null && now.isAfter(sale.getEndDate())) {
+            return false;
+        }
+
+        return true;
     }
 }

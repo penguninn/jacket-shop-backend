@@ -28,6 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -85,7 +86,21 @@ public class ProductVariantService {
 
         List<ProductVariantResponse> productVariantResponse = productVariantRepository.findAllByProductId(productId)
                 .stream().map(productVariantMapper::toDto).toList();
+        Instant now = Instant.now(); // nhớ import java.time.Instant
 
+        for (ProductVariantResponse variant : productVariantResponse) {
+
+            Sale sale = productVariantRepository.findSaleByVariantId(variant.getId());
+
+            if (sale == null
+                    || sale.getStatus() != Status.ACTIVE
+                    || now.isBefore(sale.getStartDate())
+                    || now.isAfter(sale.getEndDate())) {
+
+                variant.setSalePrice(null);          
+                variant.setDiscountPercentage(null);
+            }
+        }
         log.info("ProductVariantService::getAllProductVariantsByProductId - Execution completed.");
 
         return productVariantResponse;

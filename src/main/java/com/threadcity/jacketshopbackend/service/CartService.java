@@ -209,10 +209,13 @@ public class CartService {
             itemResponse.setOriginalPrice(priceResult.getOriginalPrice());
             itemResponse.setDiscountPercentage(priceResult.getDiscountPercentage());
             itemResponse.setSubtotal(priceResult.getFinalPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
-
+            
+            if (itemResponse.getProductVariant() != null) {
+            itemResponse.getProductVariant().setSalePrice(null);
+            itemResponse.getProductVariant().setDiscountPercentage(BigDecimal.ZERO);
+            }
+            
             enrichedItems.add(itemResponse);
-
-            // Calculate totals
             totalItems += cartItem.getQuantity();
             totalPrice = totalPrice.add(itemResponse.getSubtotal());
 
