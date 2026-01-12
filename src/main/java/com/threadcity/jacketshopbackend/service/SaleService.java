@@ -94,6 +94,7 @@ public class SaleService {
         sale.setDescription(request.getDescription());
         sale.setStartDate(request.getStartDate());
         sale.setEndDate(request.getEndDate());
+        sale.setStatus(request.getStatus());
         sale.setDiscountPercentage(request.getDiscountPercentage());
 
         Sale savedSale = saleRepository.save(sale);
@@ -198,6 +199,9 @@ public class SaleService {
                 .endDate(sale.getEndDate())
                 .discountPercentage(sale.getDiscountPercentage())
                 .variants(variantDetails)
+                .status(sale.getStatus())
+                .createdAt(sale.getCreatedAt())
+                .updatedAt(sale.getUpdatedAt())
                 .build();
     }
 }
