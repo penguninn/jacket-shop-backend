@@ -89,19 +89,6 @@ public class PosOrderService extends AbstractOrderService {
         User staff = userRepository.getReferenceById(staffId);
         order.setStaff(staff);
 
-        // Set customer info
-        if (request.getUserId() != null) {
-            User customer = userRepository.findById(request.getUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "Customer not found"));
-            order.setUser(customer);
-            order.setCustomerName(request.getCustomerName() != null ? request.getCustomerName() : customer.getFullName());
-            order.setCustomerPhone(request.getCustomerPhone() != null ? request.getCustomerPhone() : customer.getPhone());
-            order.setCustomerEmail(customer.getEmail());
-        } else {
-            order.setCustomerName(request.getCustomerName());
-            order.setCustomerPhone(request.getCustomerPhone());
-        }
-
         // Handle shipping
         handleShippingInfo(order, request);
 
@@ -396,14 +383,9 @@ public class PosOrderService extends AbstractOrderService {
                         .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "Customer not found"));
                 order.setUser(customer);
                 order.setCustomerEmail(customer.getEmail());
+                order.setCustomerName(customer.getFullName());
+                order.setCustomerPhone(customer.getPhone());
             }
-        }
-
-        if (request.getCustomerName() != null) {
-            order.setCustomerName(request.getCustomerName());
-        }
-        if (request.getCustomerPhone() != null) {
-            order.setCustomerPhone(request.getCustomerPhone());
         }
 
         Order saved = orderRepository.save(order);

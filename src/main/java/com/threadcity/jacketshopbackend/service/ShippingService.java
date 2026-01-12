@@ -1,5 +1,6 @@
 package com.threadcity.jacketshopbackend.service;
 
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.integration.goship.GoshipResponse;
 import com.threadcity.jacketshopbackend.dto.integration.goship.rate.GoshipRateData;
 import com.threadcity.jacketshopbackend.dto.integration.goship.rate.GoshipRateRequest;
@@ -35,7 +36,7 @@ public class ShippingService {
                 .build();
     }
 
-    public List<GoshipRateData> getRates(GoshipRateRequest request) {
+    public PageResponse<?> getRates(GoshipRateRequest request) {
         log.info("Fetching shipping rates from Goship");
         try {
             GoshipResponse<GoshipRateData> response = getRestClient().post()
@@ -46,7 +47,13 @@ public class ShippingService {
                     .body(new ParameterizedTypeReference<>() {});
 
             if (response != null && "success".equalsIgnoreCase(response.getStatus())) {
-                return response.getData();
+                return PageResponse.builder()
+                        .page(0)
+                        .size(response.getData().size())
+                        .totalElements(response.getData().size())
+                        .totalPages(1)
+                        .contents(response.getData())
+                        .build();
             } else {
                 log.error("Goship returned error or empty response: {}", response);
                 throw new ExternalServiceException("Goship", ErrorCodes.GOSHIP_API_ERROR, "Failed to fetch rates from Goship", null);

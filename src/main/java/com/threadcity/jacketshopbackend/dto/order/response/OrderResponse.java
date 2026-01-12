@@ -57,6 +57,8 @@ public class OrderResponse implements Serializable {
 
     private String paymentMethodName;
 
+    private String paymentMethodCode;
+
     private PaymentStatus paymentStatus;
 
     private String carrierName;

@@ -143,11 +143,6 @@ public class OrderService {
     // ==================== UPDATE OPERATIONS ====================
 
     @Transactional
-    public OrderResponse updatePaymentStatus(Long id, UpdatePaymentRequest request) {
-        return onlineOrderService.updatePaymentStatus(id, request);
-    }
-
-    @Transactional
     public OrderResponse updateShippingInfo(Long id, ShippingInfoRequest request) {
         return onlineOrderService.updateShippingInfo(id, request);
     }
