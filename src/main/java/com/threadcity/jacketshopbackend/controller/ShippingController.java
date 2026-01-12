@@ -1,6 +1,7 @@
 package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
+import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.integration.goship.rate.GoshipRateData;
 import com.threadcity.jacketshopbackend.dto.integration.goship.rate.GoshipRateRequest;
 import com.threadcity.jacketshopbackend.service.ShippingService;
@@ -24,11 +25,11 @@ public class ShippingController {
     private final ShippingService shippingService;
 
     @PostMapping("/rates")
-    public ApiResponse<List<GoshipRateData>> getRates(@Valid @RequestBody GoshipRateRequest request) {
+    public ApiResponse<PageResponse<?>> getRates(@Valid @RequestBody GoshipRateRequest request) {
         log.info("ShippingController::getRates - Execution started.");
-        List<GoshipRateData> rates = shippingService.getRates(request);
+        PageResponse<?> rates = shippingService.getRates(request);
         log.info("ShippingController::getRates - Execution completed.");
-        return ApiResponse.<List<GoshipRateData>>builder()
+        return ApiResponse.<PageResponse<?>>builder()
                 .code(200)
                 .message("Shipping rates fetched successfully.")
                 .data(rates)
