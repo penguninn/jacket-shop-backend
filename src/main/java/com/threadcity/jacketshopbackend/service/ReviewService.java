@@ -5,7 +5,6 @@ import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.review.request.ReviewCreateRequest;
 import com.threadcity.jacketshopbackend.dto.review.request.ReviewFilterRequest;
 import com.threadcity.jacketshopbackend.dto.review.request.ReviewUpdateRequest;
-import com.threadcity.jacketshopbackend.dto.review.response.ReviewListResponse;
 import com.threadcity.jacketshopbackend.dto.review.response.ReviewResponse;
 import com.threadcity.jacketshopbackend.entity.Order;
 import com.threadcity.jacketshopbackend.entity.Product;
@@ -45,8 +44,8 @@ public class ReviewService {
     private final OrderRepository orderRepository;
 
     // ================== GET ALL ==================
-    public PageResponse<ReviewListResponse> getAllReviews(ReviewFilterRequest request) {
-        log.info("ReviewService::getAllReviews - Execution started.");
+ public PageResponse<List<ReviewResponse>> getAllReviews(ReviewFilterRequest request)
+    {
 
         Sort sort = Sort.by(
                 Sort.Direction.fromString(request.getSortDir()),
@@ -62,18 +61,12 @@ public class ReviewService {
         Specification<Review> spec = ReviewSpecification.buildSpec(request);
         Page<Review> page = reviewRepository.findAll(spec, pageable);
 
-        List<ReviewResponse> items = page.getContent()
+        List<ReviewResponse> contents = page.getContent()
                 .stream()
                 .map(this::toReviewResponse)
                 .toList();
 
-        ReviewListResponse contents = ReviewListResponse.builder()
-                .items(items)
-                .build();
-
-        log.info("ReviewService::getAllReviews - Execution completed.");
-
-        return PageResponse.<ReviewListResponse>builder()
+        return PageResponse.<List<ReviewResponse>>builder()
                 .contents(contents)
                 .page(page.getNumber())
                 .size(page.getSize())
@@ -82,10 +75,10 @@ public class ReviewService {
                 .build();
     }
 
+
     // ================== CREATE ==================
     @Transactional
     public ReviewResponse createReview(ReviewCreateRequest req) {
-        log.info("ReviewService::createReview - Execution started.");
 
         Long currentUserId = getCurrentUserId();
 
@@ -143,6 +136,7 @@ public class ReviewService {
     // ================== UPDATE ==================
     @Transactional
     public ReviewResponse updateReviewById(ReviewUpdateRequest req, Long id) {
+
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ErrorCodes.REVIEW_NOT_FOUND,
@@ -167,6 +161,7 @@ public class ReviewService {
     // ================== DELETE ==================
     @Transactional
     public void deleteReview(Long id) {
+
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ErrorCodes.REVIEW_NOT_FOUND,
@@ -184,7 +179,7 @@ public class ReviewService {
         updateProductRating(productId);
     }
 
-    // ================== HELPER ==================
+    // ================== MAPPER ==================
     private ReviewResponse toReviewResponse(Review review) {
         return ReviewResponse.builder()
                 .id(review.getId())
