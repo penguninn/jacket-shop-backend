@@ -4,7 +4,8 @@ import com.threadcity.jacketshopbackend.dto.cart.response.CartItemResponse;
 import com.threadcity.jacketshopbackend.dto.cart.response.CartResponse;
 import com.threadcity.jacketshopbackend.entity.Cart;
 import com.threadcity.jacketshopbackend.entity.CartItem;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {ProductVariantMapper.class})
 public interface CartMapper {

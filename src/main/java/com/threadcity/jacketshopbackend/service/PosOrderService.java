@@ -23,18 +23,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
 
-/**
- * Service for POS (Point of Sale) Orders.
- *
- * Flow: Create Draft -> Add/Update/Remove Items -> Complete
- *
- * Stock Management (prevent overselling):
- * - ADD ITEM: reserveStock (available--, reserved++)
- * - UPDATE QTY: adjustReservedStock (diff +/-)
- * - REMOVE ITEM: releaseReservedStock (available++, reserved--)
- * - COMPLETE: commitReservedStock (reserved--)
- * - CANCEL/TIMEOUT: releaseReservedStock (available++, reserved--)
- */
 @Service
 @Slf4j
 public class PosOrderService extends AbstractOrderService {
@@ -59,17 +47,10 @@ public class PosOrderService extends AbstractOrderService {
                 cartService, orderMapper);
     }
 
-    // ==================== DRAFT MANAGEMENT ====================
-
-    /**
-     * Create POS draft order.
-     * Items can be added later via addItemToDraft().
-     */
     @Transactional
-    public OrderResponse createPosDraft(OrderRequest request) {
+    public OrderResponse createPosDraft() {
         log.info("PosOrderService::createPosDraft - Start");
 
-        // Check draft limit
         long pendingCount = orderRepository.countByOrderTypeAndStatus(OrderType.POS_INSTORE, OrderStatus.PENDING);
         if (pendingCount >= MAX_PENDING_DRAFTS) {
             throw new InvalidRequestException(ErrorCodes.VALIDATION_FAILED,
@@ -79,34 +60,38 @@ public class PosOrderService extends AbstractOrderService {
         // Build order
         Order order = new Order();
         order.setOrderCode(generateOrderCode());
-        order.setOrderType(request.getOrderType() != null ? request.getOrderType() : OrderType.POS_INSTORE);
+        order.setOrderType(OrderType.POS_INSTORE);
         order.setStatus(OrderStatus.PENDING);
         order.setPaymentStatus(PaymentStatus.UNPAID);
-        order.setNote(request.getNote());
 
         // Set staff
         Long staffId = getUserId();
         User staff = userRepository.getReferenceById(staffId);
         order.setStaff(staff);
+        order.setStaffName(staff.getFullName());
 
-        // Handle shipping
-        handleShippingInfo(order, request);
+        // Set customer default
+        User customerDefault = userRepository.findByUsername("guest")
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCodes.USER_NOT_FOUND,
+                        "Customer default not found")
+                );
+        order.setUser(customerDefault);
+        order.setCustomerName(customerDefault.getFullName());
+        order.setCustomerPhone(customerDefault.getPhone());
+
+        // Set payment method default
+        PaymentMethod paymentMethodDefault = paymentMethodRepository.findByCode("QR_INSTORE")
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PAYMENT_METHOD_NOT_FOUND, "Payment method not found"));
+        order.setPaymentMethod(paymentMethodDefault);
+        order.setPaymentMethodCode(paymentMethodDefault.getCode());
+        order.setPaymentMethodName(paymentMethodDefault.getName());
 
         // Initialize financials
+        order.setShippingFee(BigDecimal.ZERO);
         order.setSubtotal(BigDecimal.ZERO);
         order.setDiscount(BigDecimal.ZERO);
         order.setTotal(BigDecimal.ZERO);
-
-        // Process initial items if provided
-        if (request.getItems() != null && !request.getItems().isEmpty()) {
-            processOrderItems(order, request.getItems(), true);
-            calculateFinancials(order, request.getCouponCode());
-        }
-
-        // Set payment method
-        if (request.getPaymentMethodId() != null) {
-            configurePaymentMethod(order, request.getPaymentMethodId());
-        }
 
         Order saved = orderRepository.save(order);
         saveOrderHistory(saved, null, null, "POS draft created");
@@ -147,6 +132,12 @@ public class PosOrderService extends AbstractOrderService {
         order.setPaymentStatus(PaymentStatus.PAID);
         order.setPaymentDate(Instant.now());
         order.setCompletedAt(Instant.now());
+
+        // Set staff
+        Long staffId = getUserId();
+        User staff = userRepository.getReferenceById(staffId);
+        order.setStaff(staff);
+        order.setStaffName(staff.getFullName());
 
         Order saved = orderRepository.save(order);
         saveOrderHistory(saved, oldStatus, oldPaymentStatus, "POS order completed");
@@ -240,6 +231,7 @@ public class PosOrderService extends AbstractOrderService {
                     .originalPrice(priceResult.getOriginalPrice())
                     .discountPercentage(priceResult.getDiscountPercentage())
                     .quantity(itemRequest.getQuantity())
+                    .subtotal(variant.getPrice().multiply(new BigDecimal(itemRequest.getQuantity())))
                     .build();
             order.getOrderDetails().add(newDetail);
             log.info("PosOrderService::addItemToDraft - New item added with quantity {}", itemRequest.getQuantity());
@@ -333,17 +325,6 @@ public class PosOrderService extends AbstractOrderService {
         order.getOrderDetails().remove(item);
         log.info("PosOrderService::removeItemFromDraft - Item removed");
 
-        // Check if draft is now empty
-        if (order.getOrderDetails().isEmpty()) {
-            order.setStatus(OrderStatus.CANCELLED);
-            order.setCancelledAt(Instant.now());
-            orderRepository.save(order);
-            saveOrderHistory(order, OrderStatus.PENDING, order.getPaymentStatus(),
-                    "Draft auto-cancelled: all items removed");
-            throw new InvalidRequestException(ErrorCodes.VALIDATION_FAILED,
-                    "Draft cancelled: no items remaining");
-        }
-
         recalculateDraftFinancials(order);
 
         Order saved = orderRepository.save(order);
@@ -372,14 +353,13 @@ public class PosOrderService extends AbstractOrderService {
      * Update draft customer info.
      */
     @Transactional
-    public OrderResponse updatePosDraftCustomer(Long id, OrderRequest request) {
-        log.info("PosOrderService::updatePosDraftCustomer - Start [id: {}]", id);
+    public OrderResponse updatePosDraftCustomer(Long draftId, Long customerId) {
+        log.info("PosOrderService::updatePosDraftCustomer - Start [id: {}]", draftId);
 
-        Order order = getDraftOrder(id);
-
-        if (request.getUserId() != null) {
-            if (order.getUser() == null || !request.getUserId().equals(order.getUser().getId())) {
-                User customer = userRepository.findById(request.getUserId())
+        Order order = getDraftOrder(draftId);
+        if (customerId != null) {
+            if (order.getUser() == null || !customerId.equals(order.getUser().getId())) {
+                User customer = userRepository.findById(customerId)
                         .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND, "Customer not found"));
                 order.setUser(customer);
                 order.setCustomerEmail(customer.getEmail());
@@ -390,46 +370,6 @@ public class PosOrderService extends AbstractOrderService {
 
         Order saved = orderRepository.save(order);
         log.info("PosOrderService::updatePosDraftCustomer - Success");
-        return orderMapper.toDto(saved);
-    }
-
-    /**
-     * Update draft shipping info.
-     */
-    @Transactional
-    public OrderResponse updatePosDraftShipping(Long id, OrderRequest request) {
-        log.info("PosOrderService::updatePosDraftShipping - Start [id: {}]", id);
-
-        Order order = getDraftOrder(id);
-
-        if (request.getOrderType() != null) {
-            order.setOrderType(request.getOrderType());
-        }
-
-        if (order.getOrderType() == OrderType.POS_INSTORE) {
-            // Clear shipping info for instore
-            order.setShippingFee(BigDecimal.ZERO);
-            order.setShippingAddressLine(null);
-            order.setShippingProvinceCode(null);
-            order.setShippingDistrictCode(null);
-            order.setShippingWardCode(null);
-            order.setShippingProvinceName(null);
-            order.setShippingDistrictName(null);
-            order.setShippingWardName(null);
-            order.setShippingRecipientName(null);
-            order.setShippingRecipientPhone(null);
-            order.setCarrierName(null);
-            order.setCarrierServiceName(null);
-            order.setCarrierRateId(null);
-            order.setDeliveryTimeEstimate(null);
-        } else {
-            handleShippingInfo(order, request);
-        }
-
-        recalculateDraftFinancials(order);
-
-        Order saved = orderRepository.save(order);
-        log.info("PosOrderService::updatePosDraftShipping - Success");
         return orderMapper.toDto(saved);
     }
 
@@ -496,24 +436,16 @@ public class PosOrderService extends AbstractOrderService {
         // 2. Validate and calculate coupon discount
         BigDecimal discount = BigDecimal.ZERO;
         if (order.getCouponCode() != null && !order.getCouponCode().isBlank()) {
-            try {
-                Coupon coupon = couponService.findAndValidate(order.getCouponCode(), subtotal);
-                if (coupon != null) {
-                    discount = couponService.calculateDiscount(coupon, subtotal);
-                    order.setCoupon(coupon);
-                }
-            } catch (Exception e) {
-                // Coupon no longer valid -> remove it
-                log.warn("PosOrderService::recalculateDraftFinancials - Coupon invalid, removing: {}", e.getMessage());
-                order.setCouponCode(null);
-                order.setCoupon(null);
+            Coupon coupon = couponService.findAndValidate(order.getCouponCode(), subtotal);
+            if (coupon != null) {
+                discount = coupon.getValue();
+                order.setCoupon(coupon);
             }
         }
         order.setDiscount(discount);
 
         // 3. Recalculate total
         recalculateTotal(order);
-
         log.debug("PosOrderService::recalculateDraftFinancials - Subtotal: {}, Discount: {}, Total: {}",
                 subtotal, discount, order.getTotal());
     }

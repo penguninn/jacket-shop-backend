@@ -48,13 +48,6 @@ public class AuthService {
         @Transactional
         public LoginResponse login(LoginRequest request) {
                 log.info("AuthService::login execution started");
-                // We fetch the user first to build the response later,
-                // but we don't want to reveal if the user exists or not if auth fails.
-                // However, standard flow often typically separates these.
-                // For security, if not found, we effectively will fail at authenticationManager
-                // step usually.
-                // But here we rely on this user object.
-                // We will throw same exception as BadCredentials to mask it.
                 User user = userRepository.findByUsername(request.getUsername())
                                 .orElseThrow(() -> new AuthenticationFailedException(
                                                 ErrorCodes.AUTH_INVALID_CREDENTIALS,
@@ -110,13 +103,7 @@ public class AuthService {
                                 .status(Status.ACTIVE)
                                 .build();
                 user.getRoles().add(role);
-                user = userRepository.save(user);
-
-                // Ensure user is loaded in cache or context if needed, though mostly used for
-                // session/token which we don't generate here?
-                // The original code called loadUserByUsername, but didn't use the result.
-                // userDetailsService.loadUserByUsername(user.getUsername());
-
+                userRepository.save(user);
                 log.info("AuthService::register execution ended");
         }
 
