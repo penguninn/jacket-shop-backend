@@ -57,20 +57,6 @@ public class OnlineOrderService extends AbstractOrderService {
     }
 
     // ==================== CREATE ORDER ====================
-
-    /**
-     * Create new online order.
-     *
-     * Steps:
-     * 1. Build order entity with customer info
-     * 2. Handle shipping info from address or manual fields
-     * 3. Process items (validate, reserve stock, calculate pricing)
-     * 4. Calculate financials (coupon discount, total)
-     * 5. Configure payment method
-     * 6. Save order and history
-     * 7. Increment coupon usage
-     * 8. Clear user's cart
-     */
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
         log.info("OnlineOrderService::createOrder - Start");

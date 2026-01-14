@@ -53,6 +53,10 @@ public class Order extends BaseEntity {
     private User staff;
 
     @Size(max = 120)
+    @Column(name = "staff_name", length = 120)
+    private String staffName;
+
+    @Size(max = 120)
     @NotNull
     @Nationalized
     @Column(name = "customer_name", nullable = false, length = 120)
@@ -229,6 +233,7 @@ public class Order extends BaseEntity {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @OrderBy("createdAt ASC")
     private Set<OrderDetail> orderDetails = new LinkedHashSet<>();
 
 }
