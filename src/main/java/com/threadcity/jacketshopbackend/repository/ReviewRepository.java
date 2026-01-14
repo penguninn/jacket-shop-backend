@@ -1,34 +1,19 @@
 package com.threadcity.jacketshopbackend.repository;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import com.threadcity.jacketshopbackend.entity.Review;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface ReviewRepository extends JpaRepository<Review, Long> {
+public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecificationExecutor<Review> {
 
-    Page<Review> findByProductId(Long productId, Pageable pageable);
+    List<Review> findByProductId(Long productId);
 
-    List<Review> findByUserId(Long userId);
+    Optional<Review> findByUserIdAndProductIdAndOrderId(Long userId, Long productId, Long orderId);
 
-    // 🔍 Search + Filter cho Admin
-    @Query("""
-        SELECT r FROM Review r
-        WHERE (:keyword IS NULL 
-               OR LOWER(r.productName) LIKE LOWER(CONCAT('%', :keyword, '%'))
-               OR LOWER(r.userName) LIKE LOWER(CONCAT('%', :keyword, '%')))
-          AND (:rating IS NULL OR r.rating = :rating)
-    """)
-    Page<Review> searchReviews(
-            @Param("keyword") String keyword,
-            @Param("rating") Integer rating,
-            Pageable pageable
-    );
+    boolean existsByUserIdAndProductIdAndOrderId(Long userId, Long productId, Long orderId);
 }
-
