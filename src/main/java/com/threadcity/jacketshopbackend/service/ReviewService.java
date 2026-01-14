@@ -93,11 +93,11 @@ public class ReviewService {
                         "Order not found with id: " + req.getOrderId()));
 
         if (!order.getUser().getId().equals(currentUserId)) {
-            throw new AccessDeniedException("Bạn chỉ được đánh giá đơn hàng của chính mình");
+            throw new AccessDeniedException("You can only rate your own orders.");
         }
 
         if (order.getStatus() != Enums.OrderStatus.COMPLETED) {
-            throw new AccessDeniedException("Chỉ được đánh giá sau khi đơn hàng hoàn thành");
+            throw new AccessDeniedException("Reviews can only be given after the order is completed.");
         }
 
         boolean hasProduct = order.getOrderDetails().stream()
@@ -107,14 +107,14 @@ public class ReviewService {
                 );
 
         if (!hasProduct) {
-            throw new AccessDeniedException("Sản phẩm không tồn tại trong đơn hàng");
+            throw new AccessDeniedException("The product does not exist in the order.");
         }
 
         if (reviewRepository.existsByUserIdAndProductIdAndOrderId(
                 currentUserId, req.getProductId(), req.getOrderId())) {
             throw new ResourceConflictException(
                     ErrorCodes.REVIEW_ALREADY_EXISTS,
-                    "Bạn đã đánh giá sản phẩm này rồi");
+                    "You have already reviewed this product.");
         }
 
         Review review = Review.builder()
@@ -146,7 +146,7 @@ public class ReviewService {
         boolean isAdmin = hasRole("ADMIN");
 
         if (!review.getUser().getId().equals(currentUserId) && !isAdmin) {
-            throw new AccessDeniedException("Không có quyền chỉnh sửa");
+            throw new AccessDeniedException("No editing rights");
         }
 
         if (req.getRating() != null) review.setRating(req.getRating());
@@ -171,7 +171,7 @@ public class ReviewService {
         boolean isAdmin = hasRole("ADMIN");
 
         if (!review.getUser().getId().equals(currentUserId) && !isAdmin) {
-            throw new AccessDeniedException("Không có quyền xóa");
+            throw new AccessDeniedException("No deletion rights");
         }
 
         Long productId = review.getProduct().getId();
