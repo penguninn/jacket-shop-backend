@@ -16,16 +16,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Optional<Product> findByName(String name);
 
     boolean existsByName(String name);
-
-    @Modifying
-    @Query("""
-                UPDATE Product p
-                SET p.soldCount = p.soldCount + :quantity
-                WHERE p.id = :productId
-            """)
-
-    void increaseSoldCount(
-            @Param("productId") Long productId,
-            @Param("quantity") int quantity);
-
+       
 }

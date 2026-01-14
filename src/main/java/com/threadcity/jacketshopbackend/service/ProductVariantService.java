@@ -86,21 +86,25 @@ public class ProductVariantService {
 
         List<ProductVariantResponse> productVariantResponse = productVariantRepository.findAllByProductId(productId)
                 .stream().map(productVariantMapper::toDto).toList();
-        Instant now = Instant.now(); // nhớ import java.time.Instant
+        Instant now = Instant.now();
 
         for (ProductVariantResponse variant : productVariantResponse) {
+        List<Sale> sales = productVariantRepository.findSalesByVariantId(variant.getId());
 
-            Sale sale = productVariantRepository.findSaleByVariantId(variant.getId());
+        Sale activeSale = sales.stream()
+            .filter(s -> s.getStatus() == Status.ACTIVE)
+            .filter(s -> !now.isBefore(s.getStartDate()))
+            .filter(s -> !now.isAfter(s.getEndDate()))
+            .findFirst()
+            .orElse(null);
 
-            if (sale == null
-                    || sale.getStatus() != Status.ACTIVE
-                    || now.isBefore(sale.getStartDate())
-                    || now.isAfter(sale.getEndDate())) {
-
-                variant.setSalePrice(null);          
-                variant.setDiscountPercentage(null);
-            }
+        if (activeSale == null) {
+            variant.setSalePrice(null);
+            variant.setDiscountPercentage(null);
+        } else {
+            // nếu cần, set lại salePrice / discount theo activeSale
         }
+    }
         log.info("ProductVariantService::getAllProductVariantsByProductId - Execution completed.");
 
         return productVariantResponse;
@@ -252,7 +256,6 @@ public class ProductVariantService {
         log.info("ProductVariantService::commitReservedStock - Execution started. [details: {}]", details.size());
         for (OrderDetail detail : details) {
             productVariantRepository.commitReservedStock(detail.getProductVariant().getId(), detail.getQuantity());
-            productRepository.increaseSoldCount(detail.getProductVariant().getProduct().getId(), detail.getQuantity());
         }
         log.info("ProductVariantService::commitReservedStock - Execution completed.");
     }

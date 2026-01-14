@@ -217,6 +217,7 @@ public class ProductService {
     @Transactional
     public void syncProductData(Long productId) {
         log.info("ProductService::syncProductData - Execution started. [productId: {}]", productId);
+        
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_NOT_FOUND,
                         "Product not found with id: " + productId));
@@ -243,7 +244,12 @@ public class ProductService {
             product.setMaxPrice(maxPrice);
         }
 
+        long totalSold = productVariantRepository.sumSoldByProductId(productId);
+
+        product.setSoldCount(totalSold);
+
         productRepository.save(product);
-        log.info("ProductService::syncProductData - Execution completed. [productId: {}]", productId);
+        
+        log.info("ProductService::syncProductData - Completed. Updated Price and SoldCount: {}", totalSold);
     }
 }
