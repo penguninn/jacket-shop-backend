@@ -10,6 +10,8 @@ import com.threadcity.jacketshopbackend.repository.RoleRepository;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
 import com.threadcity.jacketshopbackend.service.LocationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +32,8 @@ public class DataSyncConfig {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PaymentMethodRepository paymentMethodRepository;
+
+    @Lazy
     private final PasswordEncoder passwordEncoder;
 
     @EventListener(ApplicationReadyEvent.class)

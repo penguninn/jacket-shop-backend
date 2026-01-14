@@ -106,4 +106,12 @@ public final class ErrorCodes {
 
     private ErrorCodes() {
     }
+
+    // Review Domain
+    public static final String REVIEW_NOT_FOUND = "REVIEW_NOT_FOUND";
+    public static final String REVIEW_FORBIDDEN = "REVIEW_FORBIDDEN";
+    public static final String REVIEW_ALREADY_EXISTS = "REVIEW_ALREADY_EXISTS";
+    public static final String REVIEW_INVALID_ORDER = "REVIEW_INVALID_ORDER";
+    public static final String REVIEW_ORDER_NOT_COMPLETED = "REVIEW_ORDER_NOT_COMPLETED";
+    public static final String REVIEW_PRODUCT_NOT_IN_ORDER = "REVIEW_PRODUCT_NOT_IN_ORDER";
 }

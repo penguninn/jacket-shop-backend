@@ -34,5 +34,5 @@ public class ProductResponse implements Serializable {
     private Enums.Status status;
     private Instant createdAt;
     private Instant updatedAt;
-    private List<Review> reviews;
+//    private List<Review> reviews;
 }
