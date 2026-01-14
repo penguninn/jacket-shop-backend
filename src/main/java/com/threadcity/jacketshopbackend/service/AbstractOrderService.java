@@ -104,6 +104,7 @@ public abstract class AbstractOrderService {
         OrderFilterRequest filterRequest = new OrderFilterRequest();
         filterRequest.setUserId(userId);
         filterRequest.setStatus(status);
+        filterRequest.setOrderType(OrderType.ONLINE);
         filterRequest.setSortBy("createdAt");
         filterRequest.setSortDir("desc");
         filterRequest.setSize(100);

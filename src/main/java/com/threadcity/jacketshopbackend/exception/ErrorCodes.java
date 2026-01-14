@@ -41,6 +41,10 @@ public final class ErrorCodes {
     public static final String AUTH_TOKEN_INVALID = "AUTH_TOKEN_INVALID";
     public static final String AUTH_REFRESH_TOKEN_INVALID = "AUTH_REFRESH_TOKEN_INVALID";
     public static final String AUTH_BAD_CREDENTIALS = "AUTH_BAD_CREDENTIALS";
+    public static final String AUTH_RESET_TOKEN_INVALID = "AUTH_RESET_TOKEN_INVALID";
+    public static final String AUTH_RESET_TOKEN_EXPIRED = "AUTH_RESET_TOKEN_EXPIRED";
+    public static final String AUTH_RESET_TOKEN_USED = "AUTH_RESET_TOKEN_USED";
+    public static final String AUTH_EMAIL_SEND_FAILED = "AUTH_EMAIL_SEND_FAILED";
 
     // Role Domain
     public static final String ROLE_NOT_FOUND = "ROLE_NOT_FOUND";

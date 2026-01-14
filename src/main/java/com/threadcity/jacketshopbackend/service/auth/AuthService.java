@@ -4,6 +4,7 @@ import com.threadcity.jacketshopbackend.common.Enums.Status;
 import com.threadcity.jacketshopbackend.dto.auth.request.ForgotPasswordRequest;
 import com.threadcity.jacketshopbackend.dto.auth.request.LoginRequest;
 import com.threadcity.jacketshopbackend.dto.auth.request.RegisterRequest;
+import com.threadcity.jacketshopbackend.dto.auth.request.ResetPasswordRequest;
 import com.threadcity.jacketshopbackend.dto.auth.request.UpdatePasswordRequest;
 import com.threadcity.jacketshopbackend.dto.auth.response.LoginResponse;
 import com.threadcity.jacketshopbackend.dto.auth.response.TokenResponse;
@@ -15,10 +16,12 @@ import com.threadcity.jacketshopbackend.exception.AuthenticationFailedException;
 import com.threadcity.jacketshopbackend.exception.ErrorCodes;
 import com.threadcity.jacketshopbackend.exception.ResourceConflictException;
 import com.threadcity.jacketshopbackend.exception.ResourceNotFoundException;
+import com.threadcity.jacketshopbackend.exception.InvalidRequestException;
 import com.threadcity.jacketshopbackend.mapper.RoleMapper;
 import com.threadcity.jacketshopbackend.repository.PasswordResetTokenRepository;
 import com.threadcity.jacketshopbackend.repository.RoleRepository;
 import com.threadcity.jacketshopbackend.repository.UserRepository;
+import com.threadcity.jacketshopbackend.service.EmailService;
 import com.threadcity.jacketshopbackend.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -44,6 +52,7 @@ public class AuthService {
         private final TokenService tokenService;
         private final RoleMapper roleMapper;
         private final PasswordResetTokenRepository passwordResetTokenRepository;
+        private final EmailService emailService;
 
         @Transactional
         public LoginResponse login(LoginRequest request) {
@@ -98,6 +107,7 @@ public class AuthService {
                 User user = User.builder()
                                 .username(request.getUsername())
                                 .fullName(request.getFullName())
+                            .email(request.getEmail())
                                 .phone(request.getPhone())
                                 .password(passwordEncoder.encode(request.getPassword()))
                                 .status(Status.ACTIVE)
@@ -114,18 +124,91 @@ public class AuthService {
                                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.USER_NOT_FOUND,
                                                 "User not found"));
 
+                // Check if user has email
+                if (user.getEmail() == null || user.getEmail().isBlank()) {
+                        throw new InvalidRequestException(ErrorCodes.VALIDATION_FAILED,
+                                        "User does not have an email address configured");
+                }
+
+                // Delete old reset tokens for this user
                 passwordResetTokenRepository.deleteByUser(user);
 
-                String token = java.util.UUID.randomUUID().toString();
+                // Create new token
+                String token = UUID.randomUUID().toString();
                 PasswordResetToken resetToken = PasswordResetToken.builder()
                                 .token(token)
                                 .user(user)
-                                .expiryDate(java.time.Instant.now().plus(1, java.time.temporal.ChronoUnit.HOURS))
+                                .expiryDate(Instant.now().plus(1, ChronoUnit.HOURS))
+                                .isUsed(false)
                                 .build();
 
                 passwordResetTokenRepository.save(resetToken);
-                log.info("Reset password token for user {}: {}", user.getUsername(), token);
+
+                // Send email
+                try {
+                        emailService.sendPasswordResetEmail(user.getEmail(), token);
+                        log.info("AuthService::forgotPassword - Reset email sent to user: {}", user.getUsername());
+                } catch (IOException e) {
+                        log.error("AuthService::forgotPassword - Failed to send reset email: {}", e.getMessage());
+                        throw new InvalidRequestException(ErrorCodes.AUTH_EMAIL_SEND_FAILED,
+                                        "Failed to send password reset email. Please try again later.");
+                }
+
                 log.info("AuthService::forgotPassword execution ended");
+        }
+
+
+        public boolean verifyResetToken(String token) {
+                log.info("AuthService::verifyResetToken execution started");
+                PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                                .orElse(null);
+
+                if (resetToken == null) {
+                        log.warn("AuthService::verifyResetToken - Token not found");
+                        return false;
+                }
+
+                if (resetToken.getIsUsed()) {
+                        log.warn("AuthService::verifyResetToken - Token already used");
+                        return false;
+                }
+
+                if (resetToken.getExpiryDate().isBefore(Instant.now())) {
+                        log.warn("AuthService::verifyResetToken - Token expired");
+                        return false;
+                }
+                log.info("AuthService::verifyResetToken - Token is valid");
+                return true;
+        }
+
+        @Transactional
+        public void resetPassword(ResetPasswordRequest request) {
+                log.info("AuthService::resetPassword execution started");
+
+                PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.getToken())
+                                .orElseThrow(() -> new AuthenticationFailedException(
+                                                ErrorCodes.AUTH_RESET_TOKEN_INVALID,
+                                                "Invalid or expired reset token"));
+
+                if (resetToken.getIsUsed()) {
+                        throw new AuthenticationFailedException(
+                                        ErrorCodes.AUTH_RESET_TOKEN_USED,
+                                        "This reset token has already been used");
+                }
+
+                if (resetToken.getExpiryDate().isBefore(Instant.now())) {
+                        throw new AuthenticationFailedException(
+                                        ErrorCodes.AUTH_RESET_TOKEN_EXPIRED,
+                                        "Reset token has expired. Please request a new one.");
+                }
+
+                User user = resetToken.getUser();
+                user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+                userRepository.save(user);
+
+                resetToken.setIsUsed(true);
+                passwordResetTokenRepository.save(resetToken);
+                log.info("AuthService::resetPassword - Password reset successfully for user: {}", user.getUsername());
         }
 
         @Transactional

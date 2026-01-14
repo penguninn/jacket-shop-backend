@@ -19,11 +19,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Scheduler for automatic order management tasks.
- *
- * Primary function: Auto-cancel stale POS drafts to release reserved stock.
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -33,20 +28,10 @@ public class OrderScheduler {
     private final OrderHistoryRepository orderHistoryRepository;
     private final StockService stockService;
 
-    /**
-     * Timeout in minutes for POS drafts.
-     * Default: 30 minutes
-     */
+
     @Value("${order.pos.draft.timeout.minutes:30}")
     private int timeoutMinutes;
 
-    /**
-     * Auto-timeout stale POS drafts.
-     * Runs every 5 minutes (300000ms) by default.
-     *
-     * This prevents reserved stock from being held indefinitely when staff
-     * forgets to complete or cancel a POS draft.
-     */
     @Scheduled(fixedDelayString = "${order.pos.draft.check.interval:300000}")
     @Transactional
     public void autoTimeoutPosDrafts() {

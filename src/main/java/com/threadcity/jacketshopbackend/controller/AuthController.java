@@ -9,10 +9,7 @@ import com.threadcity.jacketshopbackend.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 
@@ -83,7 +80,32 @@ public class AuthController {
         log.info("AuthController::forgotPassword execution ended");
         return ApiResponse.builder()
                 .code(200)
-                .message("Reset password token generated successfully")
+                .message("If the account exists, a password reset email has been sent")
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @GetMapping("/verify-reset-token")
+    public ApiResponse<?> verifyResetToken(@RequestParam String token) {
+        log.info("AuthController::verifyResetToken execution started");
+        boolean isValid = authService.verifyResetToken(token);
+        log.info("AuthController::verifyResetToken execution ended");
+        return ApiResponse.builder()
+                .code(200)
+                .message(isValid ? "Token is valid" : "Token is invalid or expired")
+                .data(isValid)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    @PostMapping("/reset-password")
+    public ApiResponse<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        log.info("AuthController::resetPassword execution started");
+        authService.resetPassword(request);
+        log.info("AuthController::resetPassword execution ended");
+        return ApiResponse.builder()
+                .code(200)
+                .message("Password has been reset successfully")
                 .timestamp(Instant.now())
                 .build();
     }
