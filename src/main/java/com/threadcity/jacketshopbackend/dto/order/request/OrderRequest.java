@@ -2,7 +2,8 @@ package com.threadcity.jacketshopbackend.dto.order.request;
 
 import com.threadcity.jacketshopbackend.common.Enums.OrderType;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.io.Serializable;
@@ -15,9 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class OrderRequest implements Serializable {
-
-    @NotNull(message = "Order Type is required")
-    private OrderType orderType;
 
     @NotNull(message = "Payment method Id is required")
     private Long paymentMethodId;

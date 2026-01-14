@@ -23,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -70,8 +69,8 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse createPosDraft(OrderRequest request) {
-        return posOrderService.createPosDraft(request);
+    public OrderResponse createPosDraft() {
+        return posOrderService.createPosDraft();
     }
 
     // ==================== STATE TRANSITIONS ====================
@@ -191,13 +190,8 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse updatePosDraftCustomer(Long id, OrderRequest request) {
-        return posOrderService.updatePosDraftCustomer(id, request);
-    }
-
-    @Transactional
-    public OrderResponse updatePosDraftShipping(Long id, OrderRequest request) {
-        return posOrderService.updatePosDraftShipping(id, request);
+    public OrderResponse updatePosDraftCustomer(Long draftId, Long customerId) {
+        return posOrderService.updatePosDraftCustomer(draftId, customerId);
     }
 
     @Transactional

@@ -77,7 +77,7 @@ public class UserController {
                                 .sortDir(sortDir)
                                 .build();
                 PageResponse<?> pageResponse = userService.getAllUsers(request);
-                log.info("UserController::getAllStyles - Execution completed");
+                log.info("UserController::getAllUsers - Execution completed");
                 return ApiResponse.builder()
                                 .code(200)
                                 .message("Get all users successfully.")

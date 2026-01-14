@@ -2,7 +2,6 @@ package com.threadcity.jacketshopbackend.controller;
 
 import com.threadcity.jacketshopbackend.dto.common.response.ApiResponse;
 import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
-import com.threadcity.jacketshopbackend.dto.integration.goship.rate.GoshipRateData;
 import com.threadcity.jacketshopbackend.dto.integration.goship.rate.GoshipRateRequest;
 import com.threadcity.jacketshopbackend.service.ShippingService;
 import jakarta.validation.Valid;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/shipping")

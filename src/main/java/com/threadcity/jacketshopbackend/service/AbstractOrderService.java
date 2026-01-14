@@ -8,7 +8,6 @@ import com.threadcity.jacketshopbackend.dto.common.response.PageResponse;
 import com.threadcity.jacketshopbackend.dto.order.request.OrderItemRequest;
 import com.threadcity.jacketshopbackend.dto.order.request.OrderRequest;
 import com.threadcity.jacketshopbackend.dto.order.request.ShippingInfoRequest;
-import com.threadcity.jacketshopbackend.dto.order.request.UpdatePaymentRequest;
 import com.threadcity.jacketshopbackend.dto.order.response.OrderHistoryResponse;
 import com.threadcity.jacketshopbackend.dto.order.response.OrderResponse;
 import com.threadcity.jacketshopbackend.entity.*;
@@ -19,6 +18,7 @@ import com.threadcity.jacketshopbackend.filter.OrderFilterRequest;
 import com.threadcity.jacketshopbackend.mapper.OrderMapper;
 import com.threadcity.jacketshopbackend.repository.*;
 import com.threadcity.jacketshopbackend.specification.OrderSpecification;
+import com.threadcity.jacketshopbackend.specification.ProductSpecification;
 import com.threadcity.jacketshopbackend.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -79,6 +79,7 @@ public abstract class AbstractOrderService {
         Page<Order> orderPage = orderRepository.findAll(spec, pageable);
 
         List<OrderResponse> responses = orderPage.getContent().stream()
+
                 .map(orderMapper::toDto)
                 .toList();
 
@@ -107,11 +108,15 @@ public abstract class AbstractOrderService {
         filterRequest.setSortDir("desc");
         filterRequest.setSize(100);
 
+        Sort sort = Sort.by(Sort.Direction.fromString(filterRequest.getSortDir()), filterRequest.getSortBy());
+        Pageable pageable = PageRequest.of(filterRequest.getPage(), filterRequest.getSize(), sort);
         Specification<Order> spec = OrderSpecification.buildSpec(filterRequest);
-        List<Order> orders = orderRepository.findAll(spec);
 
-        log.info("AbstractOrderService::getMyOrders - Completed [count: {}]", orders.size());
-        return orders.stream().map(orderMapper::toDto).toList();
+        Page<Order> orders = orderRepository.findAll(spec, pageable);
+        List<OrderResponse> responses = orders.stream().map(orderMapper::toDto).toList();
+
+        log.info("AbstractOrderService::getMyOrders - Completed [count: {}]", responses.size());
+        return responses;
     }
 
     /**
@@ -250,11 +255,6 @@ public abstract class AbstractOrderService {
     }
 
     protected void handleShippingInfo(Order order, OrderRequest request) {
-        if (request.getOrderType() == OrderType.POS_INSTORE) {
-            order.setShippingFee(BigDecimal.ZERO);
-            return;
-        }
-
         if (request.getAddressId() != null) {
             Address address = addressRepository.findById(request.getAddressId())
                     .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.ADDRESS_NOT_FOUND, "Address not found"));
@@ -339,7 +339,7 @@ public abstract class AbstractOrderService {
             if (coupon != null) {
                 order.setCouponCode(coupon.getCode());
                 order.setCoupon(coupon);
-                discount = couponService.calculateDiscount(coupon, order.getSubtotal());
+                discount = coupon.getValue();
             }
         }
 

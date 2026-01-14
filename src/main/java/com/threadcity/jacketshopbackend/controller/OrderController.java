@@ -113,7 +113,7 @@ public class OrderController {
 
     @PostMapping
     public ApiResponse<OrderResponse> createOrder(@Valid @RequestBody OrderRequest request) {
-        log.info("OrderController::createOrder - Start [type: {}]", request.getOrderType());
+        log.info("OrderController::createOrder - Start");
         OrderResponse response = orderService.createOrder(request);
         log.info("OrderController::createOrder - Completed [code: {}]", response.getOrderCode());
         return ApiResponse.<OrderResponse>builder()
@@ -273,9 +273,9 @@ public class OrderController {
 
     @PostMapping("/pos/draft")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ApiResponse<OrderResponse> createPosDraft(@Valid @RequestBody OrderRequest request) {
+    public ApiResponse<OrderResponse> createPosDraft() {
         log.info("OrderController::createPosDraft - Start");
-        OrderResponse response = orderService.createPosDraft(request);
+        OrderResponse response = orderService.createPosDraft();
         log.info("OrderController::createPosDraft - Completed [code: {}]", response.getOrderCode());
         return ApiResponse.<OrderResponse>builder()
                 .code(201)
@@ -381,33 +381,17 @@ public class OrderController {
                 .build();
     }
 
-    @PutMapping("/pos/{id}/customer")
+    @PutMapping("/pos/{draftId}/customer/{customerId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<OrderResponse> updatePosDraftCustomer(
-            @PathVariable Long id,
-            @Valid @RequestBody OrderRequest request) {
-        log.info("OrderController::updatePosDraftCustomer - Start [id: {}]", id);
-        OrderResponse response = orderService.updatePosDraftCustomer(id, request);
+            @PathVariable Long draftId,
+            @PathVariable Long customerId) {
+        log.info("OrderController::updatePosDraftCustomer - Start [id: {}]", draftId);
+        OrderResponse response = orderService.updatePosDraftCustomer(draftId, customerId);
         log.info("OrderController::updatePosDraftCustomer - Completed");
         return ApiResponse.<OrderResponse>builder()
                 .code(200)
                 .message("Customer info updated successfully")
-                .data(response)
-                .timestamp(Instant.now())
-                .build();
-    }
-
-    @PutMapping("/pos/{id}/shipping")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ApiResponse<OrderResponse> updatePosDraftShipping(
-            @PathVariable Long id,
-            @Valid @RequestBody OrderRequest request) {
-        log.info("OrderController::updatePosDraftShipping - Start [id: {}]", id);
-        OrderResponse response = orderService.updatePosDraftShipping(id, request);
-        log.info("OrderController::updatePosDraftShipping - Completed");
-        return ApiResponse.<OrderResponse>builder()
-                .code(200)
-                .message("Shipping info updated successfully")
                 .data(response)
                 .timestamp(Instant.now())
                 .build();
