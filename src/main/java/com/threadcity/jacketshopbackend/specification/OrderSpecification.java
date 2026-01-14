@@ -1,87 +1,115 @@
 package com.threadcity.jacketshopbackend.specification;
 
+import com.threadcity.jacketshopbackend.common.Enums.OrderStatus;
+import com.threadcity.jacketshopbackend.common.Enums.OrderType;
+import com.threadcity.jacketshopbackend.common.Enums.PaymentStatus;
 import com.threadcity.jacketshopbackend.dto.order.request.CustomerOrderFilterRequest;
 import com.threadcity.jacketshopbackend.entity.Order;
 import com.threadcity.jacketshopbackend.filter.OrderFilterRequest;
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 public class OrderSpecification {
 
-    public static Specification<Order> buildSpec(OrderFilterRequest request) {
+    public static Specification<Order> hasOrderCode(String orderCode) {
         return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (request.getOrderCode() != null && !request.getOrderCode().isBlank()) {
-                predicates.add(cb.like(cb.upper(root.get("orderCode")), "%" + request.getOrderCode().toUpperCase() + "%"));
+            if (orderCode == null || orderCode.isBlank()) {
+                return null;
             }
-
-            if (request.getOrderType() != null) {
-                predicates.add(cb.equal(root.get("orderType"), request.getOrderType()));
-            }
-
-            if (request.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), request.getStatus()));
-            }
-
-            if (request.getPaymentStatus() != null) {
-                predicates.add(cb.equal(root.get("paymentStatus"), request.getPaymentStatus()));
-            }
-            
-            if (request.getUserId() != null) {
-                predicates.add(cb.equal(root.get("user").get("id"), request.getUserId()));
-            }
-
-            if (request.getStaffId() != null) {
-                predicates.add(cb.equal(root.get("staff").get("id"), request.getStaffId()));
-            }
-
-            if (request.getStartDate() != null) {
-                Instant start = request.getStartDate();
-                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), start));
-            }
-
-            if (request.getEndDate() != null) {
-                Instant end = request.getEndDate();
-                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), end));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
+            String pattern = "%" + orderCode.toUpperCase() + "%";
+            return cb.like(cb.upper(root.get("orderCode")), pattern);
         };
     }
 
-    /**
-     * Build specification for customer's own orders
-     * @param userId The authenticated user's ID
-     * @param request Filter request with statuses, date range, pagination
-     * @return Specification for filtering customer orders
-     */
-    public static Specification<Order> buildCustomerSpec(Long userId, CustomerOrderFilterRequest request) {
+    public static Specification<Order> hasOrderType(OrderType orderType) {
         return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            // Always filter by userId (security)
-            predicates.add(cb.equal(root.get("user").get("id"), userId));
-
-            // Filter by statuses
-            if (request.getStatuses() != null && !request.getStatuses().isEmpty()) {
-                predicates.add(root.get("status").in(request.getStatuses()));
+            if (orderType == null) {
+                return null;
             }
-
-            // Date range filter
-            if (request.getStartDate() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), request.getStartDate()));
-            }
-
-            if (request.getEndDate() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), request.getEndDate()));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
+            return cb.equal(root.get("orderType"), orderType);
         };
+    }
+
+    public static Specification<Order> hasStatus(OrderStatus status) {
+        return (root, query, cb) -> {
+            if (status == null) {
+                return null;
+            }
+            return cb.equal(root.get("status"), status);
+        };
+    }
+
+    public static Specification<Order> hasStatuses(List<OrderStatus> statuses) {
+        return (root, query, cb) -> {
+            if (statuses == null || statuses.isEmpty()) {
+                return null;
+            }
+            return root.get("status").in(statuses);
+        };
+    }
+
+    public static Specification<Order> hasPaymentStatus(PaymentStatus paymentStatus) {
+        return (root, query, cb) -> {
+            if (paymentStatus == null) {
+                return null;
+            }
+            return cb.equal(root.get("paymentStatus"), paymentStatus);
+        };
+    }
+
+    public static Specification<Order> hasUserId(Long userId) {
+        return (root, query, cb) -> {
+            if (userId == null) {
+                return null;
+            }
+            return cb.equal(root.get("user").get("id"), userId);
+        };
+    }
+
+    public static Specification<Order> hasStaffId(Long staffId) {
+        return (root, query, cb) -> {
+            if (staffId == null) {
+                return null;
+            }
+            return cb.equal(root.get("staff").get("id"), staffId);
+        };
+    }
+
+    public static Specification<Order> hasStartDate(Instant startDate) {
+        return (root, query, cb) -> {
+            if (startDate == null) {
+                return null;
+            }
+            return cb.greaterThanOrEqualTo(root.get("createdAt"), startDate);
+        };
+    }
+
+    public static Specification<Order> hasEndDate(Instant endDate) {
+        return (root, query, cb) -> {
+            if (endDate == null) {
+                return null;
+            }
+            return cb.lessThanOrEqualTo(root.get("createdAt"), endDate);
+        };
+    }
+
+    public static Specification<Order> buildSpec(OrderFilterRequest request) {
+        return hasOrderCode(request.getOrderCode())
+                .and(hasOrderType(request.getOrderType()))
+                .and(hasStatus(request.getStatus()))
+                .and(hasPaymentStatus(request.getPaymentStatus()))
+                .and(hasUserId(request.getUserId()))
+                .and(hasStaffId(request.getStaffId()))
+                .and(hasStartDate(request.getStartDate()))
+                .and(hasEndDate(request.getEndDate()));
+    }
+
+    public static Specification<Order> buildCustomerSpec(Long userId, CustomerOrderFilterRequest request) {
+        return hasUserId(userId)
+                .and(hasStatuses(request.getStatuses()))
+                .and(hasStartDate(request.getStartDate()))
+                .and(hasEndDate(request.getEndDate()));
     }
 }

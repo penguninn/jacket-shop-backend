@@ -25,19 +25,16 @@ public interface OrderMapper {
 
     @AfterMapping
     default void fillMissingSaleDetails(OrderDetail source, @MappingTarget OrderDetailResponse target) {
-        // Fallback for originalPrice if it was null in DB
         if (target.getOriginalPrice() == null && source.getProductVariant() != null) {
             target.setOriginalPrice(source.getProductVariant().getPrice());
         }
 
-        // Fallback for discountPercentage if it was null in DB
         if (target.getDiscountPercentage() == null) {
             if (target.getOriginalPrice() != null && target.getPrice() != null
                 && target.getOriginalPrice().compareTo(BigDecimal.ZERO) > 0) {
 
                 BigDecimal diff = target.getOriginalPrice().subtract(target.getPrice());
                 if (diff.compareTo(BigDecimal.ZERO) > 0) {
-                    // Calculate percentage with higher precision first, then round for display
                     BigDecimal percentage = diff.multiply(BigDecimal.valueOf(100))
                             .divide(target.getOriginalPrice(), 4, java.math.RoundingMode.HALF_UP)
                             .setScale(2, java.math.RoundingMode.HALF_UP); // Round for display
@@ -64,18 +61,12 @@ public interface OrderMapper {
         OrderStatus status = source.getStatus();
         OrderType orderType = source.getOrderType();
 
-        // canCancel: PENDING or CONFIRMED (not SHIPPING, COMPLETED, CANCELLED, RETURNED)
-        // For POS: only PENDING
         if (orderType == OrderType.POS_INSTORE) {
             target.setCanCancel(status == OrderStatus.PENDING);
         } else {
             target.setCanCancel(status == OrderStatus.PENDING || status == OrderStatus.CONFIRMED);
         }
-
-        // canReceive: SHIPPING (customer can confirm receipt)
         target.setCanReceive(status == OrderStatus.SHIPPING);
-
-        // canReturn: COMPLETED (customer can request return)
         target.setCanReturn(status == OrderStatus.COMPLETED);
     }
 }
