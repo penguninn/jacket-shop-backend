@@ -18,14 +18,15 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     boolean existsByName(String name);
 
     @Modifying
-    @Query("""
-                UPDATE Product p
-                SET p.soldCount = p.soldCount + :quantity
-                WHERE p.id = :productId
-            """)
+    @Query("UPDATE Product p SET p.soldCount = " +
+        "(SELECT CAST(COALESCE(SUM(pv.soldCount), 0) AS long) " +
+        " FROM ProductVariant pv WHERE pv.product.id = :productId) " +
+        "WHERE p.id = :productId")
+    void syncSoldCount(@Param("productId") Long productId);
 
-    void increaseSoldCount(
-            @Param("productId") Long productId,
-            @Param("quantity") int quantity);
-
+    @Modifying
+    @Query("UPDATE Product p SET p.soldCount = " +
+        "(SELECT CAST(COALESCE(SUM(pv.soldCount), 0) AS long) " +
+        " FROM ProductVariant pv WHERE pv.product.id = p.id)")
+    void syncAllSoldCount();
 }

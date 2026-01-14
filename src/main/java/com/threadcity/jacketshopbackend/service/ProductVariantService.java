@@ -28,6 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -85,7 +86,25 @@ public class ProductVariantService {
 
         List<ProductVariantResponse> productVariantResponse = productVariantRepository.findAllByProductId(productId)
                 .stream().map(productVariantMapper::toDto).toList();
+        Instant now = Instant.now();
 
+        for (ProductVariantResponse variant : productVariantResponse) {
+        List<Sale> sales = productVariantRepository.findSalesByVariantId(variant.getId());
+
+        Sale activeSale = sales.stream()
+            .filter(s -> s.getStatus() == Status.ACTIVE)
+            .filter(s -> !now.isBefore(s.getStartDate()))
+            .filter(s -> !now.isAfter(s.getEndDate()))
+            .findFirst()
+            .orElse(null);
+
+        if (activeSale == null) {
+            variant.setSalePrice(null);
+            variant.setDiscountPercentage(null);
+        } else {
+            // nếu cần, set lại salePrice / discount theo activeSale
+        }
+    }
         log.info("ProductVariantService::getAllProductVariantsByProductId - Execution completed.");
 
         return productVariantResponse;
@@ -196,12 +215,14 @@ public class ProductVariantService {
 
     @Transactional
     public void adjustStock(Long variantId, int quantityChange) {
-        log.info("ProductVariantService::adjustStock - Execution started. [id: {}, change: {}]", variantId,
-                quantityChange);
-        if (!productVariantRepository.existsById(variantId)) {
-            throw new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND, "ProductVariant not found");
-        }
+        log.info("ProductVariantService::adjustStock - Execution started. [id: {}, change: {}]", variantId, quantityChange);
+        ProductVariant variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND, 
+                        "ProductVariant not found with id: " + variantId));
         productVariantRepository.adjustStock(variantId, quantityChange);
+
+        productService.syncProductData(variant.getProduct().getId());
+
         log.info("ProductVariantService::adjustStock - Execution completed.");
     }
 
@@ -234,31 +255,49 @@ public class ProductVariantService {
 
     @Transactional
     public void commitReservedStock(List<OrderDetail> details) {
-        log.info("ProductVariantService::commitReservedStock - Execution started. [details: {}]", details.size());
+        log.info("ProductVariantService::commitReservedStock - Execution started.");
+
+        Set<Long> productIdsToSync = new HashSet<>();
+        
         for (OrderDetail detail : details) {
             productVariantRepository.commitReservedStock(detail.getProductVariant().getId(), detail.getQuantity());
-            productRepository.increaseSoldCount(detail.getProductVariant().getProduct().getId(), detail.getQuantity());
+
+            productIdsToSync.add(detail.getProductVariant().getProduct().getId());
         }
+
+        productIdsToSync.forEach(productService::syncProductData);
+        
         log.info("ProductVariantService::commitReservedStock - Execution completed.");
     }
 
     @Transactional
     public void directDeductStock(Long variantId, int quantity) {
-        log.info("ProductVariantService::directDeductStock - Execution started. [id: {}]", variantId);
-            int updatedRows = productVariantRepository.directDeductStock(variantId, quantity);
-            if (updatedRows == 0) {
-                throw new InvalidRequestException(ErrorCodes.PRODUCT_OUT_OF_STOCK,
-                        "Not enough stock for variant ID: " + variantId);
-            }
+        log.info("ProductVariantService::directDeductStock - Execution started.");
+        
+        ProductVariant variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCodes.PRODUCT_VARIANT_NOT_FOUND, "Not found"));
+                
+        int updatedRows = productVariantRepository.directDeductStock(variantId, quantity);
+        if (updatedRows == 0) {
+            throw new InvalidRequestException(ErrorCodes.PRODUCT_OUT_OF_STOCK, "Not enough stock");
+        }
+
+        productService.syncProductData(variant.getProduct().getId());
+        
         log.info("ProductVariantService::directDeductStock - Execution completed.");
     }
 
     @Transactional
     public void returnStock(List<OrderDetail> details) {
-        log.info("ProductVariantService::returnStock - Execution started. [details: {}]", details.size());
+        log.info("ProductVariantService::returnStock - Execution started.");
+        Set<Long> productIdsToSync = new HashSet<>();
+        
         for (OrderDetail detail : details) {
             productVariantRepository.returnStock(detail.getProductVariant().getId(), detail.getQuantity());
+            productIdsToSync.add(detail.getProductVariant().getProduct().getId());
         }
+        
+        productIdsToSync.forEach(productService::syncProductData);
         log.info("ProductVariantService::returnStock - Execution completed.");
     }
 

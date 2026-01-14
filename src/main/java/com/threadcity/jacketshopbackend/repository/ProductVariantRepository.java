@@ -1,6 +1,8 @@
 package com.threadcity.jacketshopbackend.repository;
 
 import com.threadcity.jacketshopbackend.entity.ProductVariant;
+import com.threadcity.jacketshopbackend.entity.Sale;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -45,4 +47,10 @@ public interface ProductVariantRepository
     @Modifying
     @Query("UPDATE ProductVariant pv SET pv.quantity = pv.quantity + :quantity, pv.availableQuantity = pv.availableQuantity + :quantity, pv.soldCount = pv.soldCount - :quantity WHERE pv.id = :id")
     void returnStock(@Param("id") Long id, @Param("quantity") int quantity);
+
+    @Query("SELECT sv.sale FROM SaleVariant sv WHERE sv.productVariant.id = :variantId")
+    List<Sale> findSalesByVariantId(@Param("variantId") Long variantId);
+
+    @Query("SELECT COALESCE(SUM(v.soldCount), 0) FROM ProductVariant v WHERE v.product.id = :productId")
+    long sumSoldByProductId(Long productId);
 }
