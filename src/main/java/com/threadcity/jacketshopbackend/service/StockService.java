@@ -19,6 +19,7 @@ import java.util.List;
 public class StockService {
 
     private final ProductVariantRepository productVariantRepository;
+    private final ProductService productService;
 
     @Transactional
     public void reserveStock(Long variantId, Integer quantity) {
@@ -74,10 +75,17 @@ public class StockService {
 
     @Transactional
     public void commitReservedStock(List<OrderDetail> orderDetails) {
-        log.debug("StockService::commitReservedStock - Committing stock for {} items", orderDetails.size());
+        log.debug("StockService::commitReservedStock - Start");
+
+        java.util.Set<Long> productIdsToSync = new java.util.HashSet<>();
+
         for (OrderDetail detail : orderDetails) {
             commitReservedStock(detail.getProductVariant().getId(), detail.getQuantity());
+            productIdsToSync.add(detail.getProductVariant().getProduct().getId());
         }
+        productIdsToSync.forEach(productService::syncProductData);
+        
+        log.info("StockService::commitReservedStock - Successfully synced sold count for {} products", productIdsToSync.size());
     }
 
     @Transactional
@@ -108,11 +116,14 @@ public class StockService {
 
     @Transactional
     public void directDeductStock(List<OrderDetail> orderDetails) {
-        log.debug("StockService::directDeductStock - Deducting stock for {} items", orderDetails.size());
+    log.debug("StockService::directDeductStock - Deducting stock for {} items", orderDetails.size());
+    java.util.Set<Long> productIdsToSync = new java.util.HashSet<>();
 
-        for (OrderDetail detail : orderDetails) {
-            directDeductStock(detail.getProductVariant().getId(), detail.getQuantity());
-        }
+    for (OrderDetail detail : orderDetails) {
+        directDeductStock(detail.getProductVariant().getId(), detail.getQuantity());
+        productIdsToSync.add(detail.getProductVariant().getProduct().getId());
+    }
+    productIdsToSync.forEach(productService::syncProductData);
     }
 
     @Transactional

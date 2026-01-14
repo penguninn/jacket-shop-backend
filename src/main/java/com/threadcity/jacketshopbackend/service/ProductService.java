@@ -252,4 +252,18 @@ public class ProductService {
         
         log.info("ProductService::syncProductData - Completed. Updated Price and SoldCount: {}", totalSold);
     }
+
+    @Transactional
+    public void syncAllProductsSoldCount() {
+        log.info("ProductService::syncAllProductsSoldCount - Syncing all products...");
+        List<Product> allProducts = productRepository.findAll();
+        for (Product product : allProducts) {
+            try {
+                this.syncProductData(product.getId());
+            } catch (Exception e) {
+                log.error("Failed to sync product ID: {}", product.getId());
+            }
+        }
+        log.info("ProductService::syncAllProductsSoldCount - Completed.");
+    }
 }

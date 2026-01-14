@@ -177,4 +177,29 @@ public class ProductController {
                 .timestamp(Instant.now())
                 .build();
     }
+
+    @PostMapping("/sync-all")
+    @PreAuthorize("hasRole('STAFF')")
+        public ApiResponse<?> syncAllData() {
+        log.info("ProductController::syncAllData - Execution started.");
+        productService.syncAllProductsSoldCount();
+        log.info("ProductController::syncAllData - Execution completed.");
+        return ApiResponse.builder()
+                .code(200)
+                .message("All products data synchronized successfully.")
+                .timestamp(Instant.now())
+                .build();
+        }
+
+    @PostMapping("/{id}/sync")
+    @PreAuthorize("hasRole('STAFF')")
+        public ApiResponse<?> syncSingleProduct(@PathVariable Long id) {
+        log.info("ProductController::syncSingleProduct - [id: {}]", id);
+        productService.syncProductData(id);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Product data synchronized successfully.")
+                .timestamp(Instant.now())
+                .build();
+        }
 }
